@@ -1,0 +1,1 @@
+# sbt-dao-generator
