@@ -173,3 +173,5 @@ $ sbt -Dplugin.version=1.0.0-SNAPSHOT
 [info] tableName = EMP, generate file = /Users/sbt-user/sbt-dao-generator/src/sbt-test/sbt-dao-generator/simple/target/scala-2.10/src_managed/Emp.scala
 [success] Total time: 0 s, completed 2015/06/24 18:17:20
 ```
+=======
+>>>>>>> 50809b1d69873c2352c957f71f5c86d62b5a3f50
