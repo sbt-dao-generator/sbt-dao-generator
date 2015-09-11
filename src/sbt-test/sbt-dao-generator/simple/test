@@ -1,0 +1,7 @@
+> flywayMigrate
+$ exists target/test.mv.db
+
+> compile
+$ exists target/scala-2.10/src_managed/main/Dept.scala
+$ exists target/scala-2.10/src_managed/main/Emp.scala
+-$ exists target/scala-2.10/src_managed/main/SchemaVersion.scala
