@@ -17,7 +17,7 @@ $ sbt clean publish-local
 project/plugins.sbtに以下のエントリを追加してください。
 
 ```scala
-addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.0-SNAPSHOT")
+addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.1-SNAPSHOT")
 ```
 
 ## プラグインの設定方法
