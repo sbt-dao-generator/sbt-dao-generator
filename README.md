@@ -18,9 +18,13 @@ project/plugins.sbtに以下のエントリを追加してください。
 
 ```scala
 // リリース版を利用する場合
+resolvers += "Sonatype OSS Release Repository" at "https://oss.sonatype.org/content/repositories/releases/"
+
 addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.0")
 
 // スナップショット版を利用する場合
+resolvers += "Sonatype OSS Snapshot Repository" at "https://oss.sonatype.org/content/repositories/snapshots/"
+
 addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.1-SNAPSHOT")
 ```
 
