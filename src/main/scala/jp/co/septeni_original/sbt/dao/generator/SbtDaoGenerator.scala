@@ -1,14 +1,14 @@
 package jp.co.septeni_original.sbt.dao.generator
 
 import java.io._
-import java.sql.{Connection, Driver, ResultSet}
+import java.sql.{ Connection, Driver, ResultSet }
 
 import jp.co.septeni_original.sbt.dao.generator.SbtDaoGeneratorKeys._
-import jp.co.septeni_original.sbt.dao.generator.model.{ColumnDesc, PrimaryKeyDesc, TableDesc}
+import jp.co.septeni_original.sbt.dao.generator.model.{ ColumnDesc, PrimaryKeyDesc, TableDesc }
 import org.seasar.util.lang.StringUtil
 import sbt.Keys._
 import sbt.classpath.ClasspathUtilities
-import sbt.{File, _}
+import sbt.{ File, _ }
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
@@ -131,13 +131,13 @@ trait SbtDaoGenerator {
         val columns = tableDesc.columnDescs
           .filterNot(e => tableDesc.primaryDescs.map(_.cloumnName).contains(e.columnName))
           .map { column =>
-          Map[String, Any](
-            "name" -> propertyNameMapper(column.columnName),
-            "camelizeName" -> StringUtil.camelize(column.columnName),
-            "typeName" -> typeNameMapper(column.typeName),
-            "nullable" -> column.nullable
-          ).asJava
-        }
+            Map[String, Any](
+              "name" -> propertyNameMapper(column.columnName),
+              "camelizeName" -> StringUtil.camelize(column.columnName),
+              "typeName" -> typeNameMapper(column.typeName),
+              "nullable" -> column.nullable
+            ).asJava
+          }
 
         val context = Map[String, Any](
           "name" -> modelName,
