@@ -15,12 +15,6 @@ $ sbt clean package
 
 ## プラグインの利用方法
 
-ローカルリポジトリにプラグインをインストールします。
-
-```sh
-$ sbt clean publish-local
-```
-
 project/plugins.sbtに以下のエントリを追加してください。
 
 - リリース版を利用する場合
