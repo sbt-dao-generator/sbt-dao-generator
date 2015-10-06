@@ -113,6 +113,12 @@ $ sbt generator::generate
 [success] Total time: 0 s, completed 2015/06/24 18:17:20
 ```
 
+`sbt compile`時に`generator::generate`を実行したい場合は、build.sbtに以下を追加する。
+
+```scala
+sourceGenerators in Compile <+= generate in generator
+```
+ 
 ## 開発者向け
 
 ### 単体テスト方法

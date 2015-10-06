@@ -27,3 +27,5 @@ typeNameMapper in generator := {
   case "DATE" | "TIMESTAMP" => "java.util.Date"
   case "DECIMAL" => "BigDecimal"
 }
+
+sourceGenerators in Compile <+= generate in generator
