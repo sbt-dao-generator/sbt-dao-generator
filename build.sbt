@@ -29,8 +29,12 @@ pomExtra := {
     </scm>
     <developers>
       <developer>
-        <id>a-kimura</id>
+        <id>kimutyam</id>
         <name>Akihiro Kimura</name>
+      </developer>
+      <developer>
+        <id>j5ik2o</id>
+        <name>Junichi Kato</name>
       </developer>
     </developers>
 }
