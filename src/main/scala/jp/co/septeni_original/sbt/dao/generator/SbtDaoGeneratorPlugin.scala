@@ -1,6 +1,5 @@
 package jp.co.septeni_original.sbt.dao.generator
 
-import jp.co.septeni_original.sbt.dao.generator.SbtDaoGeneratorKeys._
 import org.seasar.util.lang.StringUtil
 import sbt.Keys._
 import sbt._
@@ -32,8 +31,7 @@ object SbtDaoGeneratorPlugin extends AutoPlugin {
     propertyNameMapper in generator := { columnName: String =>
       StringUtil.decapitalize(StringUtil.camelize(columnName))
     },
-    generate in generator <<= SbtDaoGenerator.generateTask,
-    sourceGenerators in Compile <+= generate in generator
+    generate in generator <<= SbtDaoGenerator.generateTask
   )
 
 }
