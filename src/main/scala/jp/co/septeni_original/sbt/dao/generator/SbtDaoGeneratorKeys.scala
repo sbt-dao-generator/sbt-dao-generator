@@ -16,7 +16,9 @@ trait SbtDaoGeneratorKeys {
 
   val schemaName = settingKey[Option[String]]("schema-name")
 
-  val generate = taskKey[Seq[File]]("generate")
+  val generateAll = taskKey[Seq[File]]("generate")
+
+  val generateOne = inputKey[Option[File]]("generateTable")
 
   val templateDirectory = settingKey[File]("template-dir")
 

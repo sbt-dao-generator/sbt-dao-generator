@@ -28,4 +28,4 @@ typeNameMapper in generator := {
   case "DECIMAL" => "BigDecimal"
 }
 
-sourceGenerators in Compile <+= generate in generator
+sourceGenerators in Compile <+= generateAll in generator

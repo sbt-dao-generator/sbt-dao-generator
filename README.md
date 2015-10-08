@@ -105,18 +105,29 @@ ${column.name}: ${column.typeName}<#if column_has_next>,</#if>
 
 ## コード生成
 
+すべてのテーブルを対象にする場合
+
 ```sh
-$ sbt generator::generate
+$ sbt generator::generateAll
 <snip>
 [info] tableName = DEPT, generate file = /Users/sbt-user/myproject/target/scala-2.10/src_managed/Dept.scala
 [info] tableName = EMP, generate file = /Users/sbt-user/myproject/target/scala-2.10/src_managed/Emp.scala
 [success] Total time: 0 s, completed 2015/06/24 18:17:20
 ```
 
-`sbt compile`時に`generator::generate`を実行したい場合は、build.sbtに以下を追加する。
+指定したテーブルのみを対象にする場合
+
+```sh
+$ sbt generator::generateOne DEPT
+<snip>
+[info] tableName = DEPT, generate file = /Users/sbt-user/myproject/target/scala-2.10/src_managed/Dept.scala
+[success] Total time: 0 s, completed 2015/06/24 18:17:20
+```
+
+`sbt compile`時に`generator::generateAll`を実行したい場合は、build.sbtに以下を追加する。
 
 ```scala
-sourceGenerators in Compile <+= generate in generator
+sourceGenerators in Compile <+= generateAll in generator
 ```
  
 ## 開発者向け
@@ -187,10 +198,8 @@ $ sbt -Dplugin.version=1.0.0-SNAPSHOT
 [info] Current version of schema "PUBLIC": 1
 [info] Schema "PUBLIC" is up to date. No migration necessary.
 [success] Total time: 0 s, completed 2015/06/24 18:17:12
-> generator::generate
+> generator::generateAll
 [info] tableName = DEPT, generate file = /Users/sbt-user/sbt-dao-generator/src/sbt-test/sbt-dao-generator/simple/target/scala-2.10/src_managed/Dept.scala
 [info] tableName = EMP, generate file = /Users/sbt-user/sbt-dao-generator/src/sbt-test/sbt-dao-generator/simple/target/scala-2.10/src_managed/Emp.scala
 [success] Total time: 0 s, completed 2015/06/24 18:17:20
 ```
-=======
->>>>>>> 50809b1d69873c2352c957f71f5c86d62b5a3f50

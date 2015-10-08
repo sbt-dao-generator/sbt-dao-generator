@@ -1,6 +1,12 @@
 > flywayMigrate
 $ exists target/test.mv.db
 
+> generator::generateOne DEPT
+$ exists target/scala-2.10/src_managed/main/Dept.scala
+
+> generator::generateOne EMP
+$ exists target/scala-2.10/src_managed/main/Emp.scala
+
 > compile
 $ exists target/scala-2.10/src_managed/main/Dept.scala
 $ exists target/scala-2.10/src_managed/main/Emp.scala
