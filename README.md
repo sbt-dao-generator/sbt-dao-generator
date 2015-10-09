@@ -71,11 +71,8 @@ templateDirectory in generator := baseDirectory.value / "templates"
 // テンプレートファイル名を指定できます(任意。デフォルトは以下)
 templateName in generator := "template.ftl"
 
-// ソースコードを出力するディレクトリを指定できます(任意。デフォルトは以下。target/scala-2.xx/src_managed/)
-outputDirectory in generator := sourceManaged.value
-
 // ソースコードを出力するディレクトリを動的に変更することができます(任意。デフォルトは以下)
-outputDirectoryMapper in generator := { className: String => outputDirectory }
+outputDirectoryMapper in generator := { className: String => (sourceManaed in Compile).value }
 
 outputDirectoryMapper in generator := { className: String =>
   className match {
