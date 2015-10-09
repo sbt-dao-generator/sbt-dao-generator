@@ -75,13 +75,28 @@ templateName in generator := "template.ftl"
 outputDirectory in generator := sourceManaged.value / "main"
 
 // テーブル名からモデルクラス名にマッピングする関数を記述できます(任意。デフォルトは以下)
-modelNameMapper in generator := { tableName: String =>
-    StringUtil.camelize(tableName)
+classNameMapper in generator := { tableName: String =>
+    Seq(StringUtil.camelize(tableName))
+}
+
+// 複数の出力ファイルを指定したい場合は以下のようにできます。
+classNameMapper in generator := {
+  case "DEPT" => Seq("Dept", "DeptSpec")
+  case "EMP" => Seq("Emp", "EmpSpec")
 }
 
 // カラム名からプロパティ名にマッピングする関数を記述できます(任意。デフォルトは以下)
 propertyNameMapper in generator := { columnName: String =>
     StringUtil.decapitalize(StringUtil.camelize(columnName))
+}
+
+// モデル名に対してどのテンプレートを利用するか指定できます(任意。デフォルトは以下)
+templateNameMapper in generator := { modelName: String => "template.ftl" },
+
+// モデル名に対してどのテンプレートを利用するか指定できます。
+templateNameMapper in generator := {
+  case modelName if modelName.endWiths("Spec") => "template_spec.ftl"
+  case _ => "template_model.ftl"
 }
 ```
 

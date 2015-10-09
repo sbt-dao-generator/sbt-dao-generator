@@ -28,4 +28,14 @@ typeNameMapper in generator := {
   case "DECIMAL" => "BigDecimal"
 }
 
+classNameMapper in generator := {
+  case "DEPT" => Seq("Dept", "DeptSpec")
+  case "EMP" => Seq("Emp", "EmpSpec")
+}
+
+templateNameMapper in generator := {
+  case "Dept" | "DeptSpec" => "template_a.ftl"
+  case "Emp" | "EmpSpec" => "template_b.ftl"
+}
+
 sourceGenerators in Compile <+= generateAll in generator
