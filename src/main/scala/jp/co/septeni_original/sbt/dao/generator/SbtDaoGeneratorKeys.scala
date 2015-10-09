@@ -32,9 +32,7 @@ trait SbtDaoGeneratorKeys {
 
   val propertyNameMapper = settingKey[String => String]("property-name-mapper")
 
-  val outputDirectoryMapper = settingKey[(File, String) => File]("output-directory-mapper")
-
-  val outputDirectory = settingKey[File]("output-directory")
+  val outputDirectoryMapper = settingKey[String => File]("output-directory-mapper")
 
 }
 

@@ -176,8 +176,7 @@ trait SbtDaoGenerator {
                                      tableName: String,
                                      templateDirectory: File,
                                      templateNameMapper: String => String,
-                                     outputDirectoryMapper: (File, String) => File,
-                                     outputDirectory: File): Seq[File] = {
+                                     outputDirectoryMapper: String => File): Seq[File] = {
     val cfg = new freemarker.template.Configuration(freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS)
     cfg.setDirectoryForTemplateLoading(templateDirectory)
 
@@ -186,7 +185,7 @@ trait SbtDaoGenerator {
         tableNameFilter(tableDesc.tableName)
     }.find(_.tableName == tableName).map { tableDesc =>
       classNameMapper(tableDesc.tableName).map { className =>
-        val outputTargetDirectory = outputDirectoryMapper(outputDirectory, className)
+        val outputTargetDirectory = outputDirectoryMapper(className)
         generateFile(logger, cfg, className, templateNameMapper, tableDesc, typeNameMapper, propertyNameMapper, outputTargetDirectory)
       }
     }.getOrElse(Seq.empty)
@@ -201,8 +200,7 @@ trait SbtDaoGenerator {
                                      schemaName: Option[String],
                                      templateDirectory: File,
                                      templateNameMapper: String => String,
-                                     outputDirectoryMapper: (File, String) => File,
-                                     outputDirectory: File): Seq[File] = {
+                                     outputDirectoryMapper: String => File): Seq[File] = {
     val cfg = new freemarker.template.Configuration(freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS)
     cfg.setDirectoryForTemplateLoading(templateDirectory)
 
@@ -211,7 +209,7 @@ trait SbtDaoGenerator {
         tableNameFilter(tableDesc.tableName)
     }.flatMap { tableDesc =>
       classNameMapper(tableDesc.tableName).map { className =>
-        val outputTargetDirectory = outputDirectoryMapper(outputDirectory, className)
+        val outputTargetDirectory = outputDirectoryMapper(className)
         generateFile(logger, cfg, className, templateNameMapper, tableDesc, typeNameMapper, propertyNameMapper, outputTargetDirectory)
       }
     }
@@ -231,7 +229,6 @@ trait SbtDaoGenerator {
       logger.info("jdbcUrl = " + (jdbcUrl in generator).value.toString())
       logger.info("jdbcUser = " + (jdbcUser in generator).value.toString())
       logger.info("jdbcPassword = " + (jdbcPassword in generator).value.toString())
-      logger.info("outputDirectory = " + (outputDirectory in generator).value.toString())
       conn = getJdbcConnection(
         ClasspathUtilities.toLoader(
           (managedClasspath in Compile).value.map(_.data),
@@ -253,8 +250,7 @@ trait SbtDaoGenerator {
         tableName,
         (templateDirectory in generator).value,
         (templateNameMapper in generator).value,
-        (outputDirectoryMapper in generator).value,
-        (outputDirectory in generator).value
+        (outputDirectoryMapper in generator).value
       )
     } finally {
       if (conn != null)
@@ -270,7 +266,6 @@ trait SbtDaoGenerator {
       logger.info("jdbcUrl = " + (jdbcUrl in generator).value.toString())
       logger.info("jdbcUser = " + (jdbcUser in generator).value.toString())
       logger.info("jdbcPassword = " + (jdbcPassword in generator).value.toString())
-      logger.info("outputDirectory = " + (outputDirectory in generator).value.toString())
       conn = getJdbcConnection(
         ClasspathUtilities.toLoader(
           (managedClasspath in Compile).value.map(_.data),
@@ -291,8 +286,7 @@ trait SbtDaoGenerator {
         (schemaName in generator).value,
         (templateDirectory in generator).value,
         (templateNameMapper in generator).value,
-        (outputDirectoryMapper in generator).value,
-        (outputDirectory in generator).value
+        (outputDirectoryMapper in generator).value
       )
     } finally {
       if (conn != null)
