@@ -31,7 +31,8 @@ object SbtDaoGeneratorPlugin extends AutoPlugin {
     propertyNameMapper in generator := { columnName: String =>
       StringUtil.decapitalize(StringUtil.camelize(columnName))
     },
-    generate in generator <<= SbtDaoGenerator.generateTask
+    generateAll in generator <<= SbtDaoGenerator.generateAllTask,
+    generateOne in generator <<= SbtDaoGenerator.generateOneTask
   )
 
 }
