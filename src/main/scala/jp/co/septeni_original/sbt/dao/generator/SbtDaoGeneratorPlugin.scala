@@ -22,7 +22,7 @@ object SbtDaoGeneratorPlugin extends AutoPlugin {
     jdbcPassword in generator := "",
     schemaName in generator := None,
     templateDirectory in generator := baseDirectory.value / "templates",
-    templateName in generator := "template.ftl",
+    templateNameMapper in generator := { _: String => "template.ftl" },
     typeNameMapper in generator := identity,
     tableNameFilter in generator := { _: String => true },
     modelNameMapper in generator := { tableName: String =>

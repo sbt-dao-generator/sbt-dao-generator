@@ -22,7 +22,7 @@ trait SbtDaoGeneratorKeys {
 
   val templateDirectory = settingKey[File]("template-dir")
 
-  val templateName = settingKey[String]("template-file")
+  val templateNameMapper = settingKey[String => String]("template-file-mapper")
 
   val typeNameMapper = settingKey[String => String]("type-mapper")
 

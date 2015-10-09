@@ -139,7 +139,7 @@ trait SbtDaoGenerator {
 
   private[generator] def generateFile(logger: Logger,
                                       cfg: freemarker.template.Configuration,
-                                      templateName: String,
+                                      templateNameMapper: String => String,
                                       tableDesc: TableDesc,
                                       typeNameMapper: String => String,
                                       modelNameMapper: String => String,
@@ -147,10 +147,11 @@ trait SbtDaoGenerator {
                                       outputDirectory: File) = {
     var writer: FileWriter = null
     try {
+      val templateName = templateNameMapper(tableDesc.tableName)
       val template = cfg.getTemplate(templateName)
       val modelName = modelNameMapper(tableDesc.tableName)
       val file = createFile(outputDirectory, modelName)
-      logger.info(s"tableName = ${tableDesc.tableName}, generate file = $file")
+      logger.info(s"tableName = ${tableDesc.tableName}, templateName = $templateName,  generate file = $file")
       writer = new FileWriter(file)
       val primaryKeys = createPrimaryKeys(typeNameMapper, propertyNameMapper, tableDesc)
       val columns = createColumns(typeNameMapper, propertyNameMapper, tableDesc)
@@ -173,7 +174,7 @@ trait SbtDaoGenerator {
                                      schemaName: Option[String],
                                      tableName: String,
                                      templateDirectory: File,
-                                     templateName: String,
+                                     templateNameMapper: String => String,
                                      outputDirectory: File): Option[File] = {
     val cfg = new freemarker.template.Configuration(freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS)
     cfg.setDirectoryForTemplateLoading(templateDirectory)
@@ -185,7 +186,7 @@ trait SbtDaoGenerator {
       tableDesc =>
         tableNameFilter(tableDesc.tableName)
     }.find(_.tableName == tableName).map { tableDesc =>
-      generateFile(logger, cfg, templateName, tableDesc, typeNameMapper, modelNameMapper, propertyNameMapper, outputDirectory)
+      generateFile(logger, cfg, templateNameMapper, tableDesc, typeNameMapper, modelNameMapper, propertyNameMapper, outputDirectory)
     }
   }
 
@@ -197,7 +198,7 @@ trait SbtDaoGenerator {
                                      propertyNameMapper: String => String,
                                      schemaName: Option[String],
                                      templateDirectory: File,
-                                     templateName: String,
+                                     templateNameMapper: String => String,
                                      outputDirectory: File): Seq[File] = {
     val cfg = new freemarker.template.Configuration(freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS)
     cfg.setDirectoryForTemplateLoading(templateDirectory)
@@ -209,7 +210,7 @@ trait SbtDaoGenerator {
       tableDesc =>
         tableNameFilter(tableDesc.tableName)
     }.map { tableDesc =>
-      generateFile(logger, cfg, templateName, tableDesc, typeNameMapper, modelNameMapper, propertyNameMapper, outputDirectory)
+      generateFile(logger, cfg, templateNameMapper, tableDesc, typeNameMapper, modelNameMapper, propertyNameMapper, outputDirectory)
     }
   }
 
@@ -247,7 +248,7 @@ trait SbtDaoGenerator {
           (schemaName in generator).value,
           tableName,
           (templateDirectory in generator).value,
-          (templateName in generator).value,
+          (templateNameMapper in generator).value,
           (sourceManaged in Compile).value
         )
       } finally {
@@ -284,7 +285,7 @@ trait SbtDaoGenerator {
         (propertyNameMapper in generator).value,
         (schemaName in generator).value,
         (templateDirectory in generator).value,
-        (templateName in generator).value,
+        (templateNameMapper in generator).value,
         (sourceManaged in Compile).value
       )
     } finally {

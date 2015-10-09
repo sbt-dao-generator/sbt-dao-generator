@@ -1,4 +1,4 @@
-
+// --- template_a
 case class ${name}(
 <#list columns as column>
 <#if column.nullable>
