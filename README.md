@@ -72,7 +72,17 @@ templateDirectory in generator := baseDirectory.value / "templates"
 templateName in generator := "template.ftl"
 
 // ソースコードを出力するディレクトリを指定できます(任意。デフォルトは以下。target/scala-2.xx/src_managed/)
-outputDirectory in generator := sourceManaged.value / "main"
+outputDirectory in generator := sourceManaged.value
+
+// ソースコードを出力するディレクトリを動的に変更することができます(任意。デフォルトは以下)
+outputDirectoryMapper in generator := { (outputDirectory: File, modelName: String) => outputDirectory }
+
+outputDirectoryMapper in generator := { (outputDirectory: File, modelName: String) =>
+  modelName match {
+    case s if s.endsWith("Spec") => (sourceManaged in Test).value
+    case s => (sourceManaged in Compile).value
+  }
+}
 
 // テーブル名からモデルクラス名にマッピングする関数を記述できます(任意。デフォルトは以下)
 classNameMapper in generator := { tableName: String =>
@@ -95,7 +105,7 @@ templateNameMapper in generator := { modelName: String => "template.ftl" },
 
 // モデル名に対してどのテンプレートを利用するか指定できます。
 templateNameMapper in generator := {
-  case modelName if modelName.endWiths("Spec") => "template_spec.ftl"
+  case modelName if modelName.endsWith("Spec") => "template_spec.ftl"
   case _ => "template_model.ftl"
 }
 ```

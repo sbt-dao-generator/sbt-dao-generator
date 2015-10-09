@@ -29,7 +29,7 @@ object SbtDaoGeneratorPlugin extends AutoPlugin {
       StringUtil.decapitalize(StringUtil.camelize(columnName))
     },
     classNameMapper in generator := { tableName: String => Seq(StringUtil.camelize(tableName)) },
-    outputDirectoryMapper in generator := { (o: File, m: String) => o },
+    outputDirectoryMapper in generator := { (outputDirectory: File, modelName: String) => outputDirectory },
     outputDirectory in generator := (sourceManaged).value,
     generateAll in generator <<= SbtDaoGenerator.generateAllTask,
     generateOne in generator <<= SbtDaoGenerator.generateOneTask
