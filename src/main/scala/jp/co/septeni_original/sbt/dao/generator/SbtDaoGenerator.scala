@@ -1,15 +1,15 @@
 package jp.co.septeni_original.sbt.dao.generator
 
 import java.io._
-import java.sql.{Connection, Driver, ResultSet}
+import java.sql.{ Connection, Driver, ResultSet }
 
 import jp.co.septeni_original.sbt.dao.generator.SbtDaoGeneratorKeys._
-import jp.co.septeni_original.sbt.dao.generator.model.{ColumnDesc, PrimaryKeyDesc, TableDesc}
+import jp.co.septeni_original.sbt.dao.generator.model.{ ColumnDesc, PrimaryKeyDesc, TableDesc }
 import org.seasar.util.lang.StringUtil
 import sbt.Keys._
 import sbt.classpath.ClasspathUtilities
 import sbt.complete.Parser
-import sbt.{File, _}
+import sbt.{ File, _ }
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
@@ -147,6 +147,8 @@ trait SbtDaoGenerator {
                                       outputDirectory: File): File = {
     var writer: FileWriter = null
     try {
+      if (!outputDirectory.exists())
+        IO.createDirectory(outputDirectory)
       val templateName = templateNameMapper(className)
       val template = cfg.getTemplate(templateName)
       val file = createFile(outputDirectory, className)
@@ -174,19 +176,18 @@ trait SbtDaoGenerator {
                                      tableName: String,
                                      templateDirectory: File,
                                      templateNameMapper: String => String,
+                                     outputDirectoryMapper: (File, String) => File,
                                      outputDirectory: File): Seq[File] = {
     val cfg = new freemarker.template.Configuration(freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS)
     cfg.setDirectoryForTemplateLoading(templateDirectory)
-
-    if (!outputDirectory.exists())
-      IO.createDirectory(outputDirectory)
 
     getTableDescs(conn, schemaName).filter {
       tableDesc =>
         tableNameFilter(tableDesc.tableName)
     }.find(_.tableName == tableName).map { tableDesc =>
       classNameMapper(tableDesc.tableName).map { className =>
-        generateFile(logger, cfg, className, templateNameMapper, tableDesc, typeNameMapper, propertyNameMapper, outputDirectory)
+        val outputTargetDirectory = outputDirectoryMapper(outputDirectory, className)
+        generateFile(logger, cfg, className, templateNameMapper, tableDesc, typeNameMapper, propertyNameMapper, outputTargetDirectory)
       }
     }.getOrElse(Seq.empty)
   }
@@ -200,19 +201,18 @@ trait SbtDaoGenerator {
                                      schemaName: Option[String],
                                      templateDirectory: File,
                                      templateNameMapper: String => String,
+                                     outputDirectoryMapper: (File, String) => File,
                                      outputDirectory: File): Seq[File] = {
     val cfg = new freemarker.template.Configuration(freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS)
     cfg.setDirectoryForTemplateLoading(templateDirectory)
-
-    if (!outputDirectory.exists())
-      IO.createDirectory(outputDirectory)
 
     getTableDescs(conn, schemaName).filter {
       tableDesc =>
         tableNameFilter(tableDesc.tableName)
     }.flatMap { tableDesc =>
       classNameMapper(tableDesc.tableName).map { className =>
-        generateFile(logger, cfg, className, templateNameMapper, tableDesc, typeNameMapper, propertyNameMapper, outputDirectory)
+        val outputTargetDirectory = outputDirectoryMapper(outputDirectory, className)
+        generateFile(logger, cfg, className, templateNameMapper, tableDesc, typeNameMapper, propertyNameMapper, outputTargetDirectory)
       }
     }
   }
@@ -231,6 +231,7 @@ trait SbtDaoGenerator {
       logger.info("jdbcUrl = " + (jdbcUrl in generator).value.toString())
       logger.info("jdbcUser = " + (jdbcUser in generator).value.toString())
       logger.info("jdbcPassword = " + (jdbcPassword in generator).value.toString())
+      logger.info("outputDirectory = " + (outputDirectory in generator).value.toString())
       conn = getJdbcConnection(
         ClasspathUtilities.toLoader(
           (managedClasspath in Compile).value.map(_.data),
@@ -252,7 +253,8 @@ trait SbtDaoGenerator {
         tableName,
         (templateDirectory in generator).value,
         (templateNameMapper in generator).value,
-        (sourceManaged in Compile).value
+        (outputDirectoryMapper in generator).value,
+        (outputDirectory in generator).value
       )
     } finally {
       if (conn != null)
@@ -268,6 +270,7 @@ trait SbtDaoGenerator {
       logger.info("jdbcUrl = " + (jdbcUrl in generator).value.toString())
       logger.info("jdbcUser = " + (jdbcUser in generator).value.toString())
       logger.info("jdbcPassword = " + (jdbcPassword in generator).value.toString())
+      logger.info("outputDirectory = " + (outputDirectory in generator).value.toString())
       conn = getJdbcConnection(
         ClasspathUtilities.toLoader(
           (managedClasspath in Compile).value.map(_.data),
@@ -288,7 +291,8 @@ trait SbtDaoGenerator {
         (schemaName in generator).value,
         (templateDirectory in generator).value,
         (templateNameMapper in generator).value,
-        (sourceManaged in Compile).value
+        (outputDirectoryMapper in generator).value,
+        (outputDirectory in generator).value
       )
     } finally {
       if (conn != null)

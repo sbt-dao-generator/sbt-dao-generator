@@ -38,4 +38,11 @@ templateNameMapper in generator := {
   case "Emp" | "EmpSpec" => "template_b.ftl"
 }
 
+outputDirectoryMapper in generator := {
+  (o: File, m: String) => m match {
+    case s if s.endsWith("Spec") => (sourceManaged in Test).value
+    case s => (sourceManaged in Compile).value
+  }
+}
+
 sourceGenerators in Compile <+= generateAll in generator
