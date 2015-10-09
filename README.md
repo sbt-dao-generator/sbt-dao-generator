@@ -75,10 +75,10 @@ templateName in generator := "template.ftl"
 outputDirectory in generator := sourceManaged.value
 
 // ソースコードを出力するディレクトリを動的に変更することができます(任意。デフォルトは以下)
-outputDirectoryMapper in generator := { (outputDirectory: File, modelName: String) => outputDirectory }
+outputDirectoryMapper in generator := { className: String => outputDirectory }
 
-outputDirectoryMapper in generator := { (outputDirectory: File, modelName: String) =>
-  modelName match {
+outputDirectoryMapper in generator := { className: String =>
+  className match {
     case s if s.endsWith("Spec") => (sourceManaged in Test).value
     case s => (sourceManaged in Compile).value
   }
@@ -101,12 +101,12 @@ propertyNameMapper in generator := { columnName: String =>
 }
 
 // モデル名に対してどのテンプレートを利用するか指定できます(任意。デフォルトは以下)
-templateNameMapper in generator := { modelName: String => "template.ftl" },
+templateNameMapper in generator := { className: String => "template.ftl" },
 
 // モデル名に対してどのテンプレートを利用するか指定できます。
 templateNameMapper in generator := {
-  case modelName if modelName.endsWith("Spec") => "template_spec.ftl"
-  case _ => "template_model.ftl"
+  case className if className.endsWith("Spec") => "template_spec.ftl"
+  case _ => "template.ftl"
 }
 ```
 
