@@ -39,10 +39,8 @@ templateNameMapper in generator := {
 }
 
 outputDirectoryMapper in generator := {
-  (o: File, m: String) => m match {
-    case s if s.endsWith("Spec") => (sourceManaged in Test).value
-    case s => (sourceManaged in Compile).value
-  }
+  case (modelName: String) if modelName.endsWith("Spec") => (sourceManaged in Test).value
+  case (modelName: String) => (sourceManaged in Compile).value
 }
 
 sourceGenerators in Compile <+= generateAll in generator
