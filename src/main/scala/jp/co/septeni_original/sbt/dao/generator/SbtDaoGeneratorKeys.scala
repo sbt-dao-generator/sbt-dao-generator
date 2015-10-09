@@ -16,9 +16,9 @@ trait SbtDaoGeneratorKeys {
 
   val schemaName = settingKey[Option[String]]("schema-name")
 
-  val generateAll = taskKey[Seq[File]]("generate")
+  val generateAll = taskKey[Seq[File]]("generate-all")
 
-  val generateOne = inputKey[Seq[File]]("generateTable")
+  val generateOne = inputKey[Seq[File]]("generate-one")
 
   val templateDirectory = settingKey[File]("template-dir")
 
@@ -31,6 +31,11 @@ trait SbtDaoGeneratorKeys {
   val tableNameFilter = settingKey[String => Boolean]("table-name-filter")
 
   val propertyNameMapper = settingKey[String => String]("property-name-mapper")
+
+  val outputDirectoryMapper = settingKey[(File, String) => File]("output-directory-mapper")
+
+  val outputDirectory = settingKey[File]("output-directory")
+
 }
 
 object SbtDaoGeneratorKeys extends SbtDaoGeneratorKeys
