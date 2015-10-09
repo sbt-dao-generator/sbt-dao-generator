@@ -18,17 +18,17 @@ trait SbtDaoGeneratorKeys {
 
   val generateAll = taskKey[Seq[File]]("generate")
 
-  val generateOne = inputKey[Option[File]]("generateTable")
+  val generateOne = inputKey[Seq[File]]("generateTable")
 
   val templateDirectory = settingKey[File]("template-dir")
 
-  val templateNameMapper = settingKey[String => String]("template-file-mapper")
+  val classNameMapper = settingKey[String => Seq[String]]("class-name-mapper")
+
+  val templateNameMapper = settingKey[String => String]("template-name-mapper")
 
   val typeNameMapper = settingKey[String => String]("type-mapper")
 
   val tableNameFilter = settingKey[String => Boolean]("table-name-filter")
-
-  val modelNameMapper = settingKey[String => String]("model-name-mapper")
 
   val propertyNameMapper = settingKey[String => String]("property-name-mapper")
 }

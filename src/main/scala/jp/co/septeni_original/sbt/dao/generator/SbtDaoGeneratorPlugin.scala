@@ -25,12 +25,10 @@ object SbtDaoGeneratorPlugin extends AutoPlugin {
     templateNameMapper in generator := { _: String => "template.ftl" },
     typeNameMapper in generator := identity,
     tableNameFilter in generator := { _: String => true },
-    modelNameMapper in generator := { tableName: String =>
-      StringUtil.camelize(tableName)
-    },
     propertyNameMapper in generator := { columnName: String =>
       StringUtil.decapitalize(StringUtil.camelize(columnName))
     },
+    classNameMapper in generator := { tableName: String => Seq(StringUtil.camelize(tableName)) },
     generateAll in generator <<= SbtDaoGenerator.generateAllTask,
     generateOne in generator <<= SbtDaoGenerator.generateOneTask
   )
