@@ -20,6 +20,8 @@ trait SbtDaoGeneratorKeys {
 
   val generateOne = inputKey[Seq[File]]("generate-one")
 
+  val generateMany = inputKey[Seq[File]]("generate-many")
+
   val templateDirectory = settingKey[File]("template-dir")
 
   val classNameMapper = settingKey[String => Seq[String]]("class-name-mapper")

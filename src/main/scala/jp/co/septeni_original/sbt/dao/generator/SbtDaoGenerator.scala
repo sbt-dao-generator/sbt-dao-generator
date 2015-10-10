@@ -191,6 +191,31 @@ trait SbtDaoGenerator {
     }.getOrElse(Seq.empty)
   }
 
+  private[generator] def generateMany(logger: Logger,
+                                      conn: Connection,
+                                      classNameMapper: String => Seq[String],
+                                      typeNameMapper: String => String,
+                                      tableNameFilter: String => Boolean,
+                                      propertyNameMapper: String => String,
+                                      schemaName: Option[String],
+                                      tableNames: Seq[String],
+                                      templateDirectory: File,
+                                      templateNameMapper: String => String,
+                                      outputDirectoryMapper: String => File): Seq[File] = {
+    val cfg = new freemarker.template.Configuration(freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS)
+    cfg.setDirectoryForTemplateLoading(templateDirectory)
+
+    getTableDescs(conn, schemaName).filter {
+      tableDesc =>
+        tableNameFilter(tableDesc.tableName)
+    }.filter(tableDesc => tableNames.contains(tableDesc.tableName)).flatMap { tableDesc =>
+      classNameMapper(tableDesc.tableName).map { className =>
+        val outputTargetDirectory = outputDirectoryMapper(className)
+        generateFile(logger, cfg, className, templateNameMapper, tableDesc, typeNameMapper, propertyNameMapper, outputTargetDirectory)
+      }
+    }
+  }
+
   private[generator] def generateAll(logger: Logger,
                                      conn: Connection,
                                      classNameMapper: String => Seq[String],
@@ -217,18 +242,20 @@ trait SbtDaoGenerator {
 
   import complete.DefaultParsers._
 
-  val oneStringParser: Parser[String] = token(Space ~> StringBasic, "TableName")
+  val oneStringParser: Parser[String] = token(Space ~> StringBasic, "table name")
+
+  val manyStringParser: Parser[Seq[String]] = token(Space ~> StringBasic, "table name")+
 
   def generateOneTask: Def.Initialize[InputTask[Seq[File]]] = Def.inputTask {
     val tableName = oneStringParser.parsed
     val logger = streams.value.log
     var conn: Connection = null
     try {
+      logger.info("driverClassName = " + (driverClassName in generator).value.toString)
+      logger.info("jdbcUrl = " + (jdbcUrl in generator).value.toString)
+      logger.info("jdbcUser = " + (jdbcUser in generator).value.toString)
+      logger.info("schemaName = " + (schemaName in generator).value.getOrElse(""))
       logger.info("tableName = " + tableName)
-      logger.info("driverClassName = " + (driverClassName in generator).value.toString())
-      logger.info("jdbcUrl = " + (jdbcUrl in generator).value.toString())
-      logger.info("jdbcUser = " + (jdbcUser in generator).value.toString())
-      logger.info("jdbcPassword = " + (jdbcPassword in generator).value.toString())
       conn = getJdbcConnection(
         ClasspathUtilities.toLoader(
           (managedClasspath in Compile).value.map(_.data),
@@ -258,14 +285,53 @@ trait SbtDaoGenerator {
     }
   }
 
+  def generateManyTask: Def.Initialize[InputTask[Seq[File]]] = Def.inputTask {
+    val tableNames = manyStringParser.parsed
+    val logger = streams.value.log
+    var conn: Connection = null
+    try {
+      logger.info("driverClassName = " + (driverClassName in generator).value.toString)
+      logger.info("jdbcUrl = " + (jdbcUrl in generator).value.toString)
+      logger.info("jdbcUser = " + (jdbcUser in generator).value.toString)
+      logger.info("schemaName = " + (schemaName in generator).value.getOrElse(""))
+      logger.info("tableNames = " + tableNames.mkString(", "))
+      conn = getJdbcConnection(
+        ClasspathUtilities.toLoader(
+          (managedClasspath in Compile).value.map(_.data),
+          ClasspathUtilities.xsbtiLoader
+        ),
+        (driverClassName in generator).value,
+        (jdbcUrl in generator).value,
+        (jdbcUser in generator).value,
+        (jdbcPassword in generator).value
+      )
+      generateMany(
+        logger,
+        conn,
+        (classNameMapper in generator).value,
+        (typeNameMapper in generator).value,
+        (tableNameFilter in generator).value,
+        (propertyNameMapper in generator).value,
+        (schemaName in generator).value,
+        tableNames,
+        (templateDirectory in generator).value,
+        (templateNameMapper in generator).value,
+        (outputDirectoryMapper in generator).value
+      )
+    } finally {
+      if (conn != null)
+        conn.close()
+    }
+  }
+
   def generateAllTask: Def.Initialize[Task[Seq[File]]] = Def.task {
     val logger = streams.value.log
     var conn: Connection = null
     try {
-      logger.info("driverClassName = " + (driverClassName in generator).value.toString())
-      logger.info("jdbcUrl = " + (jdbcUrl in generator).value.toString())
-      logger.info("jdbcUser = " + (jdbcUser in generator).value.toString())
-      logger.info("jdbcPassword = " + (jdbcPassword in generator).value.toString())
+      logger.info("driverClassName = " + (driverClassName in generator).value.toString)
+      logger.info("jdbcUrl = " + (jdbcUrl in generator).value.toString)
+      logger.info("jdbcUser = " + (jdbcUser in generator).value.toString)
+      logger.info("schemaName = " + (schemaName in generator).value.getOrElse(""))
       conn = getJdbcConnection(
         ClasspathUtilities.toLoader(
           (managedClasspath in Compile).value.map(_.data),

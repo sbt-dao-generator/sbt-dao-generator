@@ -137,11 +137,24 @@ $ sbt generator::generateAll
 [success] Total time: 0 s, completed 2015/06/24 18:17:20
 ```
 
-指定したテーブルのみを対象にする場合
+指定した複数テーブルを対象にする場合
+
+```sh
+$ sbt generator::generateMany DEPT EMP
+<snip>
+[info] tableNames = EMP, DEPT
+[info] tableName = DEPT, generate file = /Users/sbt-user/myproject/target/scala-2.10/src_managed/Dept.scala
+[info] tableName = EMP, generate file = /Users/sbt-user/myproject/target/scala-2.10/src_managed/Emp.scala
+[success] Total time: 0 s, completed 2015/06/24 18:17:20
+```
+
+
+指定した単一テーブルを対象にする場合
 
 ```sh
 $ sbt generator::generateOne DEPT
 <snip>
+[info] tableName = DEPT
 [info] tableName = DEPT, generate file = /Users/sbt-user/myproject/target/scala-2.10/src_managed/Dept.scala
 [success] Total time: 0 s, completed 2015/06/24 18:17:20
 ```
