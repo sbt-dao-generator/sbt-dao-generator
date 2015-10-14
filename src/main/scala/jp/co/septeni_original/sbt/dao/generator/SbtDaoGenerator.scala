@@ -5,6 +5,7 @@ import java.sql.{ Connection, Driver, ResultSet }
 
 import jp.co.septeni_original.sbt.dao.generator.SbtDaoGeneratorKeys._
 import jp.co.septeni_original.sbt.dao.generator.model.{ ColumnDesc, PrimaryKeyDesc, TableDesc }
+import jp.co.septeni_original.sbt.dao.generator.util.Loan._
 import org.seasar.util.lang.StringUtil
 import sbt.Keys._
 import sbt.classpath.ClasspathUtilities
@@ -13,10 +14,28 @@ import sbt.{ File, _ }
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
+import scala.util.{ Success, Try }
 
 trait SbtDaoGenerator {
 
-  private[generator] def getJdbcConnection(classLoader: ClassLoader, driverClassName: String, jdbcUrl: String, jdbcUser: String, jdbcPassword: String) = {
+  import complete.DefaultParsers._
+
+  private val oneStringParser: Parser[String] = token(Space ~> StringBasic, "table name")
+
+  private val manyStringParser: Parser[Seq[String]] = token(Space ~> StringBasic, "table name") +
+
+  case class GeneratorContext(logger: Logger,
+                              connection: Connection,
+                              classNameMapper: String => Seq[String],
+                              typeNameMapper: String => String,
+                              tableNameFilter: String => Boolean,
+                              propertyNameMapper: String => String,
+                              schemaName: Option[String],
+                              templateDirectory: File,
+                              templateNameMapper: String => String,
+                              outputDirectoryMapper: String => File)
+
+  private[generator] def getJdbcConnection(classLoader: ClassLoader, driverClassName: String, jdbcUrl: String, jdbcUser: String, jdbcPassword: String): Try[Connection] = Try {
     val driver = classLoader.loadClass(driverClassName).newInstance().asInstanceOf[Driver]
     val info = new java.util.Properties()
     info.put("user", jdbcUser)
@@ -121,7 +140,7 @@ trait SbtDaoGenerator {
     columns
   }
 
-  private[generator] def createContext(primaryKeys: Seq[Map[String, Any]], columns: Seq[Map[String, Any]], className: String) = {
+  private[generator] def createContext(logger: Logger, primaryKeys: Seq[Map[String, Any]], columns: Seq[Map[String, Any]], className: String) = {
     val context = Map[String, Any](
       "name" -> className,
       "lowerCamelName" -> (className.substring(0, 1).toLowerCase + className.substring(1)),
@@ -129,6 +148,7 @@ trait SbtDaoGenerator {
       "columns" -> columns.map(_.asJava).asJava,
       "primaryKeysWithColumns" -> (primaryKeys ++ columns).map(_.asJava).asJava
     ).asJava
+    logger.debug(s"context = $context")
     context
   }
 
@@ -137,126 +157,95 @@ trait SbtDaoGenerator {
     file
   }
 
-  private[generator] def generateFile(logger: Logger,
-                                      cfg: freemarker.template.Configuration,
-                                      className: String,
-                                      templateNameMapper: String => String,
+  private[generator] def generateFile(cfg: freemarker.template.Configuration,
                                       tableDesc: TableDesc,
-                                      typeNameMapper: String => String,
-                                      propertyNameMapper: String => String,
-                                      outputDirectory: File): File = {
-    var writer: FileWriter = null
-    try {
-      if (!outputDirectory.exists())
-        IO.createDirectory(outputDirectory)
-      val templateName = templateNameMapper(className)
-      val template = cfg.getTemplate(templateName)
-      val file = createFile(outputDirectory, className)
-      logger.info(s"tableName = ${tableDesc.tableName}, templateName = $templateName,  generate file = $file")
-      writer = new FileWriter(file)
-      val primaryKeys = createPrimaryKeys(typeNameMapper, propertyNameMapper, tableDesc)
-      val columns = createColumns(typeNameMapper, propertyNameMapper, tableDesc)
-      val context = createContext(primaryKeys, columns, className)
+                                      className: String,
+                                      outputDirectory: File)(implicit ctx: GeneratorContext): Try[File] = {
+    val templateName = ctx.templateNameMapper(className)
+    val template = cfg.getTemplate(templateName)
+    val file = createFile(outputDirectory, className)
+    ctx.logger.info(s"tableName = ${tableDesc.tableName}, templateName = $templateName, generate file = $file")
+
+    if (!outputDirectory.exists())
+      IO.createDirectory(outputDirectory)
+
+    using(new FileWriter(file)) { writer =>
+      val primaryKeys = createPrimaryKeys(ctx.typeNameMapper, ctx.propertyNameMapper, tableDesc)
+      val columns = createColumns(ctx.typeNameMapper, ctx.propertyNameMapper, tableDesc)
+      val context = createContext(ctx.logger, primaryKeys, columns, className)
       template.process(context, writer)
       writer.flush()
-      file
-    } finally {
-      if (writer != null)
-        writer.close()
+      Success(file)
     }
   }
 
-  private[generator] def generateOne(logger: Logger,
-                                     conn: Connection,
-                                     classNameMapper: String => Seq[String],
-                                     typeNameMapper: String => String,
-                                     tableNameFilter: String => Boolean,
-                                     propertyNameMapper: String => String,
-                                     schemaName: Option[String],
-                                     tableName: String,
-                                     templateDirectory: File,
-                                     templateNameMapper: String => String,
-                                     outputDirectoryMapper: String => File): Seq[File] = {
-    val cfg = new freemarker.template.Configuration(freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS)
-    cfg.setDirectoryForTemplateLoading(templateDirectory)
+  private[generator] def foldGenerateFile(cfg: freemarker.template.Configuration, tableDesc: TableDesc)(implicit ctx: GeneratorContext) = {
+    ctx.classNameMapper(tableDesc.tableName).foldLeft(Try(Seq.empty[File])) { (result, className) =>
+      val outputTargetDirectory = ctx.outputDirectoryMapper(className)
+      for {
+        r <- result
+        file <- generateFile(
+          cfg,
+          tableDesc,
+          className,
+          outputTargetDirectory)
+      } yield {
+        r :+ file
+      }
+    }
+  }
 
-    getTableDescs(conn, schemaName).filter {
-      tableDesc =>
-        tableNameFilter(tableDesc.tableName)
+  private[generator] def generateOne(tableName: String)(implicit ctx: GeneratorContext): Try[Seq[File]] = {
+    val cfg = createTemplateConfiguration(ctx.templateDirectory)
+    getTableDescs(ctx.connection, ctx.schemaName).filter { tableDesc =>
+      ctx.tableNameFilter(tableDesc.tableName)
     }.find(_.tableName == tableName).map { tableDesc =>
-      classNameMapper(tableDesc.tableName).map { className =>
-        val outputTargetDirectory = outputDirectoryMapper(className)
-        generateFile(logger, cfg, className, templateNameMapper, tableDesc, typeNameMapper, propertyNameMapper, outputTargetDirectory)
-      }
-    }.getOrElse(Seq.empty)
+      foldGenerateFile(cfg, tableDesc)
+    }.getOrElse(Success(Seq.empty[File]))
   }
 
-  private[generator] def generateMany(logger: Logger,
-                                      conn: Connection,
-                                      classNameMapper: String => Seq[String],
-                                      typeNameMapper: String => String,
-                                      tableNameFilter: String => Boolean,
-                                      propertyNameMapper: String => String,
-                                      schemaName: Option[String],
-                                      tableNames: Seq[String],
-                                      templateDirectory: File,
-                                      templateNameMapper: String => String,
-                                      outputDirectoryMapper: String => File): Seq[File] = {
+  private def createTemplateConfiguration(templateDirectory: File) = {
     val cfg = new freemarker.template.Configuration(freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS)
     cfg.setDirectoryForTemplateLoading(templateDirectory)
-
-    getTableDescs(conn, schemaName).filter {
-      tableDesc =>
-        tableNameFilter(tableDesc.tableName)
-    }.filter(tableDesc => tableNames.contains(tableDesc.tableName)).flatMap { tableDesc =>
-      classNameMapper(tableDesc.tableName).map { className =>
-        val outputTargetDirectory = outputDirectoryMapper(className)
-        generateFile(logger, cfg, className, templateNameMapper, tableDesc, typeNameMapper, propertyNameMapper, outputTargetDirectory)
-      }
-    }
+    cfg
   }
 
-  private[generator] def generateAll(logger: Logger,
-                                     conn: Connection,
-                                     classNameMapper: String => Seq[String],
-                                     typeNameMapper: String => String,
-                                     tableNameFilter: String => Boolean,
-                                     propertyNameMapper: String => String,
-                                     schemaName: Option[String],
-                                     templateDirectory: File,
-                                     templateNameMapper: String => String,
-                                     outputDirectoryMapper: String => File): Seq[File] = {
-    val cfg = new freemarker.template.Configuration(freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS)
-    cfg.setDirectoryForTemplateLoading(templateDirectory)
-
-    getTableDescs(conn, schemaName).filter {
-      tableDesc =>
-        tableNameFilter(tableDesc.tableName)
-    }.flatMap { tableDesc =>
-      classNameMapper(tableDesc.tableName).map { className =>
-        val outputTargetDirectory = outputDirectoryMapper(className)
-        generateFile(logger, cfg, className, templateNameMapper, tableDesc, typeNameMapper, propertyNameMapper, outputTargetDirectory)
+  private[generator] def generateMany(tableNames: Seq[String])(implicit ctx: GeneratorContext): Try[Seq[File]] = {
+    val cfg = createTemplateConfiguration(ctx.templateDirectory)
+    getTableDescs(ctx.connection, ctx.schemaName).filter { tableDesc =>
+      ctx.tableNameFilter(tableDesc.tableName)
+    }.filter(tableDesc => tableNames.contains(tableDesc.tableName))
+      .foldLeft(Try(Seq.empty[File])) { (result, tableDesc) =>
+        for {
+          r1 <- result
+          r2 <- foldGenerateFile(cfg, tableDesc)
+        } yield r1 ++ r2
       }
-    }
   }
 
-  import complete.DefaultParsers._
-
-  val oneStringParser: Parser[String] = token(Space ~> StringBasic, "table name")
-
-  val manyStringParser: Parser[Seq[String]] = token(Space ~> StringBasic, "table name")+
+  private[generator] def generateAll(implicit ctx: GeneratorContext): Try[Seq[File]] = {
+    val cfg = createTemplateConfiguration(ctx.templateDirectory)
+    getTableDescs(ctx.connection, ctx.schemaName).filter { tableDesc =>
+      ctx.tableNameFilter(tableDesc.tableName)
+    }.foldLeft(Try(Seq.empty[File])) { (result, tableDesc) =>
+      for {
+        r1 <- result
+        r2 <- foldGenerateFile(cfg, tableDesc)
+      } yield r1 ++ r2
+    }
+  }
 
   def generateOneTask: Def.Initialize[InputTask[Seq[File]]] = Def.inputTask {
     val tableName = oneStringParser.parsed
     val logger = streams.value.log
-    var conn: Connection = null
-    try {
-      logger.info("driverClassName = " + (driverClassName in generator).value.toString)
-      logger.info("jdbcUrl = " + (jdbcUrl in generator).value.toString)
-      logger.info("jdbcUser = " + (jdbcUser in generator).value.toString)
-      logger.info("schemaName = " + (schemaName in generator).value.getOrElse(""))
-      logger.info("tableName = " + tableName)
-      conn = getJdbcConnection(
+    logger.info("driverClassName = " + (driverClassName in generator).value.toString)
+    logger.info("jdbcUrl = " + (jdbcUrl in generator).value.toString)
+    logger.info("jdbcUser = " + (jdbcUser in generator).value.toString)
+    logger.info("schemaName = " + (schemaName in generator).value.getOrElse(""))
+    logger.info("tableName = " + tableName)
+
+    using(
+      getJdbcConnection(
         ClasspathUtilities.toLoader(
           (managedClasspath in Compile).value.map(_.data),
           ClasspathUtilities.xsbtiLoader
@@ -266,36 +255,34 @@ trait SbtDaoGenerator {
         (jdbcUser in generator).value,
         (jdbcPassword in generator).value
       )
-      generateOne(
-        logger,
-        conn,
-        (classNameMapper in generator).value,
-        (typeNameMapper in generator).value,
-        (tableNameFilter in generator).value,
-        (propertyNameMapper in generator).value,
-        (schemaName in generator).value,
-        tableName,
-        (templateDirectory in generator).value,
-        (templateNameMapper in generator).value,
-        (outputDirectoryMapper in generator).value
-      )
-    } finally {
-      if (conn != null)
-        conn.close()
-    }
+    ) { conn =>
+        implicit val ctx = GeneratorContext(
+          logger,
+          conn,
+          (classNameMapper in generator).value,
+          (typeNameMapper in generator).value,
+          (tableNameFilter in generator).value,
+          (propertyNameMapper in generator).value,
+          (schemaName in generator).value,
+          (templateDirectory in generator).value,
+          (templateNameMapper in generator).value,
+          (outputDirectoryMapper in generator).value
+        )
+        generateOne(tableName)
+      }.get
   }
 
   def generateManyTask: Def.Initialize[InputTask[Seq[File]]] = Def.inputTask {
     val tableNames = manyStringParser.parsed
     val logger = streams.value.log
-    var conn: Connection = null
-    try {
-      logger.info("driverClassName = " + (driverClassName in generator).value.toString)
-      logger.info("jdbcUrl = " + (jdbcUrl in generator).value.toString)
-      logger.info("jdbcUser = " + (jdbcUser in generator).value.toString)
-      logger.info("schemaName = " + (schemaName in generator).value.getOrElse(""))
-      logger.info("tableNames = " + tableNames.mkString(", "))
-      conn = getJdbcConnection(
+    logger.info("driverClassName = " + (driverClassName in generator).value.toString)
+    logger.info("jdbcUrl = " + (jdbcUrl in generator).value.toString)
+    logger.info("jdbcUser = " + (jdbcUser in generator).value.toString)
+    logger.info("schemaName = " + (schemaName in generator).value.getOrElse(""))
+    logger.info("tableNames = " + tableNames.mkString(", "))
+
+    using(
+      getJdbcConnection(
         ClasspathUtilities.toLoader(
           (managedClasspath in Compile).value.map(_.data),
           ClasspathUtilities.xsbtiLoader
@@ -305,34 +292,32 @@ trait SbtDaoGenerator {
         (jdbcUser in generator).value,
         (jdbcPassword in generator).value
       )
-      generateMany(
-        logger,
-        conn,
-        (classNameMapper in generator).value,
-        (typeNameMapper in generator).value,
-        (tableNameFilter in generator).value,
-        (propertyNameMapper in generator).value,
-        (schemaName in generator).value,
-        tableNames,
-        (templateDirectory in generator).value,
-        (templateNameMapper in generator).value,
-        (outputDirectoryMapper in generator).value
-      )
-    } finally {
-      if (conn != null)
-        conn.close()
-    }
+    ) { connection =>
+        implicit val ctx = GeneratorContext(
+          logger,
+          connection,
+          (classNameMapper in generator).value,
+          (typeNameMapper in generator).value,
+          (tableNameFilter in generator).value,
+          (propertyNameMapper in generator).value,
+          (schemaName in generator).value,
+          (templateDirectory in generator).value,
+          (templateNameMapper in generator).value,
+          (outputDirectoryMapper in generator).value
+        )
+        generateMany(tableNames)
+      }.get
   }
 
   def generateAllTask: Def.Initialize[Task[Seq[File]]] = Def.task {
     val logger = streams.value.log
-    var conn: Connection = null
-    try {
-      logger.info("driverClassName = " + (driverClassName in generator).value.toString)
-      logger.info("jdbcUrl = " + (jdbcUrl in generator).value.toString)
-      logger.info("jdbcUser = " + (jdbcUser in generator).value.toString)
-      logger.info("schemaName = " + (schemaName in generator).value.getOrElse(""))
-      conn = getJdbcConnection(
+    logger.info("driverClassName = " + (driverClassName in generator).value.toString)
+    logger.info("jdbcUrl = " + (jdbcUrl in generator).value.toString)
+    logger.info("jdbcUser = " + (jdbcUser in generator).value.toString)
+    logger.info("schemaName = " + (schemaName in generator).value.getOrElse(""))
+
+    using(
+      getJdbcConnection(
         ClasspathUtilities.toLoader(
           (managedClasspath in Compile).value.map(_.data),
           ClasspathUtilities.xsbtiLoader
@@ -342,22 +327,21 @@ trait SbtDaoGenerator {
         (jdbcUser in generator).value,
         (jdbcPassword in generator).value
       )
-      generateAll(
-        logger,
-        conn,
-        (classNameMapper in generator).value,
-        (typeNameMapper in generator).value,
-        (tableNameFilter in generator).value,
-        (propertyNameMapper in generator).value,
-        (schemaName in generator).value,
-        (templateDirectory in generator).value,
-        (templateNameMapper in generator).value,
-        (outputDirectoryMapper in generator).value
-      )
-    } finally {
-      if (conn != null)
-        conn.close()
-    }
+    ) { conn =>
+        implicit val ctx = GeneratorContext(
+          logger,
+          conn,
+          (classNameMapper in generator).value,
+          (typeNameMapper in generator).value,
+          (tableNameFilter in generator).value,
+          (propertyNameMapper in generator).value,
+          (schemaName in generator).value,
+          (templateDirectory in generator).value,
+          (templateNameMapper in generator).value,
+          (outputDirectoryMapper in generator).value
+        )
+        generateAll
+      }.get
   }
 
 }

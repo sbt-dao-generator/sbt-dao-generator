@@ -7,7 +7,7 @@ class SbtDaoGeneratorSpec extends FunSpec {
   import SbtDaoGenerator._
 
   describe("SbtDaoGeneratorSpec") {
-    val conn = getJdbcConnection(Thread.currentThread().getContextClassLoader, "org.h2.Driver", "jdbc:h2:file:./test", "sa", "")
+    val conn = getJdbcConnection(Thread.currentThread().getContextClassLoader, "org.h2.Driver", "jdbc:h2:file:./test", "sa", "").get
 
     it("should getTables") {
       val tables = getTables(conn, None)
