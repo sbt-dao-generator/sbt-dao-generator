@@ -1,20 +1,20 @@
 package jp.co.septeni_original.sbt.dao.generator
 
 import java.io._
-import java.sql.{ Connection, Driver, ResultSet }
+import java.sql.{Connection, Driver}
 
 import jp.co.septeni_original.sbt.dao.generator.SbtDaoGeneratorKeys._
-import jp.co.septeni_original.sbt.dao.generator.model.{ ColumnDesc, PrimaryKeyDesc, TableDesc }
+import jp.co.septeni_original.sbt.dao.generator.model.{ColumnDesc, PrimaryKeyDesc, TableDesc}
 import jp.co.septeni_original.sbt.dao.generator.util.Loan._
 import org.seasar.util.lang.StringUtil
 import sbt.Keys._
 import sbt.classpath.ClasspathUtilities
 import sbt.complete.Parser
-import sbt.{ File, _ }
+import sbt.{File, _}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
-import scala.util.{ Success, Try }
+import scala.util.{Success, Try}
 
 trait SbtDaoGenerator {
 
@@ -47,29 +47,20 @@ trait SbtDaoGenerator {
   private[generator] def getTables(conn: Connection, schemaName: Option[String]): Seq[String] = {
     val dbMeta = conn.getMetaData
     val types = Array("TABLE")
-    var rs: ResultSet = null
-    try {
-      rs = dbMeta.getTables(null, schemaName.orNull, "%", types)
+    using(dbMeta.getTables(null, schemaName.orNull, "%", types)) { rs =>
       val lb = ListBuffer[String]()
       while (rs.next()) {
         if (rs.getString("TABLE_TYPE") == "TABLE") {
           lb += rs.getString("TABLE_NAME")
         }
       }
-      lb.result()
-    } finally {
-      if (rs != null) {
-        rs.close()
-      }
-    }
-
+      Success(lb.result())
+    }.get
   }
 
   private[generator] def getColumnDescs(conn: Connection, schemaName: Option[String], tableName: String): Seq[ColumnDesc] = {
     val dbMeta = conn.getMetaData
-    var rs: ResultSet = null
-    try {
-      rs = dbMeta.getColumns(null, schemaName.orNull, tableName, "%")
+    using(dbMeta.getColumns(null, schemaName.orNull, tableName, "%")) { rs =>
       val lb = ListBuffer[ColumnDesc]()
       while (rs.next()) {
         lb += ColumnDesc(
@@ -78,19 +69,13 @@ trait SbtDaoGenerator {
           rs.getString("IS_NULLABLE") == "YES",
           Option(rs.getString("COLUMN_SIZE")).map(_.toInt))
       }
-      lb.result()
-    } finally {
-      if (rs != null) {
-        rs.close()
-      }
-    }
+      Success(lb.result())
+    }.get
   }
 
   private[generator] def getPrimaryKeyDescs(conn: Connection, schemaName: Option[String], tableName: String): Seq[PrimaryKeyDesc] = {
     val dbMeta = conn.getMetaData
-    var rs: ResultSet = null
-    try {
-      rs = dbMeta.getPrimaryKeys(null, schemaName.orNull, tableName)
+    using(dbMeta.getPrimaryKeys(null, schemaName.orNull, tableName)) { rs =>
       val lb = ListBuffer[PrimaryKeyDesc]()
       while (rs.next()) {
         lb += PrimaryKeyDesc(
@@ -99,12 +84,8 @@ trait SbtDaoGenerator {
           rs.getString("KEY_SEQ")
         )
       }
-      lb.result()
-    } finally {
-      if (rs != null) {
-        rs.close()
-      }
-    }
+      Success(lb.result())
+    }.get
   }
 
   private[generator] def getTableDescs(conn: Connection, schemaName: Option[String]): Seq[TableDesc] = {
@@ -256,20 +237,20 @@ trait SbtDaoGenerator {
         (jdbcPassword in generator).value
       )
     ) { conn =>
-        implicit val ctx = GeneratorContext(
-          logger,
-          conn,
-          (classNameMapper in generator).value,
-          (typeNameMapper in generator).value,
-          (tableNameFilter in generator).value,
-          (propertyNameMapper in generator).value,
-          (schemaName in generator).value,
-          (templateDirectory in generator).value,
-          (templateNameMapper in generator).value,
-          (outputDirectoryMapper in generator).value
-        )
-        generateOne(tableName)
-      }.get
+      implicit val ctx = GeneratorContext(
+        logger,
+        conn,
+        (classNameMapper in generator).value,
+        (typeNameMapper in generator).value,
+        (tableNameFilter in generator).value,
+        (propertyNameMapper in generator).value,
+        (schemaName in generator).value,
+        (templateDirectory in generator).value,
+        (templateNameMapper in generator).value,
+        (outputDirectoryMapper in generator).value
+      )
+      generateOne(tableName)
+    }.get
   }
 
   def generateManyTask: Def.Initialize[InputTask[Seq[File]]] = Def.inputTask {
@@ -293,20 +274,20 @@ trait SbtDaoGenerator {
         (jdbcPassword in generator).value
       )
     ) { connection =>
-        implicit val ctx = GeneratorContext(
-          logger,
-          connection,
-          (classNameMapper in generator).value,
-          (typeNameMapper in generator).value,
-          (tableNameFilter in generator).value,
-          (propertyNameMapper in generator).value,
-          (schemaName in generator).value,
-          (templateDirectory in generator).value,
-          (templateNameMapper in generator).value,
-          (outputDirectoryMapper in generator).value
-        )
-        generateMany(tableNames)
-      }.get
+      implicit val ctx = GeneratorContext(
+        logger,
+        connection,
+        (classNameMapper in generator).value,
+        (typeNameMapper in generator).value,
+        (tableNameFilter in generator).value,
+        (propertyNameMapper in generator).value,
+        (schemaName in generator).value,
+        (templateDirectory in generator).value,
+        (templateNameMapper in generator).value,
+        (outputDirectoryMapper in generator).value
+      )
+      generateMany(tableNames)
+    }.get
   }
 
   def generateAllTask: Def.Initialize[Task[Seq[File]]] = Def.task {
@@ -328,20 +309,20 @@ trait SbtDaoGenerator {
         (jdbcPassword in generator).value
       )
     ) { conn =>
-        implicit val ctx = GeneratorContext(
-          logger,
-          conn,
-          (classNameMapper in generator).value,
-          (typeNameMapper in generator).value,
-          (tableNameFilter in generator).value,
-          (propertyNameMapper in generator).value,
-          (schemaName in generator).value,
-          (templateDirectory in generator).value,
-          (templateNameMapper in generator).value,
-          (outputDirectoryMapper in generator).value
-        )
-        generateAll
-      }.get
+      implicit val ctx = GeneratorContext(
+        logger,
+        conn,
+        (classNameMapper in generator).value,
+        (typeNameMapper in generator).value,
+        (tableNameFilter in generator).value,
+        (propertyNameMapper in generator).value,
+        (schemaName in generator).value,
+        (templateDirectory in generator).value,
+        (templateNameMapper in generator).value,
+        (outputDirectoryMapper in generator).value
+      )
+      generateAll
+    }.get
   }
 
 }
