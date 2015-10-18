@@ -4,6 +4,8 @@ libraryDependencies ++= Seq(
   "com.h2database" % "h2" % "1.4.187"
 )
 
+logLevel := Level.Debug
+
 seq(flywaySettings: _*)
 
 flywayUrl := "jdbc:h2:file:./target/test"

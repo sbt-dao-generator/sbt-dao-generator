@@ -71,19 +71,20 @@ trait SbtDaoGenerator {
    * @param schemaName スキーマ名
    * @return テーブル名
    */
-  private[generator] def getTables(conn: Connection, schemaName: Option[String])(implicit logger: Logger): Seq[String] = {
+  private[generator] def getTables(conn: Connection, schemaName: Option[String])(implicit logger: Logger): Try[Seq[String]] = {
     logger.debug(s"getColumnDescs($conn, $schemaName): start")
-    val dbMeta = conn.getMetaData
-    val types = Array("TABLE")
-    val result = using(dbMeta.getTables(null, schemaName.orNull, "%", types)) { rs =>
-      val lb = ListBuffer[String]()
-      while (rs.next()) {
-        if (rs.getString("TABLE_TYPE") == "TABLE") {
-          lb += rs.getString("TABLE_NAME")
+    val result = Try(conn.getMetaData).flatMap { dbMeta =>
+      val types = Array("TABLE")
+      using(dbMeta.getTables(null, schemaName.orNull, "%", types)) { rs =>
+        val lb = ListBuffer[String]()
+        while (rs.next()) {
+          if (rs.getString("TABLE_TYPE") == "TABLE") {
+            lb += rs.getString("TABLE_NAME")
+          }
         }
+        Success(lb.result())
       }
-      Success(lb.result())
-    }.get
+    }
     logger.debug(s"getColumnDescs: finished = $result")
     result
   }
@@ -98,20 +99,21 @@ trait SbtDaoGenerator {
    */
   private[generator] def getColumnDescs(conn: Connection,
                                         schemaName: Option[String],
-                                        tableName: String)(implicit logger: Logger): Seq[ColumnDesc] = {
+                                        tableName: String)(implicit logger: Logger): Try[Seq[ColumnDesc]] = {
     logger.debug(s"getColumnDescs($conn, $schemaName, $tableName): start")
-    val dbMeta = conn.getMetaData
-    val result = using(dbMeta.getColumns(null, schemaName.orNull, tableName, "%")) { rs =>
-      val lb = ListBuffer[ColumnDesc]()
-      while (rs.next()) {
-        lb += ColumnDesc(
-          rs.getString("COLUMN_NAME"),
-          rs.getString("TYPE_NAME"),
-          rs.getString("IS_NULLABLE") == "YES",
-          Option(rs.getString("COLUMN_SIZE")).map(_.toInt))
+    val result = Try(conn.getMetaData).flatMap { dbMeta =>
+      using(dbMeta.getColumns(null, schemaName.orNull, tableName, "%")) { rs =>
+        val lb = ListBuffer[ColumnDesc]()
+        while (rs.next()) {
+          lb += ColumnDesc(
+            rs.getString("COLUMN_NAME"),
+            rs.getString("TYPE_NAME"),
+            rs.getString("IS_NULLABLE") == "YES",
+            Option(rs.getString("COLUMN_SIZE")).map(_.toInt))
+        }
+        Success(lb.result())
       }
-      Success(lb.result())
-    }.get
+    }
     logger.debug(s"getColumnDescs: finished = $result")
     result
   }
@@ -126,20 +128,21 @@ trait SbtDaoGenerator {
    */
   private[generator] def getPrimaryKeyDescs(conn: Connection,
                                             schemaName: Option[String],
-                                            tableName: String)(implicit logger: Logger): Seq[PrimaryKeyDesc] = {
+                                            tableName: String)(implicit logger: Logger): Try[Seq[PrimaryKeyDesc]] = {
     logger.debug(s"getPrimaryKeyDescs($conn, $schemaName, $tableName): start")
-    val dbMeta = conn.getMetaData
-    val result = using(dbMeta.getPrimaryKeys(null, schemaName.orNull, tableName)) { rs =>
-      val lb = ListBuffer[PrimaryKeyDesc]()
-      while (rs.next()) {
-        lb += PrimaryKeyDesc(
-          rs.getString("PK_NAME"),
-          rs.getString("COLUMN_NAME"),
-          rs.getString("KEY_SEQ")
-        )
+    val result = Try(conn.getMetaData).flatMap { dbMeta =>
+      using(dbMeta.getPrimaryKeys(null, schemaName.orNull, tableName)) { rs =>
+        val lb = ListBuffer[PrimaryKeyDesc]()
+        while (rs.next()) {
+          lb += PrimaryKeyDesc(
+            rs.getString("PK_NAME"),
+            rs.getString("COLUMN_NAME"),
+            rs.getString("KEY_SEQ")
+          )
+        }
+        Success(lb.result())
       }
-      Success(lb.result())
-    }.get
+    }
     logger.debug(s"getPrimaryKeyDescs: finished = $result")
     result
   }
@@ -151,10 +154,16 @@ trait SbtDaoGenerator {
    * @param schemaName スキーマ名
    * @return テーブルディスクリプション
    */
-  private[generator] def getTableDescs(conn: Connection, schemaName: Option[String])(implicit logger: Logger): Seq[TableDesc] = {
+  private[generator] def getTableDescs(conn: Connection, schemaName: Option[String])(implicit logger: Logger): Try[Seq[TableDesc]] = {
     logger.debug(s"getTableDescs($conn, $schemaName): start")
-    val result = getTables(conn, schemaName).map { tableName =>
-      TableDesc(tableName, getPrimaryKeyDescs(conn, schemaName, tableName), getColumnDescs(conn, schemaName, tableName))
+    val result = getTables(conn, schemaName).flatMap { tables =>
+      tables.foldLeft(Try(Seq.empty[TableDesc])) { (result, tableName) =>
+        for {
+          r <- result
+          primaryKeyDescs <- getPrimaryKeyDescs(conn, schemaName, tableName)
+          columnDescs <- getColumnDescs(conn, schemaName, tableName)
+        } yield r :+ TableDesc(tableName, primaryKeyDescs, columnDescs)
+      }
     }
     logger.debug(s"getTableDescs: finished = $result")
     result
@@ -198,15 +207,16 @@ trait SbtDaoGenerator {
                                               tableDesc: TableDesc)(implicit logger: Logger): Seq[Map[String, Any]] = {
     logger.debug(s"createColumnsContext($typeNameMapper, $propertyNameMapper, $tableDesc): start")
     val columns = tableDesc.columnDescs
-      .filterNot(e => tableDesc.primaryDescs.map(_.cloumnName).contains(e.columnName))
-      .map { column =>
-        Map[String, Any](
+      .filterNot { e =>
+        tableDesc.primaryDescs.map(_.cloumnName).contains(e.columnName)
+      }.map { column =>
+      Map[String, Any](
           "name" -> propertyNameMapper(column.columnName),
           "camelizeName" -> StringUtil.camelize(column.columnName),
           "typeName" -> typeNameMapper(column.typeName),
           "nullable" -> column.nullable
         )
-      }
+    }
     logger.debug(s"createColumnsContext: finished = $columns")
     columns
   }
@@ -288,58 +298,70 @@ trait SbtDaoGenerator {
   private[generator] def generateFiles(cfg: freemarker.template.Configuration,
                                        tableDesc: TableDesc)(implicit ctx: GeneratorContext): Try[Seq[File]] = {
     implicit val logger = ctx.logger
-    logger.debug(s"foldGenerateFile($cfg, $tableDesc): start")
-    val result = ctx.classNameMapper(tableDesc.tableName).foldLeft(Try(Seq.empty[File])) { (result, className) =>
-      val outputTargetDirectory = ctx.outputDirectoryMapper(className)
-      for {
-        r <- result
-        file <- generateFile(
-          cfg,
-          tableDesc,
-          className,
-          outputTargetDirectory)
-      } yield {
-        r :+ file
+    logger.debug(s"generateFiles($cfg, $tableDesc): start")
+    val result = ctx.classNameMapper(tableDesc.tableName)
+      .foldLeft(Try(Seq.empty[File])) { (result, className) =>
+        val outputTargetDirectory = ctx.outputDirectoryMapper(className)
+        for {
+          r <- result
+          file <- generateFile(
+            cfg,
+            tableDesc,
+            className,
+            outputTargetDirectory)
+        } yield {
+          r :+ file
+        }
       }
-    }
-    logger.debug(s"foldGenerateFile: finished = $result")
+    logger.debug(s"generateFiles: finished = $result")
     result
   }
 
   private[generator] def generateOne(tableName: String)(implicit ctx: GeneratorContext): Try[Seq[File]] = {
     implicit val logger = ctx.logger
     logger.debug(s"generateOne: start")
-    val cfg = createTemplateConfiguration(ctx.templateDirectory)
-    val result = getTableDescs(ctx.connection, ctx.schemaName).filter { tableDesc =>
-      ctx.tableNameFilter(tableDesc.tableName)
-    }.find(_.tableName == tableName).map { tableDesc =>
-      generateFiles(cfg, tableDesc)
-    }.getOrElse(Success(Seq.empty[File]))
+    val result = for {
+      cfg <- createTemplateConfiguration(ctx.templateDirectory)
+      tableDescs <- getTableDescs(ctx.connection, ctx.schemaName)
+      files <- tableDescs.filter { tableDesc =>
+        ctx.tableNameFilter(tableDesc.tableName)
+      }.find(_.tableName == tableName).map { tableDesc =>
+        generateFiles(cfg, tableDesc)
+      }.get
+    } yield files
     logger.debug(s"generateOne: finished = $result")
     result
   }
 
-  private def createTemplateConfiguration(templateDirectory: File)(implicit logger: Logger): freemarker.template.Configuration = {
+  private def createTemplateConfiguration(templateDirectory: File)(implicit logger: Logger): Try[freemarker.template.Configuration] = Try {
     logger.debug(s"createTemplateConfiguration($templateDirectory): start")
-    val cfg = new freemarker.template.Configuration(freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS)
-    cfg.setDirectoryForTemplateLoading(templateDirectory)
-    logger.debug(s"createTemplateConfiguration: finished = $cfg")
+    var cfg: freemarker.template.Configuration = null
+    try {
+      cfg = new freemarker.template.Configuration(freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS)
+      cfg.setDirectoryForTemplateLoading(templateDirectory)
+    } finally {
+      logger.debug(s"createTemplateConfiguration: finished = $cfg")
+    }
     cfg
   }
 
   private[generator] def generateMany(tableNames: Seq[String])(implicit ctx: GeneratorContext): Try[Seq[File]] = {
     implicit val logger = ctx.logger
     logger.debug(s"generateMany($tableNames): start")
-    val cfg = createTemplateConfiguration(ctx.templateDirectory)
-    val result = getTableDescs(ctx.connection, ctx.schemaName).filter { tableDesc =>
-      ctx.tableNameFilter(tableDesc.tableName)
-    }.filter(tableDesc => tableNames.contains(tableDesc.tableName))
-      .foldLeft(Try(Seq.empty[File])) { (result, tableDesc) =>
+    val result = for {
+      cfg <- createTemplateConfiguration(ctx.templateDirectory)
+      tableDescs <- getTableDescs(ctx.connection, ctx.schemaName)
+      files <- tableDescs.filter { tableDesc =>
+        ctx.tableNameFilter(tableDesc.tableName)
+      }.filter { tableDesc =>
+        tableNames.contains(tableDesc.tableName)
+      }.foldLeft(Try(Seq.empty[File])) { (result, tableDesc) =>
         for {
           r1 <- result
           r2 <- generateFiles(cfg, tableDesc)
         } yield r1 ++ r2
       }
+    } yield files
     logger.debug(s"generateMany: finished = $result")
     result
   }
@@ -347,15 +369,18 @@ trait SbtDaoGenerator {
   private[generator] def generateAll(implicit ctx: GeneratorContext): Try[Seq[File]] = {
     implicit val logger = ctx.logger
     logger.debug(s"generateAll: start")
-    val cfg = createTemplateConfiguration(ctx.templateDirectory)
-    val result = getTableDescs(ctx.connection, ctx.schemaName).filter { tableDesc =>
-      ctx.tableNameFilter(tableDesc.tableName)
-    }.foldLeft(Try(Seq.empty[File])) { (result, tableDesc) =>
-      for {
-        r1 <- result
-        r2 <- generateFiles(cfg, tableDesc)
-      } yield r1 ++ r2
-    }
+    val result = for {
+      cfg <- createTemplateConfiguration(ctx.templateDirectory)
+      tableDescs <- getTableDescs(ctx.connection, ctx.schemaName)
+      files <- tableDescs.filter { tableDesc =>
+        ctx.tableNameFilter(tableDesc.tableName)
+      }.foldLeft(Try(Seq.empty[File])) { (result, tableDesc) =>
+        for {
+          r1 <- result
+          r2 <- generateFiles(cfg, tableDesc)
+        } yield r1 ++ r2
+      }
+    } yield files
     logger.debug(s"generateAll: finished = $result")
     result
   }
