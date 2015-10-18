@@ -1,21 +1,24 @@
 package jp.co.septeni_original.sbt.dao.generator
 
 import java.io._
-import java.sql.{Connection, Driver}
+import java.sql.{ Connection, Driver }
 
 import jp.co.septeni_original.sbt.dao.generator.SbtDaoGeneratorKeys._
-import jp.co.septeni_original.sbt.dao.generator.model.{ColumnDesc, PrimaryKeyDesc, TableDesc}
+import jp.co.septeni_original.sbt.dao.generator.model.{ ColumnDesc, PrimaryKeyDesc, TableDesc }
 import jp.co.septeni_original.sbt.dao.generator.util.Loan._
 import org.seasar.util.lang.StringUtil
 import sbt.Keys._
 import sbt.classpath.ClasspathUtilities
 import sbt.complete.Parser
-import sbt.{File, _}
+import sbt.{ File, _ }
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
-import scala.util.{Success, Try}
+import scala.util.{ Success, Try }
 
+/**
+ * sbt-dao-generatorのロジックを提供するトレイト。
+ */
 trait SbtDaoGenerator {
 
   import complete.DefaultParsers._
@@ -210,13 +213,13 @@ trait SbtDaoGenerator {
       .filterNot { e =>
         tableDesc.primaryDescs.map(_.cloumnName).contains(e.columnName)
       }.map { column =>
-      Map[String, Any](
+        Map[String, Any](
           "name" -> propertyNameMapper(column.columnName),
           "camelizeName" -> StringUtil.camelize(column.columnName),
           "typeName" -> typeNameMapper(column.typeName),
           "nullable" -> column.nullable
         )
-    }
+      }
     logger.debug(s"createColumnsContext: finished = $columns")
     columns
   }
@@ -244,7 +247,7 @@ trait SbtDaoGenerator {
     logger.debug(s"createContext: finished = $context")
     context
   }
-
+  
   /**
    * 出力先のファイルを生成する。
    *
@@ -295,6 +298,14 @@ trait SbtDaoGenerator {
     result
   }
 
+  /**
+   * テンプレートから複数のファイルを生成する。
+   *
+   * @param cfg テンプレートコンフィグレーション
+   * @param tableDesc [[TableDesc]]
+   * @param ctx [[GeneratorContext]]
+   * @return TryにラップされたSeq[File]
+   */
   private[generator] def generateFiles(cfg: freemarker.template.Configuration,
                                        tableDesc: TableDesc)(implicit ctx: GeneratorContext): Try[Seq[File]] = {
     implicit val logger = ctx.logger
@@ -317,6 +328,32 @@ trait SbtDaoGenerator {
     result
   }
 
+  /**
+   * テンプレートコンフィグレーションを生成する。
+   *
+   * @param templateDirectory テンプレートディレクトリ
+   * @param logger ロガー
+   * @return テンプレートコンフィグレーション
+   */
+  private[generator] def createTemplateConfiguration(templateDirectory: File)(implicit logger: Logger): Try[freemarker.template.Configuration] = Try {
+    logger.debug(s"createTemplateConfiguration($templateDirectory): start")
+    var cfg: freemarker.template.Configuration = null
+    try {
+      cfg = new freemarker.template.Configuration(freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS)
+      cfg.setDirectoryForTemplateLoading(templateDirectory)
+    } finally {
+      logger.debug(s"createTemplateConfiguration: finished = $cfg")
+    }
+    cfg
+  }
+
+  /**
+   * テーブル名を指定してファイルを生成する。
+   *
+   * @param tableName テーブル名
+   * @param ctx [[GeneratorContext]]
+   * @return 生成されたSeq[File]
+   */
   private[generator] def generateOne(tableName: String)(implicit ctx: GeneratorContext): Try[Seq[File]] = {
     implicit val logger = ctx.logger
     logger.debug(s"generateOne: start")
@@ -333,18 +370,13 @@ trait SbtDaoGenerator {
     result
   }
 
-  private def createTemplateConfiguration(templateDirectory: File)(implicit logger: Logger): Try[freemarker.template.Configuration] = Try {
-    logger.debug(s"createTemplateConfiguration($templateDirectory): start")
-    var cfg: freemarker.template.Configuration = null
-    try {
-      cfg = new freemarker.template.Configuration(freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS)
-      cfg.setDirectoryForTemplateLoading(templateDirectory)
-    } finally {
-      logger.debug(s"createTemplateConfiguration: finished = $cfg")
-    }
-    cfg
-  }
-
+  /**
+   * 複数のテーブル名を指定してファイルを生成する。
+   *
+   * @param tableNames 複数のテーブル名
+   * @param ctx [[GeneratorContext]]
+   * @return 生成されたSeq[File]
+   */
   private[generator] def generateMany(tableNames: Seq[String])(implicit ctx: GeneratorContext): Try[Seq[File]] = {
     implicit val logger = ctx.logger
     logger.debug(s"generateMany($tableNames): start")
@@ -366,6 +398,12 @@ trait SbtDaoGenerator {
     result
   }
 
+  /**
+   * すべてのテーブルを指定してファイルを生成する。
+   *
+   * @param ctx [[GeneratorContext]]
+   * @return 生成されたSeq[File]
+   */
   private[generator] def generateAll(implicit ctx: GeneratorContext): Try[Seq[File]] = {
     implicit val logger = ctx.logger
     logger.debug(s"generateAll: start")
@@ -385,6 +423,11 @@ trait SbtDaoGenerator {
     result
   }
 
+  /**
+   * [[generateOne]]のためのタスク。
+   *
+   * @return タスク定義
+   */
   def generateOneTask: Def.Initialize[InputTask[Seq[File]]] = Def.inputTask {
     val tableName = oneStringParser.parsed
     implicit val logger = streams.value.log
@@ -406,22 +449,27 @@ trait SbtDaoGenerator {
         (jdbcPassword in generator).value
       )
     ) { conn =>
-      implicit val ctx = GeneratorContext(
-        logger,
-        conn,
-        (classNameMapper in generator).value,
-        (typeNameMapper in generator).value,
-        (tableNameFilter in generator).value,
-        (propertyNameMapper in generator).value,
-        (schemaName in generator).value,
-        (templateDirectory in generator).value,
-        (templateNameMapper in generator).value,
-        (outputDirectoryMapper in generator).value
-      )
-      generateOne(tableName)
-    }.get
+        implicit val ctx = GeneratorContext(
+          logger,
+          conn,
+          (classNameMapper in generator).value,
+          (typeNameMapper in generator).value,
+          (tableNameFilter in generator).value,
+          (propertyNameMapper in generator).value,
+          (schemaName in generator).value,
+          (templateDirectory in generator).value,
+          (templateNameMapper in generator).value,
+          (outputDirectoryMapper in generator).value
+        )
+        generateOne(tableName)
+      }.get
   }
 
+  /**
+   * [[generateMany]]のためのタスク。
+   *
+   * @return タスク定義
+   */
   def generateManyTask: Def.Initialize[InputTask[Seq[File]]] = Def.inputTask {
     val tableNames = manyStringParser.parsed
     implicit val logger = streams.value.log
@@ -443,22 +491,27 @@ trait SbtDaoGenerator {
         (jdbcPassword in generator).value
       )
     ) { connection =>
-      implicit val ctx = GeneratorContext(
-        logger,
-        connection,
-        (classNameMapper in generator).value,
-        (typeNameMapper in generator).value,
-        (tableNameFilter in generator).value,
-        (propertyNameMapper in generator).value,
-        (schemaName in generator).value,
-        (templateDirectory in generator).value,
-        (templateNameMapper in generator).value,
-        (outputDirectoryMapper in generator).value
-      )
-      generateMany(tableNames)
-    }.get
+        implicit val ctx = GeneratorContext(
+          logger,
+          connection,
+          (classNameMapper in generator).value,
+          (typeNameMapper in generator).value,
+          (tableNameFilter in generator).value,
+          (propertyNameMapper in generator).value,
+          (schemaName in generator).value,
+          (templateDirectory in generator).value,
+          (templateNameMapper in generator).value,
+          (outputDirectoryMapper in generator).value
+        )
+        generateMany(tableNames)
+      }.get
   }
 
+  /**
+   * [[generateAll]]のためのタスク。
+   *
+   * @return タスク定義
+   */
   def generateAllTask: Def.Initialize[Task[Seq[File]]] = Def.task {
     implicit val logger = streams.value.log
     logger.info("driverClassName = " + (driverClassName in generator).value.toString)
@@ -478,20 +531,20 @@ trait SbtDaoGenerator {
         (jdbcPassword in generator).value
       )
     ) { conn =>
-      implicit val ctx = GeneratorContext(
-        logger,
-        conn,
-        (classNameMapper in generator).value,
-        (typeNameMapper in generator).value,
-        (tableNameFilter in generator).value,
-        (propertyNameMapper in generator).value,
-        (schemaName in generator).value,
-        (templateDirectory in generator).value,
-        (templateNameMapper in generator).value,
-        (outputDirectoryMapper in generator).value
-      )
-      generateAll
-    }.get
+        implicit val ctx = GeneratorContext(
+          logger,
+          conn,
+          (classNameMapper in generator).value,
+          (typeNameMapper in generator).value,
+          (tableNameFilter in generator).value,
+          (propertyNameMapper in generator).value,
+          (schemaName in generator).value,
+          (templateDirectory in generator).value,
+          (templateNameMapper in generator).value,
+          (outputDirectoryMapper in generator).value
+        )
+        generateAll
+      }.get
   }
 
 }

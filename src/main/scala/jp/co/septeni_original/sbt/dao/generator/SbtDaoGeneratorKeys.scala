@@ -2,6 +2,9 @@ package jp.co.septeni_original.sbt.dao.generator
 
 import sbt._
 
+/**
+ * sbt-dao-generatorのキー定義。
+ */
 trait SbtDaoGeneratorKeys {
 
   val generator = taskKey[Unit]("generator")

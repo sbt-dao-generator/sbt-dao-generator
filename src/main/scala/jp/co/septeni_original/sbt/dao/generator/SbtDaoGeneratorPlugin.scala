@@ -5,6 +5,9 @@ import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
 
+/**
+ * sbt-dao-generatorのプラグイン定義。
+ */
 object SbtDaoGeneratorPlugin extends AutoPlugin {
 
   override def trigger = allRequirements
