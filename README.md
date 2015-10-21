@@ -68,9 +68,6 @@ tableNameFilter in generator := { tableName: String => tableName.toUpperCase != 
 // テンプレートファイルを配置するディレクトリを指定できます(任意。デフォルトは以下)
 templateDirectory in generator := baseDirectory.value / "templates"
 
-// テンプレートファイル名を指定できます(任意。デフォルトは以下)
-templateName in generator := "template.ftl"
-
 // ソースコードを出力するディレクトリを動的に変更することができます(任意。デフォルトは以下)
 outputDirectoryMapper in generator := { className: String => (sourceManaed in Compile).value }
 
