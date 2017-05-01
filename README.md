@@ -69,7 +69,7 @@ tableNameFilter in generator := { tableName: String => tableName.toUpperCase != 
 templateDirectory in generator := baseDirectory.value / "templates"
 
 // ソースコードを出力するディレクトリを動的に変更することができます(任意。デフォルトは以下)
-outputDirectoryMapper in generator := { className: String => (sourceManaed in Compile).value }
+outputDirectoryMapper in generator := { className: String => (sourceManaged in Compile).value }
 
 outputDirectoryMapper in generator := { className: String =>
   className match {
