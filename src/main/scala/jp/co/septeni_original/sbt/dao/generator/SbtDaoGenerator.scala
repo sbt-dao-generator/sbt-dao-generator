@@ -235,10 +235,12 @@ trait SbtDaoGenerator {
    */
   private[generator] def createContext(primaryKeys: Seq[Map[String, Any]],
                                        columns: Seq[Map[String, Any]],
+                                       tableName: String,
                                        className: String)(implicit logger: Logger): java.util.Map[String, Any] = {
     logger.debug(s"createContext($primaryKeys, $columns, $className): start")
     val context = Map[String, Any](
       "name" -> className,
+      "tableName" -> tableName,
       "lowerCamelName" -> (className.substring(0, 1).toLowerCase + className.substring(1)),
       "primaryKeys" -> primaryKeys.map(_.asJava).asJava,
       "columns" -> columns.map(_.asJava).asJava,
@@ -247,7 +249,7 @@ trait SbtDaoGenerator {
     logger.debug(s"createContext: finished = $context")
     context
   }
-  
+
   /**
    * 出力先のファイルを生成する。
    *
@@ -289,7 +291,7 @@ trait SbtDaoGenerator {
     val result = using(new FileWriter(file)) { writer =>
       val primaryKeys = createPrimaryKeysContext(ctx.typeNameMapper, ctx.propertyNameMapper, tableDesc)
       val columns = createColumnsContext(ctx.typeNameMapper, ctx.propertyNameMapper, tableDesc)
-      val context = createContext(primaryKeys, columns, className)
+      val context = createContext(primaryKeys, columns, tableDesc.tableName, className)
       template.process(context, writer)
       writer.flush()
       Success(file)
