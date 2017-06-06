@@ -5,12 +5,13 @@ create table DEPT (
 );
 
 create table EMP (
-  EMP_ID integer not null primary key,
+  EMP_ID integer auto_increment,
   DEPT_ID integer not null,
   EMP_NAME varchar(20),
   HIREDATE date,
   SALARY numeric(7,2),
   VERSION_NO integer,
+  PRIMARY KEY(EMP_ID),
   FOREIGN KEY (DEPT_ID) REFERENCES DEPT(DEPT_ID),
 );
 

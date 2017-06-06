@@ -3,8 +3,9 @@ logLevel := Level.Warn
 resolvers ++= Seq(
   Classpaths.typesafeReleases,
   Classpaths.typesafeSnapshots,
-  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+  "Sonatype OSS Snapshot Repository" at "https://oss.sonatype.org/content/repositories/snapshots/",
   "Sonatype OSS Release Repository" at "https://oss.sonatype.org/content/repositories/releases/",
+  "Seasar Repository" at "http://maven.seasar.org/maven2/",
   "Flyway" at "http://flywaydb.org/repo"
 )
 
@@ -16,4 +17,4 @@ resolvers ++= Seq(
   else addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % pluginVersion)
 }
 
-addSbtPlugin("org.flywaydb" % "flyway-sbt" % "3.2.1")
+addSbtPlugin("org.flywaydb" % "flyway-sbt" % "4.2.0")

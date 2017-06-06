@@ -6,8 +6,6 @@ libraryDependencies ++= Seq(
 
 logLevel := Level.Debug
 
-seq(flywaySettings: _*)
-
 flywayUrl := "jdbc:h2:file:./target/test"
 
 flywayUser := "sa"

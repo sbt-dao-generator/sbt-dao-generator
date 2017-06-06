@@ -33,7 +33,7 @@ object SbtDaoGeneratorPlugin extends AutoPlugin {
     },
     classNameMapper in generator := { tableName: String => Seq(StringUtil.camelize(tableName)) },
     outputDirectoryMapper in generator := { (modelName: String) => (sourceManaged in Compile).value },
-    generateAll in generator <<= SbtDaoGenerator.generateAllTask,
+    generateAll in generator := SbtDaoGenerator.generateAllTask.value,
     generateMany in generator <<= SbtDaoGenerator.generateManyTask,
     generateOne in generator <<= SbtDaoGenerator.generateOneTask
   )
