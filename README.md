@@ -22,7 +22,7 @@ project/plugins.sbtに以下のエントリを追加してください。
 ```scala
 resolvers += "Sonatype OSS Release Repository" at "https://oss.sonatype.org/content/repositories/releases/"
 
-addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.3")
+addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.5")
 ```
 
 - スナップショット版を利用する場合
