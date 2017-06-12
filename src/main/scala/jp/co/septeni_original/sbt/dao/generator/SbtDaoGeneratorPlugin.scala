@@ -26,7 +26,7 @@ object SbtDaoGeneratorPlugin extends AutoPlugin {
     schemaName in generator := None,
     templateDirectory in generator := baseDirectory.value / "templates",
     templateNameMapper in generator := { _: String => "template.ftl" },
-    typeNameMapper in generator := identity,
+    propertyTypeNameMapper in generator := identity,
     tableNameFilter in generator := { _: String => true },
     propertyNameMapper in generator := { columnName: String =>
       StringUtil.decapitalize(StringUtil.camelize(columnName))

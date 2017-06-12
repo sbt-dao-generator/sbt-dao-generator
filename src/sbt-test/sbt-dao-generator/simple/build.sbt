@@ -20,7 +20,7 @@ jdbcUser in generator := "sa"
 
 jdbcPassword in generator := ""
 
-typeNameMapper in generator := {
+propertyTypeNameMapper in generator := {
   case "INTEGER" => "Int"
   case "VARCHAR" => "String"
   case "BOOLEAN" => "Boolean"
