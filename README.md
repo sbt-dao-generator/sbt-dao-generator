@@ -24,7 +24,7 @@ addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.6")
 ```scala
 resolvers += "Sonatype OSS Snapshot Repository" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
-addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.6-SNAPSHOT")
+addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.7-SNAPSHOT")
 ```
 
 ## プラグインの設定方法
