@@ -122,6 +122,28 @@ ${column.name}: ${column.typeName}<#if column_has_next>,</#if>
 }
 ```
 
+**テーブルオブジェクト**
+
+| 変数名      | 内容     |
+|:-----------|:---------|
+| tableName | テーブル名 (USER_NAME)|
+| className  | クラス名　(UserName) |
+| decapitalizedClassName | デキャピタライズ・クラス名 (userName) |
+| primaryKeys | プライマリーキーオブジェクトの集合 |
+| columns | カラムオブジェクトの集合 |
+| primaryKeysWithColumns | プライマリキーオブジェクトとカラムオブジェクトを合わせた集合 |
+
+**プライマリオブジェクト**
+
+| 変数名      | 内容     |
+|:-----------|:---------|
+| columnName | カラム名 (FIRST_NAME) |
+| columnType | カラムタイプ (VARCHAR(60)) |
+| propertyName | プロパティ名 (firstName) |
+| propertyType | プロパティタイプ (String) |
+| capitalizedPropertyName | キャタライズされたクラス名 (FirstName) |
+| nullable | NULL許容か否か(Boolean) |
+
 ## コード生成
 
 すべてのテーブルを対象にする場合
