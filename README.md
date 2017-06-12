@@ -7,12 +7,6 @@
 [![Scaladoc](http://javadoc-badge.appspot.com/jp.co.septeni-original/sbt-dao-generator_2.10.svg?label=scaladoc)](http://javadoc-badge.appspot.com/jp.co.septeni-original/sbt-dao-generator_2.10)
 [![Reference Status](https://www.versioneye.com/java/jp.co.septeni-original:sbt-dao-generator_2.10/reference_badge.svg?style=flat)](https://www.versioneye.com/java/jp.co.septeni-original:sbt-dao-generator_2.10/references)
 
-## プラグインのビルド方法
-
-```sh
-$ sbt clean package
-```
-
 ## プラグインの利用方法
 
 project/plugins.sbtに以下のエントリを追加してください。
@@ -35,7 +29,7 @@ addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.6-SNAPSHOT")
 
 ## プラグインの設定方法
 
-以下を参考にbuild.sbtに設定を行ってください。
+以下を参考に`build.sbt`に設定を行ってください。
 
 ```scala
 // JDBCのドライバークラス名を指定します(必須)
@@ -54,7 +48,7 @@ jdbcPassword in generator := ""
 schemaName in generator := None,
 
 // カラム型名をどのクラスにマッピングするかを決める関数を記述します(必須)
-typeNameMapper in generator := {
+propertyTypeNameMapper in generator := {
   case "INTEGER" => "Int"
   case "VARCHAR" => "String"
   case "BOOLEAN" => "Boolean"
@@ -104,7 +98,7 @@ templateNameMapper in generator := {
 }
 ```
 
-## テンプレートファイル
+## 単純なテンプレートファイルの例
 
 templateName in generatorで指定されたテンプレートファイルを適宜編集してください。テンプレートエンジンは[FreeMarker](http://freemarker.org/)となります。
 
@@ -126,23 +120,23 @@ ${column.propertyName}: ${column.propertyTypeName}<#if column_has_next>,</#if>
 
 | 変数名      | 型 | 内容     |
 |:-----------|:---|:---------|
-| tableName | String | テーブル名 (USER_NAME)|
-| className  | String | クラス名　(UserName) |
-| decapitalizedClassName | String | デキャピタライズ・クラス名 (userName) |
-| primaryKeys | カラムオブジェクトのリスト | プライマリーキー群 |
-| columns | カラムオブジェクトのリスト | カラム群 |
-| allColumns | カラムオブジェクトのリスト | すべてのカラム群(プライマリキー含む) |
+| `tableName` | String | テーブル名 (`USER_NAME`)|
+| `className`  | String | クラス名　(`UserName`)。`classNameMapper`によってテーブル名を変換した文字列|
+| `decapitalizedClassNam`e | String | デキャピタライズされたクラス名 (`userName`) |
+| `primaryKeys` | カラムオブジェクトのリスト | プライマリーキー群 |
+| `columns` | カラムオブジェクトのリスト | カラム群(プライマリーキーを含まない　) |
+| `allColumns` | カラムオブジェクトのリスト | すべてのカラム群(プライマリーキー含む) |
 
 **カラムオブジェクト**
 
-| 変数名      | 内容     |
-|:-----------|:---------|
-| columnName | カラム名 (FIRST_NAME) |
-| columnTypeName | カラムタイプ (VARCHAR, DATETIME, ...) |
-| propertyName | プロパティ名 (firstName) |
-| propertyTypeName | プロパティタイプ (String, java.util.Date) |
-| capitalizedPropertyName | キャタライズされたクラス名 (FirstName) |
-| nullable | NULL許容か否か(Boolean) |
+| 変数名      | 型 | 内容     |
+|:-----------|:---|:---------|
+| `columnName` | `String` | カラム名 (`FIRST_NAME`) |
+| `columnTypeName` | `String` | カラムタイプ名 (`VARCHAR`, `DATETIME`, ...) |
+| `propertyName` | `String` | プロパティ名 (`firstName`)。`propertyNameMapper`によってカラム名を変換した文字列 |
+| `propertyTypeName` | `String` | プロパティタイプ (`String`, `java.util.Date`,...)。`propertyTypeNameMapper`によってカラムタイプ名を変換した文字列 |
+| `capitalizedPropertyName` | `String` | キャタライズされたクラス名 (`FirstName`) |
+| `nullable` | `Boolean` | NULL許容か否か |
 
 ## コード生成
 
