@@ -22,7 +22,7 @@ project/plugins.sbtに以下のエントリを追加してください。
 ```scala
 resolvers += "Sonatype OSS Release Repository" at "https://oss.sonatype.org/content/repositories/releases/"
 
-addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.4")
+addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.3")
 ```
 
 - スナップショット版を利用する場合
@@ -30,7 +30,7 @@ addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.4")
 ```scala
 resolvers += "Sonatype OSS Snapshot Repository" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
-addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.5-SNAPSHOT")
+addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.4-SNAPSHOT")
 ```
 
 ## プラグインの設定方法
@@ -109,12 +109,12 @@ templateNameMapper in generator := {
 templateName in generatorで指定されたテンプレートファイルを適宜編集してください。テンプレートエンジンは[FreeMarker](http://freemarker.org/)となります。
 
 ```
-case class ${name}(
-<#list columns as column>
+case class ${className}(
+<#list allColumns as column>
 <#if column.nullable>
-${column.name}: Option[${column.typeName}]<#if column_has_next>,</#if>
+${column.propertyName}: Option[${column.propertyTypeName}]<#if column_has_next>,</#if>
 <#else>
-${column.name}: ${column.typeName}<#if column_has_next>,</#if>
+${column.propertyName}: ${column.propertyTypeName}<#if column_has_next>,</#if>
 </#if>
 </#list>
 ) {
@@ -122,25 +122,25 @@ ${column.name}: ${column.typeName}<#if column_has_next>,</#if>
 }
 ```
 
-**テーブルオブジェクト**
+**テンプレートコンテキスト**
 
-| 変数名      | 内容     |
-|:-----------|:---------|
-| tableName | テーブル名 (USER_NAME)|
-| className  | クラス名　(UserName) |
-| decapitalizedClassName | デキャピタライズ・クラス名 (userName) |
-| primaryKeys | プライマリーキーオブジェクトの集合 |
-| columns | カラムオブジェクトの集合 |
-| primaryKeysWithColumns | プライマリキーオブジェクトとカラムオブジェクトを合わせた集合 |
+| 変数名      | 型 | 内容     |
+|:-----------|:---|:---------|
+| tableName | String | テーブル名 (USER_NAME)|
+| className  | String | クラス名　(UserName) |
+| decapitalizedClassName | String | デキャピタライズ・クラス名 (userName) |
+| primaryKeys | カラムオブジェクトのリスト | プライマリーキー群 |
+| columns | カラムオブジェクトのリスト | カラム群 |
+| allColumns | カラムオブジェクトのリスト | すべてのカラム群(プライマリキー含む) |
 
-**プライマリオブジェクト**
+**カラムオブジェクト**
 
 | 変数名      | 内容     |
 |:-----------|:---------|
 | columnName | カラム名 (FIRST_NAME) |
-| columnType | カラムタイプ (VARCHAR(60)) |
+| columnTypeName | カラムタイプ (VARCHAR, DATETIME, ...) |
 | propertyName | プロパティ名 (firstName) |
-| propertyType | プロパティタイプ (String) |
+| propertyTypeName | プロパティタイプ (String, java.util.Date) |
 | capitalizedPropertyName | キャタライズされたクラス名 (FirstName) |
 | nullable | NULL許容か否か(Boolean) |
 
