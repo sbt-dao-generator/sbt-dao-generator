@@ -1,0 +1,22 @@
+> wixMySQLStart
+
+> flywayClean
+
+> flywayMigrate
+
+> generator::generateOne dept
+$ exists target/scala-2.10/src_managed/main/Dept.scala
+
+> generator::generateOne emp
+$ exists target/scala-2.10/src_managed/main/Emp.scala
+
+> generator::generateMany EMP DEPT
+$ exists target/scala-2.10/src_managed/main/Dept.scala
+$ exists target/scala-2.10/src_managed/main/Emp.scala
+
+> compile
+$ exists target/scala-2.10/src_managed/main/Dept.scala
+$ exists target/scala-2.10/src_managed/main/Emp.scala
+-$ exists target/scala-2.10/src_managed/main/SchemaVersion.scala
+
+> wixMySQLStop

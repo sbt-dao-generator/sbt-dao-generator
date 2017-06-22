@@ -230,7 +230,9 @@ trait SbtDaoGenerator {
         val lb = ListBuffer[String]()
         while (rs.next()) {
           if (rs.getString("TABLE_TYPE") == "TABLE") {
-            lb += rs.getString("TABLE_NAME")
+            val tableName = rs.getString("TABLE_NAME")
+            logger.debug(s"table name = $tableName")
+            lb += tableName
           }
         }
         Success(lb.result())
