@@ -135,7 +135,7 @@ ${column.propertyName}: ${column.propertyTypeName}<#if column_has_next>,</#if>
 | `columnTypeName` | `String` | カラムタイプ名 (`VARCHAR`, `DATETIME`, ...) |
 | `propertyName` | `String` | プロパティ名 (`firstName`)。`propertyNameMapper`によってカラム名を変換した文字列 |
 | `propertyTypeName` | `String` | プロパティタイプ (`String`, `java.util.Date`,...)。`propertyTypeNameMapper`によってカラムタイプ名を変換した文字列 |
-| `capitalizedPropertyName` | `String` | キャタライズされたクラス名 (`FirstName`) |
+| `capitalizedPropertyName` | `String` | キャピタライズされたクラス名 (`FirstName`) |
 | `nullable` | `Boolean` | NULL許容か否か |
 
 ## コード生成
