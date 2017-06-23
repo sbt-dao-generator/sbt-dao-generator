@@ -7,6 +7,8 @@
 [![Scaladoc](http://javadoc-badge.appspot.com/jp.co.septeni-original/sbt-dao-generator_2.10.svg?label=scaladoc)](http://javadoc-badge.appspot.com/jp.co.septeni-original/sbt-dao-generator_2.10)
 [![Reference Status](https://www.versioneye.com/java/jp.co.septeni-original:sbt-dao-generator_2.10/reference_badge.svg?style=flat)](https://www.versioneye.com/java/jp.co.septeni-original:sbt-dao-generator_2.10/references)
 
+`sbt-dao-generator`は、O/Rマッパーフリーなコードジェネレータです。
+
 ## プラグインの利用方法
 
 project/plugins.sbtに以下のエントリを追加してください。
