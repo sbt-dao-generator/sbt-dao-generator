@@ -46,28 +46,6 @@ jdbcUser in generator := "sa"
 // JDBC Password (required)
 jdbcPassword in generator := ""
 
-// Schema Name (Default is None)
-schemaName in generator := None,
-
-// The Function for filtering the table to be processed (Default is the following)
-tableNameFilter in generator := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION"}
-
-// The Function for converting Table Name to Class Name (Default is the following)
-classNameMapper in generator := { tableName: String =>
-    Seq(StringUtil.camelize(tableName))
-}
-
-// e.g.) If you want to specify multiple output files, you can configure it as follows.
-classNameMapper in generator := {
-  case "DEPT" => Seq("Dept", "DeptSpec")
-  case "EMP" => Seq("Emp", "EmpSpec")
-}
-
-// The Function for converting Column Name to Property Name (Default is the following)
-propertyNameMapper in generator := { columnName: String =>
-    StringUtil.decapitalize(StringUtil.camelize(columnName))
-}
-
 // The Function that convert The Column Type Name to Property Type Name (required)
 propertyTypeNameMapper in generator := {
   case "INTEGER" => "Int"
@@ -77,28 +55,56 @@ propertyTypeNameMapper in generator := {
   case "DECIMAL" => "BigDecimal"
 }
 
-// The Function that decides which Template Name for Model Name (optional, defaults below)
+// Schema Name (Optional, Default is None)
+schemaName in generator := None,
+
+// The Function for filtering the table to be processed (Optional, default is the following)
+tableNameFilter in generator := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION"}
+
+// The Function for converting Table Name to Class Name (Optional, default is the following)
+classNameMapper in generator := { tableName: String =>
+    Seq(StringUtil.camelize(tableName))
+}
+
+// e.g.) If you want to specify multiple output files, you can configure it as follows.
+/*
+classNameMapper in generator := {
+  case "DEPT" => Seq("Dept", "DeptSpec")
+  case "EMP" => Seq("Emp", "EmpSpec")
+}
+*/
+
+// The Function for converting Column Name to Property Name (Optional, default is the following)
+propertyNameMapper in generator := { columnName: String =>
+    StringUtil.decapitalize(StringUtil.camelize(columnName))
+}
+
+// The Function that decides which Template Name for Model Name (Optional, defaults below)
 templateNameMapper in generator := { className: String => "template.ftl" },
 
 // e.g.) If you want to specify different templates for the model and spec, you can configure it as follows.
+/*
 templateNameMapper in generator := {
   case className if className.endsWith("Spec") => "template_spec.ftl"
   case _ => "template.ftl"
 }
+*/
 
-// The Directory where template files are placed (Default is the following)
+// The Directory where template files are placed (Optional, default is the following)
 templateDirectory in generator := baseDirectory.value / "templates"
 
-// The Directory where source code is output (Default is the following)
+// The Directory where source code is output (Optional, default is the following)
 outputDirectoryMapper in generator := { className: String => (sourceManaged in Compile).value }
 
 // e.g.) You can change the output destination directory for each class name dynamically.
+/*
 outputDirectoryMapper in generator := { className: String =>
   className match {
     case s if s.endsWith("Spec") => (sourceManaged in Test).value
     case s => (sourceManaged in Compile).value
   }
 }
+*/
 ```
 
 ## How to configure a model template
