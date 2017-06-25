@@ -107,7 +107,7 @@ The supported template syntax is FTL(FreeMarker Template Language).Please refer 
 
 - [FreeMarker](http://freemarker.org/)
 
-**`templates/temlate.ftl`
+**`templates/temlate.ftl`**
 
 ```
 case class ${className}(
