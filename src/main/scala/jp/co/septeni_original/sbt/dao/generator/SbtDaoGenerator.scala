@@ -17,8 +17,8 @@ import scala.collection.mutable.ListBuffer
 import scala.util.{ Success, Try }
 
 /**
- * sbt-dao-generatorのロジックを提供するトレイト。
- */
+  * sbt-dao-generatorのロジックを提供するトレイト。
+  */
 trait SbtDaoGenerator {
 
   import complete.DefaultParsers._
@@ -28,12 +28,12 @@ trait SbtDaoGenerator {
   private val manyStringParser: Parser[Seq[String]] = token(Space ~> StringBasic, "table name") +
 
   /**
-   * [[generateOne]]のためのタスク。
-   *
-   * @return タスク定義
-   */
+    * [[generateOne]]のためのタスク。
+    *
+    * @return タスク定義
+    */
   def generateOneTask: Def.Initialize[InputTask[Seq[File]]] = Def.inputTask {
-    val tableName = oneStringParser.parsed
+    val tableName       = oneStringParser.parsed
     implicit val logger = streams.value.log
     logger.info("sbt-dao-generator: generateOne task")
     logger.info("driverClassName = " + (driverClassName in generator).value.toString)
@@ -59,52 +59,56 @@ trait SbtDaoGenerator {
         (jdbcPassword in generator).value
       )
     ) { conn =>
-        implicit val ctx = GeneratorContext(
-          logger,
-          conn,
-          (classNameMapper in generator).value,
-          (propertyTypeNameMapper in generator).value,
-          (tableNameFilter in generator).value,
-          (propertyNameMapper in generator).value,
-          (schemaName in generator).value,
-          (templateDirectory in generator).value,
-          (templateNameMapper in generator).value,
-          (outputDirectoryMapper in generator).value
-        )
-        generateOne(tableName)
-      }.get
+      implicit val ctx = GeneratorContext(
+        logger,
+        conn,
+        (classNameMapper in generator).value,
+        (propertyTypeNameMapper in generator).value,
+        (tableNameFilter in generator).value,
+        (propertyNameMapper in generator).value,
+        (schemaName in generator).value,
+        (templateDirectory in generator).value,
+        (templateNameMapper in generator).value,
+        (outputDirectoryMapper in generator).value
+      )
+      generateOne(tableName)
+    }.get
   }
 
   /**
-   * テーブル名を指定してファイルを生成する。
-   *
-   * @param tableName テーブル名
-   * @param ctx       [[GeneratorContext]]
-   * @return 生成されたSeq[File]
-   */
+    * テーブル名を指定してファイルを生成する。
+    *
+    * @param tableName テーブル名
+    * @param ctx       [[GeneratorContext]]
+    * @return 生成されたSeq[File]
+    */
   private[generator] def generateOne(tableName: String)(implicit ctx: GeneratorContext): Try[Seq[File]] = {
     implicit val logger = ctx.logger
     logger.debug(s"generateOne: start")
     val result = for {
-      cfg <- createTemplateConfiguration(ctx.templateDirectory)
+      cfg        <- createTemplateConfiguration(ctx.templateDirectory)
       tableDescs <- getTableDescs(ctx.connection, ctx.schemaName)
-      files <- tableDescs.filter { tableDesc =>
-        ctx.tableNameFilter(tableDesc.tableName)
-      }.find(_.tableName == tableName).map { tableDesc =>
-        generateFiles(cfg, tableDesc)
-      }.get
+      files <- tableDescs
+        .filter { tableDesc =>
+          ctx.tableNameFilter(tableDesc.tableName)
+        }
+        .find(_.tableName == tableName)
+        .map { tableDesc =>
+          generateFiles(cfg, tableDesc)
+        }
+        .get
     } yield files
     logger.debug(s"generateOne: finished = $result")
     result
   }
 
   /**
-   * [[generateMany]]のためのタスク。
-   *
-   * @return タスク定義
-   */
+    * [[generateMany]]のためのタスク。
+    *
+    * @return タスク定義
+    */
   def generateManyTask: Def.Initialize[InputTask[Seq[File]]] = Def.inputTask {
-    val tableNames = manyStringParser.parsed
+    val tableNames      = manyStringParser.parsed
     implicit val logger = streams.value.log
     logger.info("sbt-dao-generator: generateMany task")
     logger.info("driverClassName = " + (driverClassName in generator).value.toString)
@@ -130,32 +134,32 @@ trait SbtDaoGenerator {
         (jdbcPassword in generator).value
       )
     ) { connection =>
-        implicit val ctx = GeneratorContext(
-          logger,
-          connection,
-          (classNameMapper in generator).value,
-          (propertyTypeNameMapper in generator).value,
-          (tableNameFilter in generator).value,
-          (propertyNameMapper in generator).value,
-          (schemaName in generator).value,
-          (templateDirectory in generator).value,
-          (templateNameMapper in generator).value,
-          (outputDirectoryMapper in generator).value
-        )
-        generateMany(tableNames)
-      }.get
+      implicit val ctx = GeneratorContext(
+        logger,
+        connection,
+        (classNameMapper in generator).value,
+        (propertyTypeNameMapper in generator).value,
+        (tableNameFilter in generator).value,
+        (propertyNameMapper in generator).value,
+        (schemaName in generator).value,
+        (templateDirectory in generator).value,
+        (templateNameMapper in generator).value,
+        (outputDirectoryMapper in generator).value
+      )
+      generateMany(tableNames)
+    }.get
   }
 
   /**
-   * JDBCコネクションを取得する。
-   *
-   * @param classLoader     クラスローダ
-   * @param driverClassName ドライバークラス名
-   * @param jdbcUrl         JDBC URL
-   * @param jdbcUser        JDBCユーザ
-   * @param jdbcPassword    JDBCユーザのパスワード
-   * @return JDBCコネクション
-   */
+    * JDBCコネクションを取得する。
+    *
+    * @param classLoader     クラスローダ
+    * @param driverClassName ドライバークラス名
+    * @param jdbcUrl         JDBC URL
+    * @param jdbcUser        JDBCユーザ
+    * @param jdbcPassword    JDBCユーザのパスワード
+    * @return JDBCコネクション
+    */
   private[generator] def getJdbcConnection(classLoader: ClassLoader,
                                            driverClassName: String,
                                            jdbcUrl: String,
@@ -165,7 +169,7 @@ trait SbtDaoGenerator {
     var connection: Connection = null
     try {
       val driver = classLoader.loadClass(driverClassName).newInstance().asInstanceOf[Driver]
-      val info = new java.util.Properties()
+      val info   = new java.util.Properties()
       info.put("user", jdbcUser)
       info.put("password", jdbcPassword)
       connection = driver.connect(jdbcUrl, info)
@@ -176,48 +180,52 @@ trait SbtDaoGenerator {
   }
 
   /**
-   * 複数のテーブル名を指定してファイルを生成する。
-   *
-   * @param tableNames 複数のテーブル名
-   * @param ctx        [[GeneratorContext]]
-   * @return 生成されたSeq[File]
-   */
+    * 複数のテーブル名を指定してファイルを生成する。
+    *
+    * @param tableNames 複数のテーブル名
+    * @param ctx        [[GeneratorContext]]
+    * @return 生成されたSeq[File]
+    */
   private[generator] def generateMany(tableNames: Seq[String])(implicit ctx: GeneratorContext): Try[Seq[File]] = {
     implicit val logger = ctx.logger
     logger.debug(s"generateMany($tableNames): start")
     val result = for {
-      cfg <- createTemplateConfiguration(ctx.templateDirectory)
+      cfg        <- createTemplateConfiguration(ctx.templateDirectory)
       tableDescs <- getTableDescs(ctx.connection, ctx.schemaName)
-      files <- tableDescs.filter { tableDesc =>
-        ctx.tableNameFilter(tableDesc.tableName)
-      }.filter { tableDesc =>
-        tableNames.contains(tableDesc.tableName)
-      }.foldLeft(Try(Seq.empty[File])) { (result, tableDesc) =>
-        for {
-          r1 <- result
-          r2 <- generateFiles(cfg, tableDesc)
-        } yield r1 ++ r2
-      }
+      files <- tableDescs
+        .filter { tableDesc =>
+          ctx.tableNameFilter(tableDesc.tableName)
+        }
+        .filter { tableDesc =>
+          tableNames.contains(tableDesc.tableName)
+        }
+        .foldLeft(Try(Seq.empty[File])) { (result, tableDesc) =>
+          for {
+            r1 <- result
+            r2 <- generateFiles(cfg, tableDesc)
+          } yield r1 ++ r2
+        }
     } yield files
     logger.debug(s"generateMany: finished = $result")
     result
   }
 
   /**
-   * 複数のテーブルディスクリプションを取得する。
-   *
-   * @param conn       JDBCコネクション
-   * @param schemaName スキーマ名
-   * @return テーブルディスクリプション
-   */
-  private[generator] def getTableDescs(conn: Connection, schemaName: Option[String])(implicit logger: Logger): Try[Seq[TableDesc]] = {
+    * 複数のテーブルディスクリプションを取得する。
+    *
+    * @param conn       JDBCコネクション
+    * @param schemaName スキーマ名
+    * @return テーブルディスクリプション
+    */
+  private[generator] def getTableDescs(conn: Connection,
+                                       schemaName: Option[String])(implicit logger: Logger): Try[Seq[TableDesc]] = {
     logger.debug(s"getTableDescs($conn, $schemaName): start")
     val result = getTables(conn, schemaName).flatMap { tables =>
       tables.foldLeft(Try(Seq.empty[TableDesc])) { (result, tableName) =>
         for {
-          r <- result
+          r               <- result
           primaryKeyDescs <- getPrimaryKeyDescs(conn, schemaName, tableName)
-          columnDescs <- getColumnDescs(conn, schemaName, tableName)
+          columnDescs     <- getColumnDescs(conn, schemaName, tableName)
         } yield r :+ TableDesc(tableName, primaryKeyDescs, columnDescs)
       }
     }
@@ -226,13 +234,14 @@ trait SbtDaoGenerator {
   }
 
   /**
-   * 複数のテーブル名を取得する。
-   *
-   * @param conn       JDBCコネクション
-   * @param schemaName スキーマ名
-   * @return テーブル名
-   */
-  private[generator] def getTables(conn: Connection, schemaName: Option[String])(implicit logger: Logger): Try[Seq[String]] = {
+    * 複数のテーブル名を取得する。
+    *
+    * @param conn       JDBCコネクション
+    * @param schemaName スキーマ名
+    * @return テーブル名
+    */
+  private[generator] def getTables(conn: Connection,
+                                   schemaName: Option[String])(implicit logger: Logger): Try[Seq[String]] = {
     logger.debug(s"getColumnDescs($conn, $schemaName): start")
     val result = Try(conn.getMetaData).flatMap { dbMeta =>
       val types = Array("TABLE")
@@ -253,26 +262,25 @@ trait SbtDaoGenerator {
   }
 
   /**
-   * 複数のカラムディスクリプションを取得する。
-   *
-   * @param conn       JDBCコネクション
-   * @param schemaName スキーマ名
-   * @param tableName  テーブル名
-   * @return カラムディスクリプション
-   */
-  private[generator] def getColumnDescs(conn: Connection,
-                                        schemaName: Option[String],
-                                        tableName: String)(implicit logger: Logger): Try[Seq[ColumnDesc]] = {
+    * 複数のカラムディスクリプションを取得する。
+    *
+    * @param conn       JDBCコネクション
+    * @param schemaName スキーマ名
+    * @param tableName  テーブル名
+    * @return カラムディスクリプション
+    */
+  private[generator] def getColumnDescs(conn: Connection, schemaName: Option[String], tableName: String)(
+      implicit logger: Logger
+  ): Try[Seq[ColumnDesc]] = {
     logger.debug(s"getColumnDescs($conn, $schemaName, $tableName): start")
     val result = Try(conn.getMetaData).flatMap { dbMeta =>
       using(dbMeta.getColumns(null, schemaName.orNull, tableName, "%")) { rs =>
         val lb = ListBuffer[ColumnDesc]()
         while (rs.next()) {
-          lb += ColumnDesc(
-            rs.getString("COLUMN_NAME"),
-            rs.getString("TYPE_NAME"),
-            rs.getString("IS_NULLABLE") == "YES",
-            Option(rs.getString("COLUMN_SIZE")).map(_.toInt))
+          lb += ColumnDesc(rs.getString("COLUMN_NAME"),
+                           rs.getString("TYPE_NAME"),
+                           rs.getString("IS_NULLABLE") == "YES",
+                           Option(rs.getString("COLUMN_SIZE")).map(_.toInt))
         }
         Success(lb.result())
       }
@@ -282,16 +290,16 @@ trait SbtDaoGenerator {
   }
 
   /**
-   * 複数のプライマリーキーディスクリプションを取得する。
-   *
-   * @param conn       JDBCコネクション
-   * @param schemaName スキーマ名
-   * @param tableName  テーブル名
-   * @return プライマリーキーディスクリプション
-   */
-  private[generator] def getPrimaryKeyDescs(conn: Connection,
-                                            schemaName: Option[String],
-                                            tableName: String)(implicit logger: Logger): Try[Seq[PrimaryKeyDesc]] = {
+    * 複数のプライマリーキーディスクリプションを取得する。
+    *
+    * @param conn       JDBCコネクション
+    * @param schemaName スキーマ名
+    * @param tableName  テーブル名
+    * @return プライマリーキーディスクリプション
+    */
+  private[generator] def getPrimaryKeyDescs(conn: Connection, schemaName: Option[String], tableName: String)(
+      implicit logger: Logger
+  ): Try[Seq[PrimaryKeyDesc]] = {
     logger.debug(s"getPrimaryKeyDescs($conn, $schemaName, $tableName): start")
     val result = Try(conn.getMetaData).flatMap { dbMeta =>
       using(dbMeta.getPrimaryKeys(null, schemaName.orNull, tableName)) { rs =>
@@ -314,27 +322,24 @@ trait SbtDaoGenerator {
   }
 
   /**
-   * テンプレートから複数のファイルを生成する。
-   *
-   * @param cfg       テンプレートコンフィグレーション
-   * @param tableDesc [[TableDesc]]
-   * @param ctx       [[GeneratorContext]]
-   * @return TryにラップされたSeq[File]
-   */
+    * テンプレートから複数のファイルを生成する。
+    *
+    * @param cfg       テンプレートコンフィグレーション
+    * @param tableDesc [[TableDesc]]
+    * @param ctx       [[GeneratorContext]]
+    * @return TryにラップされたSeq[File]
+    */
   private[generator] def generateFiles(cfg: freemarker.template.Configuration,
                                        tableDesc: TableDesc)(implicit ctx: GeneratorContext): Try[Seq[File]] = {
     implicit val logger = ctx.logger
     logger.debug(s"generateFiles($cfg, $tableDesc): start")
-    val result = ctx.classNameMapper(tableDesc.tableName)
+    val result = ctx
+      .classNameMapper(tableDesc.tableName)
       .foldLeft(Try(Seq.empty[File])) { (result, className) =>
         val outputTargetDirectory = ctx.outputDirectoryMapper(className)
         for {
-          r <- result
-          file <- generateFile(
-            cfg,
-            tableDesc,
-            className,
-            outputTargetDirectory)
+          r    <- result
+          file <- generateFile(cfg, tableDesc, className, outputTargetDirectory)
         } yield {
           r :+ file
         }
@@ -344,15 +349,15 @@ trait SbtDaoGenerator {
   }
 
   /**
-   * テンプレートからファイルを生成する。
-   *
-   * @param cfg             テンプレートコンフィグレーション
-   * @param tableDesc       [[TableDesc]]
-   * @param className       クラス名
-   * @param outputDirectory 出力先ディレクトリ
-   * @param ctx             [[GeneratorContext]]
-   * @return TryにラップされたFile
-   */
+    * テンプレートからファイルを生成する。
+    *
+    * @param cfg             テンプレートコンフィグレーション
+    * @param tableDesc       [[TableDesc]]
+    * @param className       クラス名
+    * @param outputDirectory 出力先ディレクトリ
+    * @param ctx             [[GeneratorContext]]
+    * @return TryにラップされたFile
+    */
   private[generator] def generateFile(cfg: freemarker.template.Configuration,
                                       tableDesc: TableDesc,
                                       className: String,
@@ -360,8 +365,8 @@ trait SbtDaoGenerator {
     implicit val logger = ctx.logger
     logger.debug(s"generateFile($cfg, $tableDesc, $outputDirectory): start")
     val templateName = ctx.templateNameMapper(className)
-    val template = cfg.getTemplate(templateName)
-    val file = createFile(outputDirectory, className)
+    val template     = cfg.getTemplate(templateName)
+    val file         = createFile(outputDirectory, className)
     ctx.logger.info(s"tableName = ${tableDesc.tableName}, templateName = $templateName, generate file = $file")
 
     if (!outputDirectory.exists())
@@ -369,8 +374,8 @@ trait SbtDaoGenerator {
 
     val result = using(new FileWriter(file)) { writer =>
       val primaryKeys = createPrimaryKeysContext(ctx.typeNameMapper, ctx.propertyNameMapper, tableDesc)
-      val columns = createColumnsContext(ctx.typeNameMapper, ctx.propertyNameMapper, tableDesc)
-      val context = createContext(primaryKeys, columns, tableDesc.tableName, className)
+      val columns     = createColumnsContext(ctx.typeNameMapper, ctx.propertyNameMapper, tableDesc)
+      val context     = createContext(primaryKeys, columns, tableDesc.tableName, className)
       template.process(context, writer)
       writer.flush()
       Success(file)
@@ -380,27 +385,29 @@ trait SbtDaoGenerator {
   }
 
   /**
-   * プライマリーキーのためのコンテキストを生成する。
-   *
-   * @param typeNameMapper     タイプマッパー
-   * @param propertyNameMapper プロパティマッパー
-   * @param tableDesc          テーブルディスクリプション
-   * @return コンテキスト
-   */
-  private[generator] def createPrimaryKeysContext(typeNameMapper: String => String,
-                                                  propertyNameMapper: String => String,
-                                                  tableDesc: TableDesc)(implicit logger: Logger): Seq[Map[String, Any]] = {
+    * プライマリーキーのためのコンテキストを生成する。
+    *
+    * @param typeNameMapper     タイプマッパー
+    * @param propertyNameMapper プロパティマッパー
+    * @param tableDesc          テーブルディスクリプション
+    * @return コンテキスト
+    */
+  private[generator] def createPrimaryKeysContext(
+      typeNameMapper: String => String,
+      propertyNameMapper: String => String,
+      tableDesc: TableDesc
+  )(implicit logger: Logger): Seq[Map[String, Any]] = {
     logger.debug(s"createPrimaryKeysContext($typeNameMapper, $propertyNameMapper, $tableDesc): start")
     val primaryKeys = tableDesc.primaryDescs.map { key =>
       val column = tableDesc.columnDescs.find(_.columnName == key.columnName).get
       Map[String, Any](
-        "columnName" -> key.columnName,
-        "columnTypeName" -> column.typeName,
-        "propertyName" -> propertyNameMapper(key.columnName),
-        "propertyTypeName" -> typeNameMapper(column.typeName),
+        "columnName"              -> key.columnName,
+        "columnTypeName"          -> column.typeName,
+        "propertyName"            -> propertyNameMapper(key.columnName),
+        "propertyTypeName"        -> typeNameMapper(column.typeName),
         "capitalizedPropertyName" -> StringUtil.camelize(key.columnName),
-        "autoIncrement" -> key.autoIncrement,
-        "nullable" -> column.nullable
+        "autoIncrement"           -> key.autoIncrement,
+        "nullable"                -> column.nullable
       )
     }
     logger.debug(s"createPrimaryKeysContext: finished = $primaryKeys")
@@ -408,13 +415,13 @@ trait SbtDaoGenerator {
   }
 
   /**
-   * カラムのためのコンテキストを生成する。
-   *
-   * @param propertyTypeNameMapper     タイプマッパー
-   * @param propertyNameMapper プロパティマッパー
-   * @param tableDesc          テーブルディスクリプション
-   * @return コンテキスト
-   */
+    * カラムのためのコンテキストを生成する。
+    *
+    * @param propertyTypeNameMapper     タイプマッパー
+    * @param propertyNameMapper プロパティマッパー
+    * @param tableDesc          テーブルディスクリプション
+    * @return コンテキスト
+    */
   private[generator] def createColumnsContext(propertyTypeNameMapper: String => String,
                                               propertyNameMapper: String => String,
                                               tableDesc: TableDesc)(implicit logger: Logger): Seq[Map[String, Any]] = {
@@ -422,16 +429,17 @@ trait SbtDaoGenerator {
     val columns = tableDesc.columnDescs
       .filterNot { e =>
         tableDesc.primaryDescs.map(_.columnName).contains(e.columnName)
-      }.map { column =>
-        val propertyName = propertyNameMapper(column.columnName)
+      }
+      .map { column =>
+        val propertyName     = propertyNameMapper(column.columnName)
         val propertyTypeName = propertyTypeNameMapper(column.typeName)
         Map[String, Any](
-          "columnName" -> column.columnName,
-          "columnTypeName" -> column.typeName,
-          "propertyName" -> propertyName,
-          "propertyTypeName" -> propertyTypeName,
+          "columnName"              -> column.columnName,
+          "columnTypeName"          -> column.typeName,
+          "propertyName"            -> propertyName,
+          "propertyTypeName"        -> propertyTypeName,
           "capitalizedPropertyName" -> StringUtil.capitalize(propertyName),
-          "nullable" -> column.nullable
+          "nullable"                -> column.nullable
         )
       }
     logger.debug(s"createColumnsContext: finished = $columns")
@@ -439,38 +447,38 @@ trait SbtDaoGenerator {
   }
 
   /**
-   * コンテキストを生成する。
-   *
-   * @param logger      ロガー
-   * @param primaryKeys プライマリーキー
-   * @param columns     カラム
-   * @param className   クラス名
-   * @return コンテキスト
-   */
+    * コンテキストを生成する。
+    *
+    * @param logger      ロガー
+    * @param primaryKeys プライマリーキー
+    * @param columns     カラム
+    * @param className   クラス名
+    * @return コンテキスト
+    */
   private[generator] def createContext(primaryKeys: Seq[Map[String, Any]],
                                        columns: Seq[Map[String, Any]],
                                        tableName: String,
                                        className: String)(implicit logger: Logger): java.util.Map[String, Any] = {
     logger.debug(s"createContext($primaryKeys, $columns, $className): start")
     val context = Map[String, Any](
-      "tableName" -> tableName,
-      "className" -> className,
+      "tableName"              -> tableName,
+      "className"              -> className,
       "decapitalizedClassName" -> StringUtil.decapitalize(className),
-      "primaryKeys" -> primaryKeys.map(_.asJava).asJava,
-      "columns" -> columns.map(_.asJava).asJava,
-      "allColumns" -> (primaryKeys ++ columns).map(_.asJava).asJava
+      "primaryKeys"            -> primaryKeys.map(_.asJava).asJava,
+      "columns"                -> columns.map(_.asJava).asJava,
+      "allColumns"             -> (primaryKeys ++ columns).map(_.asJava).asJava
     ).asJava
     logger.debug(s"createContext: finished = $context")
     context
   }
 
   /**
-   * 出力先のファイルを生成する。
-   *
-   * @param outputDirectory 出力先ディレクトリ
-   * @param className       クラス名
-   * @return [[File]]
-   */
+    * 出力先のファイルを生成する。
+    *
+    * @param outputDirectory 出力先ディレクトリ
+    * @param className       クラス名
+    * @return [[File]]
+    */
   private[generator] def createFile(outputDirectory: File, className: String)(implicit logger: Logger): File = {
     logger.debug(s"createFile($outputDirectory, $className): start")
     val file = outputDirectory / (className + ".scala")
@@ -479,13 +487,15 @@ trait SbtDaoGenerator {
   }
 
   /**
-   * テンプレートコンフィグレーションを生成する。
-   *
-   * @param templateDirectory テンプレートディレクトリ
-   * @param logger            ロガー
-   * @return テンプレートコンフィグレーション
-   */
-  private[generator] def createTemplateConfiguration(templateDirectory: File)(implicit logger: Logger): Try[freemarker.template.Configuration] = Try {
+    * テンプレートコンフィグレーションを生成する。
+    *
+    * @param templateDirectory テンプレートディレクトリ
+    * @param logger            ロガー
+    * @return テンプレートコンフィグレーション
+    */
+  private[generator] def createTemplateConfiguration(
+      templateDirectory: File
+  )(implicit logger: Logger): Try[freemarker.template.Configuration] = Try {
     logger.debug(s"createTemplateConfiguration($templateDirectory): start")
     var cfg: freemarker.template.Configuration = null
     try {
@@ -498,10 +508,10 @@ trait SbtDaoGenerator {
   }
 
   /**
-   * [[generateAll]]のためのタスク。
-   *
-   * @return タスク定義
-   */
+    * [[generateAll]]のためのタスク。
+    *
+    * @return タスク定義
+    */
   def generateAllTask: Def.Initialize[Task[Seq[File]]] = Def.task {
     implicit val logger = streams.value.log
     logger.info("sbt-dao-generator: generateAll task")
@@ -526,42 +536,44 @@ trait SbtDaoGenerator {
         (jdbcPassword in generator).value
       )
     ) { conn =>
-        implicit val ctx = GeneratorContext(
-          logger,
-          conn,
-          (classNameMapper in generator).value,
-          (propertyTypeNameMapper in generator).value,
-          (tableNameFilter in generator).value,
-          (propertyNameMapper in generator).value,
-          (schemaName in generator).value,
-          (templateDirectory in generator).value,
-          (templateNameMapper in generator).value,
-          (outputDirectoryMapper in generator).value
-        )
-        generateAll
-      }.get
+      implicit val ctx = GeneratorContext(
+        logger,
+        conn,
+        (classNameMapper in generator).value,
+        (propertyTypeNameMapper in generator).value,
+        (tableNameFilter in generator).value,
+        (propertyNameMapper in generator).value,
+        (schemaName in generator).value,
+        (templateDirectory in generator).value,
+        (templateNameMapper in generator).value,
+        (outputDirectoryMapper in generator).value
+      )
+      generateAll
+    }.get
   }
 
   /**
-   * すべてのテーブルを指定してファイルを生成する。
-   *
-   * @param ctx [[GeneratorContext]]
-   * @return 生成されたSeq[File]
-   */
+    * すべてのテーブルを指定してファイルを生成する。
+    *
+    * @param ctx [[GeneratorContext]]
+    * @return 生成されたSeq[File]
+    */
   private[generator] def generateAll(implicit ctx: GeneratorContext): Try[Seq[File]] = {
     implicit val logger = ctx.logger
     logger.debug(s"generateAll: start")
     val result = for {
-      cfg <- createTemplateConfiguration(ctx.templateDirectory)
+      cfg        <- createTemplateConfiguration(ctx.templateDirectory)
       tableDescs <- getTableDescs(ctx.connection, ctx.schemaName)
-      files <- tableDescs.filter { tableDesc =>
-        ctx.tableNameFilter(tableDesc.tableName)
-      }.foldLeft(Try(Seq.empty[File])) { (result, tableDesc) =>
-        for {
-          r1 <- result
-          r2 <- generateFiles(cfg, tableDesc)
-        } yield r1 ++ r2
-      }
+      files <- tableDescs
+        .filter { tableDesc =>
+          ctx.tableNameFilter(tableDesc.tableName)
+        }
+        .foldLeft(Try(Seq.empty[File])) { (result, tableDesc) =>
+          for {
+            r1 <- result
+            r2 <- generateFiles(cfg, tableDesc)
+          } yield r1 ++ r2
+        }
     } yield files
     logger.debug(s"generateAll: finished = $result")
     result

@@ -1,5 +1,3 @@
-import scalariform.formatter.preferences._
-
 scalaVersion := "2.10.5"
 
 sonatypeProfileName := "jp.co.septeni-original"
@@ -59,16 +57,6 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.4" % "test",
   "com.h2database" % "h2" % "1.4.187" % "test"
 )
-
-scalariformSettings
-
-ScalariformKeys.preferences :=
-  ScalariformKeys.preferences.value
-    .setPreference(AlignParameters, true)
-    .setPreference(AlignSingleLineCaseStatements, true)
-    .setPreference(DoubleIndentClassDeclaration, true)
-    .setPreference(PreserveDanglingCloseParenthesis, true)
-    .setPreference(MultilineScaladocCommentsStartOnFirstLine, false)
 
 credentials := Def.task {
   val ivyCredentials = (baseDirectory in LocalRootProject).value / ".credentials"
