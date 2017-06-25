@@ -1,5 +1,7 @@
 name := "mysql"
 
+scalaVersion := "2.12.2"
+
 libraryDependencies ++= Seq(
   "mysql" % "mysql-connector-java" % "5.1.42"
 )
@@ -58,5 +60,5 @@ outputDirectoryMapper in generator := {
   case (className: String) => (sourceManaged in Compile).value
 }
 
-//sourceGenerators in Compile <+= generateAll in generator
+sourceGenerators in Compile += generateAll in generator
 

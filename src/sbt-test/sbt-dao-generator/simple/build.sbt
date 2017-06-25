@@ -1,5 +1,7 @@
 name := "simple"
 
+scalaVersion := "2.12.2"
+
 libraryDependencies ++= Seq(
   "com.h2database" % "h2" % "1.4.187"
 )
@@ -43,4 +45,4 @@ outputDirectoryMapper in generator := {
   case (className: String) => (sourceManaged in Compile).value
 }
 
-sourceGenerators in Compile <+= generateAll in generator
+sourceGenerators in Compile += generateAll in generator
