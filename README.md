@@ -138,7 +138,7 @@ You can use the following template contexts.
 
 **Column objects**
 
-| Variable nam | Type | Description |
+| Variable name | Type | Description |
 |:-----------|:---|:---------|
 | `columnName` | `String` | Column Name (`FIRST_NAME`) |
 | `columnTypeName` | `String` | Column Type Name (`VARCHAR`, `DATETIME`, ...) |
