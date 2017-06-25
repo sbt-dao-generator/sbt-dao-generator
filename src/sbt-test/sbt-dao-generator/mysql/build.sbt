@@ -34,7 +34,7 @@ wixMySQLUserName := Some(flywayUser.value)
 
 wixMySQLPassword := Some(flywayPassword.value)
 
-wixMySQLDownloadPath := Some(System.getProperty("java.io.tmpdir"))
+wixMySQLDownloadPath := Some(sys.env("HOME") + "/.wixMySQL/downloads")
 
 propertyTypeNameMapper in generator := {
   case s if s.toUpperCase() == "BIGINT" => "Long"

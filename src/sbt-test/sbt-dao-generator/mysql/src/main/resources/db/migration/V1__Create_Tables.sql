@@ -15,8 +15,8 @@ CREATE TABLE `emp` (
   PRIMARY KEY (EMP_ID)
 );
 
-INSERT INTO DEPT VALUES (1, '技術部', 1);
-INSERT INTO DEPT VALUES (2, '総務部', 1);
+INSERT INTO `dept` VALUES (1, '技術部', 1);
+INSERT INTO `dept` VALUES (2, '総務部', 1);
 
-INSERT INTO EMP VALUES (1, 1, '山田太郎', '1980-12-17', 800, 1);
-INSERT INTO EMP VALUES (2, 2, '山田花子', '1981-02-20', 1600, 1);
+INSERT INTO `emp` VALUES (1, 1, '山田太郎', '1980-12-17', 800, 1);
+INSERT INTO `emp` VALUES (2, 2, '山田花子', '1981-02-20', 1600, 1);

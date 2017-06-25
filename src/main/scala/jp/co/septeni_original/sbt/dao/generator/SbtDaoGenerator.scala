@@ -42,12 +42,17 @@ trait SbtDaoGenerator {
     logger.info("schemaName = " + (schemaName in generator).value.getOrElse(""))
     logger.info("tableName = " + tableName)
 
+    val classLoader = if ((enableManagedClassPath in generator).value)
+      ClasspathUtilities.toLoader(
+        (managedClasspath in Compile).value.map(_.data),
+        ClasspathUtilities.xsbtiLoader
+      )
+    else
+      ClasspathUtilities.xsbtiLoader
+
     using(
       getJdbcConnection(
-        ClasspathUtilities.toLoader(
-          (managedClasspath in Compile).value.map(_.data),
-          ClasspathUtilities.xsbtiLoader
-        ),
+        classLoader,
         (driverClassName in generator).value,
         (jdbcUrl in generator).value,
         (jdbcUser in generator).value,
@@ -112,12 +117,17 @@ trait SbtDaoGenerator {
     logger.info("schemaName = " + (schemaName in generator).value.getOrElse(""))
     logger.info("tableNames = " + tableNames.mkString(", "))
 
+    val classLoader = if ((enableManagedClassPath in generator).value)
+      ClasspathUtilities.toLoader(
+        (managedClasspath in Compile).value.map(_.data),
+        ClasspathUtilities.xsbtiLoader
+      )
+    else
+      ClasspathUtilities.xsbtiLoader
+
     using(
       getJdbcConnection(
-        ClasspathUtilities.toLoader(
-          (managedClasspath in Compile).value.map(_.data),
-          ClasspathUtilities.xsbtiLoader
-        ),
+        classLoader,
         (driverClassName in generator).value,
         (jdbcUrl in generator).value,
         (jdbcUser in generator).value,
@@ -510,12 +520,16 @@ trait SbtDaoGenerator {
     logger.info("jdbcUser = " + (jdbcUser in generator).value.toString)
     logger.info("schemaName = " + (schemaName in generator).value.getOrElse(""))
 
+    val classLoader = if ((enableManagedClassPath in generator).value)
+      ClasspathUtilities.toLoader(
+        (managedClasspath in Compile).value.map(_.data),
+        ClasspathUtilities.xsbtiLoader
+      )
+    else
+      ClasspathUtilities.xsbtiLoader
     using(
       getJdbcConnection(
-        ClasspathUtilities.toLoader(
-          (managedClasspath in Compile).value.map(_.data),
-          ClasspathUtilities.xsbtiLoader
-        ),
+        classLoader,
         (driverClassName in generator).value,
         (jdbcUrl in generator).value,
         (jdbcUser in generator).value,
