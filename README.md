@@ -170,22 +170,38 @@ $ sbt generator::generateMany DEPT EMP
 [success] Total time: 0 s, completed 2015/06/24 18:17:20
 ```
 
+If you want to run `generator::generateAll` at` sbt compile`, add the following to build.sbt:
+
+```scala
+// sbt 0.12.x
+sourceGenerators in Compile <+= generateAll in generator
+
+// sbt 0.13.x
+sourceGenerators in Compile += (generateAll in generator).value
+```
+
 ## How to migration from v1.0.4 to v1.0.8
 
 The following parameters have been changed. Please change your project accordingly.
 
 - projectSettings
 
+| Modify type | Old name | New name |
+|:---------|:---------------|:-----------------------|
 | Modified | typeNameMapper | propertyTypeNameMapper |
 
 - Top level objects
 
+| Modify type | Old name | New name |
+|:---------|:-----|:----------|
 | Modified | name | className |
 | Added | - | tableName |
 | Modified | primaryKeysWithColumns | allColumns |
 
 - Column objects
 
+| Modify type | Old name | New name |
+|:---------|:-----------|:---------------|
 | Modified | columnType | columnTypeName |
 | Modified | propertyType | propertyTypeName |
 
@@ -199,12 +215,4 @@ $ sbt generator::generateOne DEPT
 [success] Total time: 0 s, completed 2015/06/24 18:17:20
 ```
 
-If you want to run `generator::generateAll` at` sbt compile`, add the following to build.sbt:
 
-```scala
-// sbt 0.12.x
-sourceGenerators in Compile <+= generateAll in generator
-
-// sbt 0.13.x
-sourceGenerators in Compile += (generateAll in generator).value
-```
