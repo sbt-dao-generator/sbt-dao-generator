@@ -170,6 +170,25 @@ $ sbt generator::generateMany DEPT EMP
 [success] Total time: 0 s, completed 2015/06/24 18:17:20
 ```
 
+## How to migration from v1.0.4 to v1.0.8
+
+The following parameters have been changed. Please change your project accordingly.
+
+- projectSettings
+
+| Modified | typeNameMapper | propertyTypeNameMapper |
+
+- Top level objects
+
+| Modified | name | className |
+| Added | - | tableName |
+| Modified | primaryKeysWithColumns | allColumns |
+
+- Column objects
+
+| Modified | columnType | columnTypeName |
+| Modified | propertyType | propertyTypeName |
+
 - When processing one table
 
 ```sh
