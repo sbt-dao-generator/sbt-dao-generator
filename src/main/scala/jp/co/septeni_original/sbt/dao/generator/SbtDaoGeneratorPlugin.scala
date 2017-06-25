@@ -6,8 +6,8 @@ import sbt._
 import sbt.plugins.JvmPlugin
 
 /**
- * sbt-dao-generatorのプラグイン定義。
- */
+  * sbt-dao-generatorのプラグイン定義。
+  */
 object SbtDaoGeneratorPlugin extends AutoPlugin {
 
   override def trigger = allRequirements
@@ -25,14 +25,22 @@ object SbtDaoGeneratorPlugin extends AutoPlugin {
     jdbcPassword in generator := "",
     schemaName in generator := None,
     templateDirectory in generator := baseDirectory.value / "templates",
-    templateNameMapper in generator := { _: String => "template.ftl" },
+    templateNameMapper in generator := { _: String =>
+      "template.ftl"
+    },
     propertyTypeNameMapper in generator := identity,
-    tableNameFilter in generator := { _: String => true },
+    tableNameFilter in generator := { _: String =>
+      true
+    },
     propertyNameMapper in generator := { columnName: String =>
       StringUtil.decapitalize(StringUtil.camelize(columnName))
     },
-    classNameMapper in generator := { tableName: String => Seq(StringUtil.camelize(tableName)) },
-    outputDirectoryMapper in generator := { _: String => (sourceManaged in Compile).value },
+    classNameMapper in generator := { tableName: String =>
+      Seq(StringUtil.camelize(tableName))
+    },
+    outputDirectoryMapper in generator := { _: String =>
+      (sourceManaged in Compile).value
+    },
     generateAll in generator := SbtDaoGenerator.generateAllTask.value,
     generateMany in generator := SbtDaoGenerator.generateManyTask.evaluated,
     generateOne in generator := SbtDaoGenerator.generateOneTask.evaluated
