@@ -29,7 +29,7 @@ resolvers += "Sonatype OSS Snapshot Repository" at "https://oss.sonatype.org/con
 addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.8-SNAPSHOT")
 ```
 
-## Home to configuration
+## How to configuration
 
 Add this to your build.sbt file:
 
