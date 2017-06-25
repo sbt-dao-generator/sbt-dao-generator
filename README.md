@@ -127,25 +127,25 @@ You can use the following template contexts.
 
 **Top level objects**
 
-| 変数名      | 型 | 内容     |
+| Variable name | Type | Description |
 |:-----------|:---|:---------|
-| `tableName` | String | テーブル名 (`USER_NAME`)|
-| `className`  | String | クラス名　(`UserName`)。`classNameMapper`によってテーブル名を変換した文字列|
-| `decapitalizedClassNam`e | String | デキャピタライズされたクラス名 (`userName`) |
-| `primaryKeys` | カラムオブジェクトのリスト | プライマリーキー群 |
-| `columns` | カラムオブジェクトのリスト | カラム群(プライマリーキーを含まない　) |
-| `allColumns` | カラムオブジェクトのリスト | すべてのカラム群(プライマリーキー含む) |
+| `tableName` | String | Table Name (`USER_NAME`)|
+| `className`  | String | Class Name　(`UserName`). The string converted `tableName` by `classNameMapper` |
+| `decapitalizedClassNam`e | String | Decapitalized Class Name (`userName`) |
+| `primaryKeys` | java.util.List<Column> | Primary Keys |
+| `columns` | java.util.List<Column> | Columns without Primary Keys |
+| `allColumns` | java.util.List<Column> | Columns with Primary Keys |
 
 **Column objects**
 
-| 変数名      | 型 | 内容     |
+| Variable nam | Type | Description |
 |:-----------|:---|:---------|
-| `columnName` | `String` | カラム名 (`FIRST_NAME`) |
-| `columnTypeName` | `String` | カラムタイプ名 (`VARCHAR`, `DATETIME`, ...) |
-| `propertyName` | `String` | プロパティ名 (`firstName`)。`propertyNameMapper`によってカラム名を変換した文字列 |
-| `propertyTypeName` | `String` | プロパティタイプ (`String`, `java.util.Date`,...)。`propertyTypeNameMapper`によってカラムタイプ名を変換した文字列 |
-| `capitalizedPropertyName` | `String` | キャピタライズされたクラス名 (`FirstName`) |
-| `nullable` | `Boolean` | NULL許容か否か |
+| `columnName` | `String` | Column Name (`FIRST_NAME`) |
+| `columnTypeName` | `String` | Column Type Name (`VARCHAR`, `DATETIME`, ...) |
+| `propertyName` | `String` | Property Name (`firstName`). The string converted `columnName` by `propertyNameMapper` |
+| `propertyTypeName` | `String` | Property Type Name (`String`, `java.util.Date`,...). The string converted `columnTypeName` by `propertyTypeNameMapper` |
+| `capitalizedPropertyName` | `String` | Capitalized Property Name (`FirstName`) |
+| `nullable` | `Boolean` | NULL is true |
 
 ## Code generation
 
