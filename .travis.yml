@@ -1,16 +1,19 @@
+before_install:
+ - sudo apt-get update -qq && sudo apt-get install -y libaio1
+ - sudo hostname "$(hostname | cut -c1-63)"
+
+os: linux
+dist: trusty
+sudo: required
+
 language: scala
-
-scala:
-  - "2.10.5"
-
-jdk:
-  - oraclejdk8
-
-sudo: false
+scala: "2.10.5"
+jdk: oraclejdk8
 
 cache:
   directories:
     - $HOME/.ivy2/cache
+    - $HOME/.wixMySQL
 
 script:
   - sbt ++${TRAVIS_SCALA_VERSION} test
