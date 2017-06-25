@@ -17,6 +17,6 @@ resolvers ++= Seq(
   else addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % pluginVersion)
 }
 
-addSbtPlugin("com.chatwork" % "sbt-wix-embedded-mysql" % "1.0.4")
+addSbtPlugin("com.chatwork" % "sbt-wix-embedded-mysql" % "1.0.8")
 
 addSbtPlugin("org.flywaydb" % "flyway-sbt" % "4.2.0")
