@@ -39,6 +39,8 @@ trait SbtDaoGeneratorKeys {
 
   val outputDirectoryMapper = settingKey[String => File]("output-directory-mapper")
 
+  val enableManagedClassPath = settingKey[Boolean]("enable-managed-class-path")
+
 }
 
 object SbtDaoGeneratorKeys extends SbtDaoGeneratorKeys
