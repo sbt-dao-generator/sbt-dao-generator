@@ -7,13 +7,13 @@
 [![Scaladoc](http://javadoc-badge.appspot.com/jp.co.septeni-original/sbt-dao-generator_2.10.svg?label=scaladoc)](http://javadoc-badge.appspot.com/jp.co.septeni-original/sbt-dao-generator_2.10)
 [![Reference Status](https://www.versioneye.com/java/jp.co.septeni-original:sbt-dao-generator_2.10/reference_badge.svg?style=flat)](https://www.versioneye.com/java/jp.co.septeni-original:sbt-dao-generator_2.10/references)
 
-`sbt-dao-generator`は、O/Rマッパーフリーなコードジェネレータです。
+`sbt-dao-generator` is the code generator plugin for O/R Mapper Free.
 
-## プラグインの利用方法
+## How to use plugin
 
-project/plugins.sbtに以下のエントリを追加してください。
+Add this to your project/plugins.sbt file:
 
-- リリース版を利用する場合
+- if you use release version:
 
 ```scala
 resolvers += "Sonatype OSS Release Repository" at "https://oss.sonatype.org/content/repositories/releases/"
@@ -21,7 +21,7 @@ resolvers += "Sonatype OSS Release Repository" at "https://oss.sonatype.org/cont
 addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.7")
 ```
 
-- スナップショット版を利用する場合
+- if you use snapshot version:
 
 ```scala
 resolvers += "Sonatype OSS Snapshot Repository" at "https://oss.sonatype.org/content/repositories/snapshots/"
@@ -29,27 +29,46 @@ resolvers += "Sonatype OSS Snapshot Repository" at "https://oss.sonatype.org/con
 addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.8-SNAPSHOT")
 ```
 
-## プラグインの設定方法
+## Home to configuration
 
-以下を参考に`build.sbt`に設定を行ってください。
+Add this to your build.sbt file:
 
 ```scala
-// JDBCのドライバークラス名を指定します(必須)
+// JDBC Driver Class Name (required)
 driverClassName in generator := "org.h2.Driver"
 
-// JDBCの接続URLを指定します(必須)
+// JDBC URL (required)
 jdbcUrl in generator := "jdbc:h2:file:./target/test"
 
-// JDBCの接続ユーザ名を指定します(必須)
+// JDBC User Name (required)
 jdbcUser in generator := "sa"
 
-// JDBCの接続ユーザのパスワードを指定します(必須)
+// JDBC Password (required)
 jdbcPassword in generator := ""
 
-// スキーマ名を指定できます(任意。デフォルトは以下)
+// Schema Name (Default is None)
 schemaName in generator := None,
 
-// カラム型名をどのクラスにマッピングするかを決める関数を記述します(必須)
+// The Function for filtering the table to be processed (Default is the following)
+tableNameFilter in generator := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION"}
+
+// The Function for converting Table Name to Class Name (Default is the following)
+classNameMapper in generator := { tableName: String =>
+    Seq(StringUtil.camelize(tableName))
+}
+
+// e.g.) If you want to specify multiple output files, you can configure it as follows.
+classNameMapper in generator := {
+  case "DEPT" => Seq("Dept", "DeptSpec")
+  case "EMP" => Seq("Emp", "EmpSpec")
+}
+
+// The Function for converting Column Name to Property Name (Default is the following)
+propertyNameMapper in generator := { columnName: String =>
+    StringUtil.decapitalize(StringUtil.camelize(columnName))
+}
+
+// The Function that convert The Column Type Name to Property Type Name (required)
 propertyTypeNameMapper in generator := {
   case "INTEGER" => "Int"
   case "VARCHAR" => "String"
@@ -58,51 +77,37 @@ propertyTypeNameMapper in generator := {
   case "DECIMAL" => "BigDecimal"
 }
 
-// 出力対象のテーブルをフィルターする関数を記述できます(任意。デフォルトはすべてのテーブルが対象になります)
-tableNameFilter in generator := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION"}
+// The Function that decides which Template Name for Model Name (optional, defaults below)
+templateNameMapper in generator := { className: String => "template.ftl" },
 
-// テンプレートファイルを配置するディレクトリを指定できます(任意。デフォルトは以下)
+// e.g.) If you want to specify different templates for the model and spec, you can configure it as follows.
+templateNameMapper in generator := {
+  case className if className.endsWith("Spec") => "template_spec.ftl"
+  case _ => "template.ftl"
+}
+
+// The Directory where template files are placed (Default is the following)
 templateDirectory in generator := baseDirectory.value / "templates"
 
-// ソースコードを出力するディレクトリを動的に変更することができます(任意。デフォルトは以下)
+// The Directory where source code is output (Default is the following)
 outputDirectoryMapper in generator := { className: String => (sourceManaged in Compile).value }
 
+// e.g.) You can change the output destination directory for each class name dynamically.
 outputDirectoryMapper in generator := { className: String =>
   className match {
     case s if s.endsWith("Spec") => (sourceManaged in Test).value
     case s => (sourceManaged in Compile).value
   }
 }
-
-// テーブル名からモデルクラス名にマッピングする関数を記述できます(任意。デフォルトは以下)
-classNameMapper in generator := { tableName: String =>
-    Seq(StringUtil.camelize(tableName))
-}
-
-// 複数の出力ファイルを指定したい場合は以下のようにできます。
-classNameMapper in generator := {
-  case "DEPT" => Seq("Dept", "DeptSpec")
-  case "EMP" => Seq("Emp", "EmpSpec")
-}
-
-// カラム名からプロパティ名にマッピングする関数を記述できます(任意。デフォルトは以下)
-propertyNameMapper in generator := { columnName: String =>
-    StringUtil.decapitalize(StringUtil.camelize(columnName))
-}
-
-// モデル名に対してどのテンプレートを利用するか指定できます(任意。デフォルトは以下)
-templateNameMapper in generator := { className: String => "template.ftl" },
-
-// モデル名に対してどのテンプレートを利用するか指定できます。
-templateNameMapper in generator := {
-  case className if className.endsWith("Spec") => "template_spec.ftl"
-  case _ => "template.ftl"
-}
 ```
 
-## 単純なテンプレートファイルの例
+## How to configure a model template
 
-templateName in generatorで指定されたテンプレートファイルを適宜編集してください。テンプレートエンジンは[FreeMarker](http://freemarker.org/)となります。
+The supported template syntax is FTL(FreeMarker Template Language).Please refer to the official FreeMarker document for details.
+
+- [FreeMarker](http://freemarker.org/)
+
+**`templates/temlate.ftl`
 
 ```
 case class ${className}(
@@ -118,7 +123,9 @@ ${column.propertyName}: ${column.propertyTypeName}<#if column_has_next>,</#if>
 }
 ```
 
-**テンプレートコンテキスト**
+You can use the following template contexts.
+
+**Top level objects**
 
 | 変数名      | 型 | 内容     |
 |:-----------|:---|:---------|
@@ -129,7 +136,7 @@ ${column.propertyName}: ${column.propertyTypeName}<#if column_has_next>,</#if>
 | `columns` | カラムオブジェクトのリスト | カラム群(プライマリーキーを含まない　) |
 | `allColumns` | カラムオブジェクトのリスト | すべてのカラム群(プライマリーキー含む) |
 
-**カラムオブジェクト**
+**Column objects**
 
 | 変数名      | 型 | 内容     |
 |:-----------|:---|:---------|
@@ -140,9 +147,9 @@ ${column.propertyName}: ${column.propertyTypeName}<#if column_has_next>,</#if>
 | `capitalizedPropertyName` | `String` | キャピタライズされたクラス名 (`FirstName`) |
 | `nullable` | `Boolean` | NULL許容か否か |
 
-## コード生成
+## Code generation
 
-すべてのテーブルを対象にする場合
+- When processing all tables
 
 ```sh
 $ sbt generator::generateAll
@@ -152,7 +159,7 @@ $ sbt generator::generateAll
 [success] Total time: 0 s, completed 2015/06/24 18:17:20
 ```
 
-指定した複数テーブルを対象にする場合
+- When processing multiple tables
 
 ```sh
 $ sbt generator::generateMany DEPT EMP
@@ -163,8 +170,7 @@ $ sbt generator::generateMany DEPT EMP
 [success] Total time: 0 s, completed 2015/06/24 18:17:20
 ```
 
-
-指定した単一テーブルを対象にする場合
+- When processing one table
 
 ```sh
 $ sbt generator::generateOne DEPT
@@ -174,82 +180,12 @@ $ sbt generator::generateOne DEPT
 [success] Total time: 0 s, completed 2015/06/24 18:17:20
 ```
 
-`sbt compile`時に`generator::generateAll`を実行したい場合は、build.sbtに以下を追加する。
+If you want to run `generator::generateAll` at` sbt compile`, add the following to build.sbt:
 
 ```scala
+// sbt 0.12.x
 sourceGenerators in Compile <+= generateAll in generator
-```
- 
-## 開発者向け
 
-### 単体テスト方法
-
-プロジェクト直下に配置されたtest.mv.dbを使って単体テストを行います(test.mv.dbはcreate_table.sqlによって手動で作られたデータベースファイルです)。
-
-```sh
-$ sbt clean test
-```
-
-### プラグインの動作テスト方法
-
-#### scriptedでテストを行う
-
-Scripted Test Frameworkを使ったテストします。詳しくは[こちら](http://eed3si9n.com/ja/testing-sbt-plugins)を参考にしてください。
-なお、生成されたソースコードは確認できません。
-
-```
-$ sbt clean scripted 
-[info] Loading project definition from /Users/sbt-user/sbt-dao-generator/project
-<snip>
-Running sbt-dao-generator / simple
-[info] Getting org.scala-sbt sbt 0.13.8 ...
-[info] :: retrieving :: org.scala-sbt#boot-app
-[info] 	confs: [default]
-[info] 	52 artifacts copied, 0 already retrieved (17674kB/132ms)
-[info] Getting Scala 2.10.4 (for sbt)...
-[info] :: retrieving :: org.scala-sbt#boot-scala
-[info] 	confs: [default]
-[info] 	5 artifacts copied, 0 already retrieved (24459kB/78ms)
-[info] [info] Loading project definition from /private/var/folders/tw/2_9djq693wj1889trb760g6w0000gn/T/sbt_9548a4f7/simple/project
-[info] [info] Set current project to simple (in build file:/private/var/folders/tw/2_9djq693wj1889trb760g6w0000gn/T/sbt_9548a4f7/simple/)
-[info] [info] Updating {file:/private/var/folders/tw/2_9djq693wj1889trb760g6w0000gn/T/sbt_9548a4f7/simple/}simple...
-[info] [info] Resolving org.scala-lang#scala-library;2.10.4 ...
-       [info] Resolving com.h2database#h2;1.4.187 ...
-       [info] Resolving org.scala-lang#scala-compiler;2.10.4 ...
-       [info] Resolving org.scala-lang#scala-reflect;2.10.4 ...
-       [info] Resolving org.scala-lang#jline;2.10.4 ...
-       [info] Resolving org.fusesource.jansi#jansi;1.4 ...
-[info] [info] Done updating.
-[info] [info] Flyway 3.2.1 by Boxfuse
-[info] [info] Database: jdbc:h2:file:./target/test (H2 1.4)
-[info] [info] Validated 1 migration (execution time 00:00.021s)
-[info] [info] Current version of schema "PUBLIC": 1
-[info] [info] Schema "PUBLIC" is up to date. No migration necessary.
-[info] [success] Total time: 0 s, completed 2015/06/26 12:54:49
-[info] [info] tableName = DEPT, generate file = /private/var/folders/tw/2_9djq693wj1889trb760g6w0000gn/T/sbt_9548a4f7/simple/target/scala-2.10/src_managed/Dept.scala
-[info] [info] tableName = EMP, generate file = /private/var/folders/tw/2_9djq693wj1889trb760g6w0000gn/T/sbt_9548a4f7/simple/target/scala-2.10/src_managed/Emp.scala
-[info] [success] Total time: 0 s, completed 2015/06/26 12:54:50
-[info] + sbt-dao-generator / simple
-[success] Total time: 23 s, completed 2015/06/26 12:54:50
-```
-
-#### 実際にプラグインをロードして実行する方法
-
-実際に生成されたソースコード確認できます。
-
-```sh
-$ sbt -Dplugin.version=1.0.0-SNAPSHOT                                                                                                         
-[info] Loading project definition from /Users/sbt-user/sbt-dao-generator/src/sbt-test/sbt-dao-generator/simple/project
-[info] Set current project to simple (in build file:/Users/sbt-user/sbt-dao-generator/src/sbt-test/sbt-dao-generator/simple/)
-> flywayMigrate
-[info] Flyway 3.2.1 by Boxfuse
-[info] Database: jdbc:h2:file:./target/test (H2 1.4)
-[info] Validated 1 migration (execution time 00:00.020s)
-[info] Current version of schema "PUBLIC": 1
-[info] Schema "PUBLIC" is up to date. No migration necessary.
-[success] Total time: 0 s, completed 2015/06/24 18:17:12
-> generator::generateAll
-[info] tableName = DEPT, generate file = /Users/sbt-user/sbt-dao-generator/src/sbt-test/sbt-dao-generator/simple/target/scala-2.10/src_managed/Dept.scala
-[info] tableName = EMP, generate file = /Users/sbt-user/sbt-dao-generator/src/sbt-test/sbt-dao-generator/simple/target/scala-2.10/src_managed/Emp.scala
-[success] Total time: 0 s, completed 2015/06/24 18:17:20
+// sbt 0.13.x
+sourceGenerators in Compile += (generateAll in generator).value
 ```
