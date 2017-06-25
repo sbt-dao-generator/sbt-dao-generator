@@ -70,8 +70,8 @@ ScalariformKeys.preferences :=
     .setPreference(PreserveDanglingCloseParenthesis, true)
     .setPreference(MultilineScaladocCommentsStartOnFirstLine, false)
 
-credentials <<= Def.task {
+credentials := Def.task {
   val ivyCredentials = (baseDirectory in LocalRootProject).value / ".credentials"
   val result = Credentials(ivyCredentials) :: Nil
   result
-}
+}.value
