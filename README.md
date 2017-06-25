@@ -170,6 +170,16 @@ $ sbt generator::generateMany DEPT EMP
 [success] Total time: 0 s, completed 2015/06/24 18:17:20
 ```
 
+- When processing one table
+
+```sh
+$ sbt generator::generateOne DEPT
+<snip>
+[info] tableName = DEPT
+[info] tableName = DEPT, generate file = /Users/sbt-user/myproject/target/scala-2.10/src_managed/Dept.scala
+[success] Total time: 0 s, completed 2015/06/24 18:17:20
+```
+
 If you want to run `generator::generateAll` at` sbt compile`, add the following to build.sbt:
 
 ```scala
@@ -205,14 +215,5 @@ The following parameters have been changed. Please change your project according
 | Modified | columnType | columnTypeName |
 | Modified | propertyType | propertyTypeName |
 
-- When processing one table
-
-```sh
-$ sbt generator::generateOne DEPT
-<snip>
-[info] tableName = DEPT
-[info] tableName = DEPT, generate file = /Users/sbt-user/myproject/target/scala-2.10/src_managed/Dept.scala
-[success] Total time: 0 s, completed 2015/06/24 18:17:20
-```
 
 
