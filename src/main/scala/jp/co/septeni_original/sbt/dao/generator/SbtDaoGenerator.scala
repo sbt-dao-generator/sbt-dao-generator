@@ -42,13 +42,14 @@ trait SbtDaoGenerator {
     logger.info("schemaName = " + (schemaName in generator).value.getOrElse(""))
     logger.info("tableName = " + tableName)
 
-    val classLoader = if ((enableManagedClassPath in generator).value)
-      ClasspathUtilities.toLoader(
-        (managedClasspath in Compile).value.map(_.data),
+    val classLoader =
+      if ((enableManagedClassPath in generator).value)
+        ClasspathUtilities.toLoader(
+          (managedClasspath in Compile).value.map(_.data),
+          ClasspathUtilities.xsbtiLoader
+        )
+      else
         ClasspathUtilities.xsbtiLoader
-      )
-    else
-      ClasspathUtilities.xsbtiLoader
 
     using(
       getJdbcConnection(
@@ -117,13 +118,14 @@ trait SbtDaoGenerator {
     logger.info("schemaName = " + (schemaName in generator).value.getOrElse(""))
     logger.info("tableNames = " + tableNames.mkString(", "))
 
-    val classLoader = if ((enableManagedClassPath in generator).value)
-      ClasspathUtilities.toLoader(
-        (managedClasspath in Compile).value.map(_.data),
+    val classLoader =
+      if ((enableManagedClassPath in generator).value)
+        ClasspathUtilities.toLoader(
+          (managedClasspath in Compile).value.map(_.data),
+          ClasspathUtilities.xsbtiLoader
+        )
+      else
         ClasspathUtilities.xsbtiLoader
-      )
-    else
-      ClasspathUtilities.xsbtiLoader
 
     using(
       getJdbcConnection(
@@ -387,27 +389,37 @@ trait SbtDaoGenerator {
   /**
     * プライマリーキーのためのコンテキストを生成する。
     *
-    * @param typeNameMapper     タイプマッパー
+    * @param propertyTypeNameMapper     タイプマッパー
     * @param propertyNameMapper プロパティマッパー
     * @param tableDesc          テーブルディスクリプション
     * @return コンテキスト
     */
   private[generator] def createPrimaryKeysContext(
-      typeNameMapper: String => String,
+      propertyTypeNameMapper: String => String,
       propertyNameMapper: String => String,
       tableDesc: TableDesc
   )(implicit logger: Logger): Seq[Map[String, Any]] = {
-    logger.debug(s"createPrimaryKeysContext($typeNameMapper, $propertyNameMapper, $tableDesc): start")
+    logger.debug(s"createPrimaryKeysContext($propertyTypeNameMapper, $propertyNameMapper, $tableDesc): start")
     val primaryKeys = tableDesc.primaryDescs.map { key =>
-      val column = tableDesc.columnDescs.find(_.columnName == key.columnName).get
+      val column           = tableDesc.columnDescs.find(_.columnName == key.columnName).get
+      val propertyName     = propertyNameMapper(column.columnName)
+      val propertyTypeName = propertyTypeNameMapper(column.typeName)
       Map[String, Any](
-        "columnName"              -> key.columnName,
-        "columnTypeName"          -> column.typeName,
-        "propertyName"            -> propertyNameMapper(key.columnName),
-        "propertyTypeName"        -> typeNameMapper(column.typeName),
-        "capitalizedPropertyName" -> StringUtil.camelize(key.columnName),
-        "autoIncrement"           -> key.autoIncrement,
-        "nullable"                -> column.nullable
+        "name"                      -> key.columnName, // deprecated
+        "columnName"                -> key.columnName,
+        "columnType"                -> column.typeName, // deprecated
+        "columnTypeName"            -> column.typeName,
+        "propertyName"              -> propertyName,
+        "propertyType"              -> propertyTypeName, // deprecated
+        "propertyTypeName"          -> propertyTypeName,
+        "camelizeName"              -> StringUtil.camelize(key.columnName), // deprecated
+        "camelizedColumnName"       -> StringUtil.camelize(key.columnName),
+        "capitalizedColumnName"     -> StringUtil.capitalize(key.columnName),
+        "capitalizedPropertyName"   -> StringUtil.capitalize(propertyName),
+        "decamelizedPropertyName"   -> StringUtil.decamelize(propertyName),
+        "decapitalizedPropertyName" -> StringUtil.decapitalize(propertyName),
+        "autoIncrement"             -> key.autoIncrement,
+        "nullable"                  -> column.nullable
       )
     }
     logger.debug(s"createPrimaryKeysContext: finished = $primaryKeys")
@@ -434,12 +446,20 @@ trait SbtDaoGenerator {
         val propertyName     = propertyNameMapper(column.columnName)
         val propertyTypeName = propertyTypeNameMapper(column.typeName)
         Map[String, Any](
-          "columnName"              -> column.columnName,
-          "columnTypeName"          -> column.typeName,
-          "propertyName"            -> propertyName,
-          "propertyTypeName"        -> propertyTypeName,
-          "capitalizedPropertyName" -> StringUtil.capitalize(propertyName),
-          "nullable"                -> column.nullable
+          "name"                      -> column.columnName, // deprecated
+          "columnName"                -> column.columnName,
+          "columnType"                -> column.typeName, // deprecated
+          "columnTypeName"            -> column.typeName,
+          "propertyName"              -> propertyName,
+          "propertyType"              -> propertyTypeName, // deprecated
+          "propertyTypeName"          -> propertyTypeName,
+          "camelizedColumnName"       -> StringUtil.camelize(column.columnName),
+          "capitalizedColumnName"     -> StringUtil.capitalize(column.columnName),
+          "capitalizedPropertyName"   -> StringUtil.capitalize(propertyName),
+          "decamelizedPropertyName"   -> StringUtil.decamelize(propertyName),
+          "decapitalizedPropertyName" -> StringUtil.decapitalize(propertyName),
+          "capitalizedPropertyName"   -> StringUtil.capitalize(propertyName), // deprecated
+          "nullable"                  -> column.nullable
         )
       }
     logger.debug(s"createColumnsContext: finished = $columns")
@@ -461,11 +481,14 @@ trait SbtDaoGenerator {
                                        className: String)(implicit logger: Logger): java.util.Map[String, Any] = {
     logger.debug(s"createContext($primaryKeys, $columns, $className): start")
     val context = Map[String, Any](
-      "tableName"              -> tableName,
+      "name"                   -> className, // deprecated
+      "lowerCamelName"         -> (className.substring(0, 1).toLowerCase + className.substring(1)), // deprecated
       "className"              -> className,
+      "tableName"              -> tableName,
       "decapitalizedClassName" -> StringUtil.decapitalize(className),
       "primaryKeys"            -> primaryKeys.map(_.asJava).asJava,
       "columns"                -> columns.map(_.asJava).asJava,
+      "primaryKeysWithColumns" -> (primaryKeys ++ columns).map(_.asJava).asJava, // deprecated
       "allColumns"             -> (primaryKeys ++ columns).map(_.asJava).asJava
     ).asJava
     logger.debug(s"createContext: finished = $context")
@@ -520,13 +543,14 @@ trait SbtDaoGenerator {
     logger.info("jdbcUser = " + (jdbcUser in generator).value.toString)
     logger.info("schemaName = " + (schemaName in generator).value.getOrElse(""))
 
-    val classLoader = if ((enableManagedClassPath in generator).value)
-      ClasspathUtilities.toLoader(
-        (managedClasspath in Compile).value.map(_.data),
+    val classLoader =
+      if ((enableManagedClassPath in generator).value)
+        ClasspathUtilities.toLoader(
+          (managedClasspath in Compile).value.map(_.data),
+          ClasspathUtilities.xsbtiLoader
+        )
+      else
         ClasspathUtilities.xsbtiLoader
-      )
-    else
-      ClasspathUtilities.xsbtiLoader
     using(
       getJdbcConnection(
         classLoader,
