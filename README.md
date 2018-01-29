@@ -18,7 +18,7 @@ Add this to your project/plugins.sbt file:
 ```scala
 resolvers += "Sonatype OSS Release Repository" at "https://oss.sonatype.org/content/repositories/releases/"
 
-addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.7")
+addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.8")
 ```
 
 - if you use snapshot version:
@@ -26,7 +26,7 @@ addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.7")
 ```scala
 resolvers += "Sonatype OSS Snapshot Repository" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
-addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.8-SNAPSHOT")
+addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.9-SNAPSHOT")
 ```
 
 ## How to configuration
