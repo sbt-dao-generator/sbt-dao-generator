@@ -7,7 +7,9 @@ dist: trusty
 sudo: required
 
 language: scala
-scala: "2.10.5"
+
+scala: "2.12.4"
+
 jdk: oraclejdk8
 
 cache:
@@ -16,8 +18,9 @@ cache:
     - $HOME/.wixMySQL
 
 script:
-  - sbt ++${TRAVIS_SCALA_VERSION} test
-  - sbt scripted
+  - sbt test
+  - sbt ';++2.10.6;^^0.13.16;scripted'
+  - sbt ';++2.12.4;^^1.0.4;scripted'
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" | xargs rm
   - find $HOME/.ivy2/cache -name "*SNAPSHOT*" | xargs rm -rf
   - if [[ ${JAVA_HOME} == $(jdk_switcher home oraclejdk7) ]]; then rm -rf $HOME/.ivy2/cache ; fi

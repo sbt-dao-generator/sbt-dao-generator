@@ -1,4 +1,1 @@
-libraryDependencies += (sbtVersion) { sv =>
-  "org.scala-sbt" % "scripted-plugin" % sv
-}.value
-
+libraryDependencies += "org.scala-sbt" %% "scripted-plugin" % sbtVersion.value
