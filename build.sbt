@@ -1,4 +1,27 @@
-scalaVersion := "2.10.5"
+import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
+import xerial.sbt.Sonatype.autoImport._
+
+releaseCrossBuild := true
+
+releaseTagName := {
+  (version in ThisBuild).value
+}
+
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  releaseStepCommandAndRemaining("^ publishSigned"),
+  setNextVersion,
+  commitNextVersion,
+  releaseStepCommand("sonatypeReleaseAll"),
+  pushChanges
+)
 
 sonatypeProfileName := "jp.co.septeni-original"
 
@@ -7,6 +30,8 @@ organization := "jp.co.septeni-original"
 publishMavenStyle := true
 
 publishArtifact in Test := false
+
+publishTo := sonatypePublishTo.value
 
 pomIncludeRepository := {
   _ => false
@@ -41,6 +66,16 @@ name := "sbt-dao-generator"
 
 sbtPlugin := true
 
+val sbtCrossVersion = sbtVersion in pluginCrossBuild
+
+scalaVersion := (CrossVersion partialVersion sbtCrossVersion.value match {
+  case Some((0, 13)) => "2.10.6"
+  case Some((1, _)) => "2.12.4"
+  case _ => sys error s"Unhandled sbt version ${sbtCrossVersion.value}"
+})
+
+crossSbtVersions := Seq("0.13.16", "1.0.4")
+
 resolvers ++= Seq(
   "Sonatype OSS Snapshot Repository" at "https://oss.sonatype.org/content/repositories/snapshots/",
   "Sonatype OSS Release Repository" at "https://oss.sonatype.org/content/repositories/releases/",
@@ -54,12 +89,17 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-api" % "1.7.12",
   "org.freemarker" % "freemarker" % "2.3.22",
   "org.seasar.util" % "s2util" % "0.0.1",
-  "org.scalatest" %% "scalatest" % "2.2.4" % "test",
-  "com.h2database" % "h2" % "1.4.187" % "test"
+  "org.scalatest" %% "scalatest" % "3.0.1" % Test,
+  "com.h2database" % "h2" % "1.4.187" % Test
 )
 
-credentials := Def.task {
-  val ivyCredentials = (baseDirectory in LocalRootProject).value / ".credentials"
-  val result = Credentials(ivyCredentials) :: Nil
-  result
-}.value
+credentials += Credentials((baseDirectory in LocalRootProject).value / ".credentials")
+
+scriptedBufferLog := false
+
+scriptedLaunchOpts := {
+  scriptedLaunchOpts.value ++
+    Seq("-Xmx1024M", "-Dproject.version=" + version.value)
+}
+
+scriptedBufferLog := false

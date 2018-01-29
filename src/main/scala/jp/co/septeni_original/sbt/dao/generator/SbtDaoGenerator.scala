@@ -1,20 +1,19 @@
 package jp.co.septeni_original.sbt.dao.generator
 
 import java.io._
-import java.sql.{ Connection, Driver }
+import java.sql.{Connection, Driver}
 
 import jp.co.septeni_original.sbt.dao.generator.SbtDaoGeneratorKeys._
-import jp.co.septeni_original.sbt.dao.generator.model.{ ColumnDesc, PrimaryKeyDesc, TableDesc }
+import jp.co.septeni_original.sbt.dao.generator.model.{ColumnDesc, PrimaryKeyDesc, TableDesc}
 import jp.co.septeni_original.sbt.dao.generator.util.Loan._
 import org.seasar.util.lang.StringUtil
 import sbt.Keys._
-import sbt.classpath.ClasspathUtilities
 import sbt.complete.Parser
-import sbt.{ File, _ }
+import sbt.{File, _}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
-import scala.util.{ Success, Try }
+import scala.util.{Success, Try}
 
 /**
   * sbt-dao-generatorのロジックを提供するトレイト。
@@ -33,7 +32,7 @@ trait SbtDaoGenerator {
     * @return タスク定義
     */
   def generateOneTask: Def.Initialize[InputTask[Seq[File]]] = Def.inputTask {
-    val tableName       = oneStringParser.parsed
+    val tableName = oneStringParser.parsed
     implicit val logger = streams.value.log
     logger.info("sbt-dao-generator: generateOne task")
     logger.info("driverClassName = " + (driverClassName in generator).value.toString)
@@ -87,7 +86,7 @@ trait SbtDaoGenerator {
     implicit val logger = ctx.logger
     logger.debug(s"generateOne: start")
     val result = for {
-      cfg        <- createTemplateConfiguration(ctx.templateDirectory)
+      cfg <- createTemplateConfiguration(ctx.templateDirectory)
       tableDescs <- getTableDescs(ctx.connection, ctx.schemaName)
       files <- tableDescs
         .filter { tableDesc =>
@@ -109,7 +108,7 @@ trait SbtDaoGenerator {
     * @return タスク定義
     */
   def generateManyTask: Def.Initialize[InputTask[Seq[File]]] = Def.inputTask {
-    val tableNames      = manyStringParser.parsed
+    val tableNames = manyStringParser.parsed
     implicit val logger = streams.value.log
     logger.info("sbt-dao-generator: generateMany task")
     logger.info("driverClassName = " + (driverClassName in generator).value.toString)
@@ -171,7 +170,7 @@ trait SbtDaoGenerator {
     var connection: Connection = null
     try {
       val driver = classLoader.loadClass(driverClassName).newInstance().asInstanceOf[Driver]
-      val info   = new java.util.Properties()
+      val info = new java.util.Properties()
       info.put("user", jdbcUser)
       info.put("password", jdbcPassword)
       connection = driver.connect(jdbcUrl, info)
@@ -192,7 +191,7 @@ trait SbtDaoGenerator {
     implicit val logger = ctx.logger
     logger.debug(s"generateMany($tableNames): start")
     val result = for {
-      cfg        <- createTemplateConfiguration(ctx.templateDirectory)
+      cfg <- createTemplateConfiguration(ctx.templateDirectory)
       tableDescs <- getTableDescs(ctx.connection, ctx.schemaName)
       files <- tableDescs
         .filter { tableDesc =>
@@ -225,9 +224,9 @@ trait SbtDaoGenerator {
     val result = getTables(conn, schemaName).flatMap { tables =>
       tables.foldLeft(Try(Seq.empty[TableDesc])) { (result, tableName) =>
         for {
-          r               <- result
+          r <- result
           primaryKeyDescs <- getPrimaryKeyDescs(conn, schemaName, tableName)
-          columnDescs     <- getColumnDescs(conn, schemaName, tableName)
+          columnDescs <- getColumnDescs(conn, schemaName, tableName)
         } yield r :+ TableDesc(tableName, primaryKeyDescs, columnDescs)
       }
     }
@@ -272,7 +271,7 @@ trait SbtDaoGenerator {
     * @return カラムディスクリプション
     */
   private[generator] def getColumnDescs(conn: Connection, schemaName: Option[String], tableName: String)(
-      implicit logger: Logger
+    implicit logger: Logger
   ): Try[Seq[ColumnDesc]] = {
     logger.debug(s"getColumnDescs($conn, $schemaName, $tableName): start")
     val result = Try(conn.getMetaData).flatMap { dbMeta =>
@@ -280,9 +279,9 @@ trait SbtDaoGenerator {
         val lb = ListBuffer[ColumnDesc]()
         while (rs.next()) {
           lb += ColumnDesc(rs.getString("COLUMN_NAME"),
-                           rs.getString("TYPE_NAME"),
-                           rs.getString("IS_NULLABLE") == "YES",
-                           Option(rs.getString("COLUMN_SIZE")).map(_.toInt))
+            rs.getString("TYPE_NAME"),
+            rs.getString("IS_NULLABLE") == "YES",
+            Option(rs.getString("COLUMN_SIZE")).map(_.toInt))
         }
         Success(lb.result())
       }
@@ -300,7 +299,7 @@ trait SbtDaoGenerator {
     * @return プライマリーキーディスクリプション
     */
   private[generator] def getPrimaryKeyDescs(conn: Connection, schemaName: Option[String], tableName: String)(
-      implicit logger: Logger
+    implicit logger: Logger
   ): Try[Seq[PrimaryKeyDesc]] = {
     logger.debug(s"getPrimaryKeyDescs($conn, $schemaName, $tableName): start")
     val result = Try(conn.getMetaData).flatMap { dbMeta =>
@@ -340,7 +339,7 @@ trait SbtDaoGenerator {
       .foldLeft(Try(Seq.empty[File])) { (result, className) =>
         val outputTargetDirectory = ctx.outputDirectoryMapper(className)
         for {
-          r    <- result
+          r <- result
           file <- generateFile(cfg, tableDesc, className, outputTargetDirectory)
         } yield {
           r :+ file
@@ -367,8 +366,8 @@ trait SbtDaoGenerator {
     implicit val logger = ctx.logger
     logger.debug(s"generateFile($cfg, $tableDesc, $outputDirectory): start")
     val templateName = ctx.templateNameMapper(className)
-    val template     = cfg.getTemplate(templateName)
-    val file         = createFile(outputDirectory, className)
+    val template = cfg.getTemplate(templateName)
+    val file = createFile(outputDirectory, className)
     ctx.logger.info(s"tableName = ${tableDesc.tableName}, templateName = $templateName, generate file = $file")
 
     if (!outputDirectory.exists())
@@ -376,8 +375,8 @@ trait SbtDaoGenerator {
 
     val result = using(new FileWriter(file)) { writer =>
       val primaryKeys = createPrimaryKeysContext(ctx.typeNameMapper, ctx.propertyNameMapper, tableDesc)
-      val columns     = createColumnsContext(ctx.typeNameMapper, ctx.propertyNameMapper, tableDesc)
-      val context     = createContext(primaryKeys, columns, tableDesc.tableName, className)
+      val columns = createColumnsContext(ctx.typeNameMapper, ctx.propertyNameMapper, tableDesc)
+      val context = createContext(primaryKeys, columns, tableDesc.tableName, className)
       template.process(context, writer)
       writer.flush()
       Success(file)
@@ -389,37 +388,37 @@ trait SbtDaoGenerator {
   /**
     * プライマリーキーのためのコンテキストを生成する。
     *
-    * @param propertyTypeNameMapper     タイプマッパー
-    * @param propertyNameMapper プロパティマッパー
-    * @param tableDesc          テーブルディスクリプション
+    * @param propertyTypeNameMapper タイプマッパー
+    * @param propertyNameMapper     プロパティマッパー
+    * @param tableDesc              テーブルディスクリプション
     * @return コンテキスト
     */
   private[generator] def createPrimaryKeysContext(
-      propertyTypeNameMapper: String => String,
-      propertyNameMapper: String => String,
-      tableDesc: TableDesc
-  )(implicit logger: Logger): Seq[Map[String, Any]] = {
+                                                   propertyTypeNameMapper: String => String,
+                                                   propertyNameMapper: String => String,
+                                                   tableDesc: TableDesc
+                                                 )(implicit logger: Logger): Seq[Map[String, Any]] = {
     logger.debug(s"createPrimaryKeysContext($propertyTypeNameMapper, $propertyNameMapper, $tableDesc): start")
     val primaryKeys = tableDesc.primaryDescs.map { key =>
-      val column           = tableDesc.columnDescs.find(_.columnName == key.columnName).get
-      val propertyName     = propertyNameMapper(column.columnName)
+      val column = tableDesc.columnDescs.find(_.columnName == key.columnName).get
+      val propertyName = propertyNameMapper(column.columnName)
       val propertyTypeName = propertyTypeNameMapper(column.typeName)
       Map[String, Any](
-        "name"                      -> key.columnName, // deprecated
-        "columnName"                -> key.columnName,
-        "columnType"                -> column.typeName, // deprecated
-        "columnTypeName"            -> column.typeName,
-        "propertyName"              -> propertyName,
-        "propertyType"              -> propertyTypeName, // deprecated
-        "propertyTypeName"          -> propertyTypeName,
-        "camelizeName"              -> StringUtil.camelize(key.columnName), // deprecated
-        "camelizedColumnName"       -> StringUtil.camelize(key.columnName),
-        "capitalizedColumnName"     -> StringUtil.capitalize(key.columnName),
-        "capitalizedPropertyName"   -> StringUtil.capitalize(propertyName),
-        "decamelizedPropertyName"   -> StringUtil.decamelize(propertyName),
+        "name" -> key.columnName, // deprecated
+        "columnName" -> key.columnName,
+        "columnType" -> column.typeName, // deprecated
+        "columnTypeName" -> column.typeName,
+        "propertyName" -> propertyName,
+        "propertyType" -> propertyTypeName, // deprecated
+        "propertyTypeName" -> propertyTypeName,
+        "camelizeName" -> StringUtil.camelize(key.columnName), // deprecated
+        "camelizedColumnName" -> StringUtil.camelize(key.columnName),
+        "capitalizedColumnName" -> StringUtil.capitalize(key.columnName),
+        "capitalizedPropertyName" -> StringUtil.capitalize(propertyName),
+        "decamelizedPropertyName" -> StringUtil.decamelize(propertyName),
         "decapitalizedPropertyName" -> StringUtil.decapitalize(propertyName),
-        "autoIncrement"             -> key.autoIncrement,
-        "nullable"                  -> column.nullable
+        "autoIncrement" -> key.autoIncrement,
+        "nullable" -> column.nullable
       )
     }
     logger.debug(s"createPrimaryKeysContext: finished = $primaryKeys")
@@ -429,9 +428,9 @@ trait SbtDaoGenerator {
   /**
     * カラムのためのコンテキストを生成する。
     *
-    * @param propertyTypeNameMapper     タイプマッパー
-    * @param propertyNameMapper プロパティマッパー
-    * @param tableDesc          テーブルディスクリプション
+    * @param propertyTypeNameMapper タイプマッパー
+    * @param propertyNameMapper     プロパティマッパー
+    * @param tableDesc              テーブルディスクリプション
     * @return コンテキスト
     */
   private[generator] def createColumnsContext(propertyTypeNameMapper: String => String,
@@ -443,23 +442,23 @@ trait SbtDaoGenerator {
         tableDesc.primaryDescs.map(_.columnName).contains(e.columnName)
       }
       .map { column =>
-        val propertyName     = propertyNameMapper(column.columnName)
+        val propertyName = propertyNameMapper(column.columnName)
         val propertyTypeName = propertyTypeNameMapper(column.typeName)
         Map[String, Any](
-          "name"                      -> column.columnName, // deprecated
-          "columnName"                -> column.columnName,
-          "columnType"                -> column.typeName, // deprecated
-          "columnTypeName"            -> column.typeName,
-          "propertyName"              -> propertyName,
-          "propertyType"              -> propertyTypeName, // deprecated
-          "propertyTypeName"          -> propertyTypeName,
-          "camelizedColumnName"       -> StringUtil.camelize(column.columnName),
-          "capitalizedColumnName"     -> StringUtil.capitalize(column.columnName),
-          "capitalizedPropertyName"   -> StringUtil.capitalize(propertyName),
-          "decamelizedPropertyName"   -> StringUtil.decamelize(propertyName),
+          "name" -> column.columnName, // deprecated
+          "columnName" -> column.columnName,
+          "columnType" -> column.typeName, // deprecated
+          "columnTypeName" -> column.typeName,
+          "propertyName" -> propertyName,
+          "propertyType" -> propertyTypeName, // deprecated
+          "propertyTypeName" -> propertyTypeName,
+          "camelizedColumnName" -> StringUtil.camelize(column.columnName),
+          "capitalizedColumnName" -> StringUtil.capitalize(column.columnName),
+          "capitalizedPropertyName" -> StringUtil.capitalize(propertyName),
+          "decamelizedPropertyName" -> StringUtil.decamelize(propertyName),
           "decapitalizedPropertyName" -> StringUtil.decapitalize(propertyName),
-          "capitalizedPropertyName"   -> StringUtil.capitalize(propertyName), // deprecated
-          "nullable"                  -> column.nullable
+          "capitalizedPropertyName" -> StringUtil.capitalize(propertyName), // deprecated
+          "nullable" -> column.nullable
         )
       }
     logger.debug(s"createColumnsContext: finished = $columns")
@@ -481,15 +480,15 @@ trait SbtDaoGenerator {
                                        className: String)(implicit logger: Logger): java.util.Map[String, Any] = {
     logger.debug(s"createContext($primaryKeys, $columns, $className): start")
     val context = Map[String, Any](
-      "name"                   -> className, // deprecated
-      "lowerCamelName"         -> (className.substring(0, 1).toLowerCase + className.substring(1)), // deprecated
-      "className"              -> className,
-      "tableName"              -> tableName,
+      "name" -> className, // deprecated
+      "lowerCamelName" -> (className.substring(0, 1).toLowerCase + className.substring(1)), // deprecated
+      "className" -> className,
+      "tableName" -> tableName,
       "decapitalizedClassName" -> StringUtil.decapitalize(className),
-      "primaryKeys"            -> primaryKeys.map(_.asJava).asJava,
-      "columns"                -> columns.map(_.asJava).asJava,
+      "primaryKeys" -> primaryKeys.map(_.asJava).asJava,
+      "columns" -> columns.map(_.asJava).asJava,
       "primaryKeysWithColumns" -> (primaryKeys ++ columns).map(_.asJava).asJava, // deprecated
-      "allColumns"             -> (primaryKeys ++ columns).map(_.asJava).asJava
+      "allColumns" -> (primaryKeys ++ columns).map(_.asJava).asJava
     ).asJava
     logger.debug(s"createContext: finished = $context")
     context
@@ -517,8 +516,8 @@ trait SbtDaoGenerator {
     * @return テンプレートコンフィグレーション
     */
   private[generator] def createTemplateConfiguration(
-      templateDirectory: File
-  )(implicit logger: Logger): Try[freemarker.template.Configuration] = Try {
+                                                      templateDirectory: File
+                                                    )(implicit logger: Logger): Try[freemarker.template.Configuration] = Try {
     logger.debug(s"createTemplateConfiguration($templateDirectory): start")
     var cfg: freemarker.template.Configuration = null
     try {
@@ -535,45 +534,62 @@ trait SbtDaoGenerator {
     *
     * @return タスク定義
     */
-  def generateAllTask: Def.Initialize[Task[Seq[File]]] = Def.task {
+  def generateAllTask: Def.Initialize[Task[Seq[File]]] = Def.taskDyn {
     implicit val logger = streams.value.log
     logger.info("sbt-dao-generator: generateAll task")
     logger.info("driverClassName = " + (driverClassName in generator).value.toString)
     logger.info("jdbcUrl = " + (jdbcUrl in generator).value.toString)
     logger.info("jdbcUser = " + (jdbcUser in generator).value.toString)
     logger.info("schemaName = " + (schemaName in generator).value.getOrElse(""))
+    val enableManagedClassPathValue = (enableManagedClassPath in generator).value
+    val managedClasspathData = (managedClasspath in Compile).value.map(_.data)
+    val driverClassNameValue = (driverClassName in generator).value
+    val jdbcUrlValue = (jdbcUrl in generator).value
+    val jdbcUserValue = (jdbcUser in generator).value
+    val jdbcPasswordValue = (jdbcPassword in generator).value
+    val classNameMapperValue = (classNameMapper in generator).value
+    val propertyTypeNameMapperValue = (propertyTypeNameMapper in generator).value
+    val tableNameFilterValue = (tableNameFilter in generator).value
+    val propertyNameMapperValue = (propertyNameMapper in generator).value
+    val schemaNameValue = (schemaName in generator).value
+    val templateDirectoryValue = (templateDirectory in generator).value
+    val templateNameMapperValue = (templateNameMapper in generator).value
+    val outputDirectoryMapperValue = (outputDirectoryMapper in generator).value
 
-    val classLoader =
-      if ((enableManagedClassPath in generator).value)
-        ClasspathUtilities.toLoader(
-          (managedClasspath in Compile).value.map(_.data),
+    Def.task {
+      val classLoader =
+        if (enableManagedClassPathValue)
+          ClasspathUtilities.toLoader(
+            managedClasspathData,
+            ClasspathUtilities.xsbtiLoader
+          )
+        else
           ClasspathUtilities.xsbtiLoader
+
+      using(
+        getJdbcConnection(
+          classLoader,
+          driverClassNameValue,
+          jdbcUrlValue,
+          jdbcUserValue,
+          jdbcPasswordValue
         )
-      else
-        ClasspathUtilities.xsbtiLoader
-    using(
-      getJdbcConnection(
-        classLoader,
-        (driverClassName in generator).value,
-        (jdbcUrl in generator).value,
-        (jdbcUser in generator).value,
-        (jdbcPassword in generator).value
-      )
-    ) { conn =>
-      implicit val ctx = GeneratorContext(
-        logger,
-        conn,
-        (classNameMapper in generator).value,
-        (propertyTypeNameMapper in generator).value,
-        (tableNameFilter in generator).value,
-        (propertyNameMapper in generator).value,
-        (schemaName in generator).value,
-        (templateDirectory in generator).value,
-        (templateNameMapper in generator).value,
-        (outputDirectoryMapper in generator).value
-      )
-      generateAll
-    }.get
+      ) { conn =>
+        implicit val ctx = GeneratorContext(
+          logger,
+          conn,
+          classNameMapperValue,
+          propertyTypeNameMapperValue,
+          tableNameFilterValue,
+          propertyNameMapperValue,
+          schemaNameValue,
+          templateDirectoryValue,
+          templateNameMapperValue,
+          outputDirectoryMapperValue
+        )
+        generateAll
+      }.get
+    }
   }
 
   /**
@@ -586,7 +602,7 @@ trait SbtDaoGenerator {
     implicit val logger = ctx.logger
     logger.debug(s"generateAll: start")
     val result = for {
-      cfg        <- createTemplateConfiguration(ctx.templateDirectory)
+      cfg <- createTemplateConfiguration(ctx.templateDirectory)
       tableDescs <- getTableDescs(ctx.connection, ctx.schemaName)
       files <- tableDescs
         .filter { tableDesc =>
