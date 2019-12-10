@@ -74,7 +74,7 @@ scalaVersion := (CrossVersion partialVersion sbtCrossVersion.value match {
   case _ => sys error s"Unhandled sbt version ${sbtCrossVersion.value}"
 })
 
-crossSbtVersions := Seq("0.13.16", "1.0.4")
+crossSbtVersions := Seq("0.13.16", "1.3.4")
 
 resolvers ++= Seq(
   "Sonatype OSS Snapshot Repository" at "https://oss.sonatype.org/content/repositories/snapshots/",
