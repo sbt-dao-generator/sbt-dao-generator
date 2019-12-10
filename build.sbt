@@ -89,7 +89,7 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-api" % "1.7.12",
   "org.freemarker" % "freemarker" % "2.3.22",
   "org.seasar.util" % "s2util" % "0.0.1",
-  "org.scalatest" %% "scalatest" % "3.0.1" % Test,
+  "org.scalatest" %% "scalatest" % "3.0.8" % Test,
   "com.h2database" % "h2" % "1.4.187" % Test
 )
 
