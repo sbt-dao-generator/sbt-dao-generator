@@ -87,7 +87,7 @@ libraryDependencies ++= Seq(
   "com.spotify" % "docker-client" % "2.7.7",
   "ch.qos.logback" % "logback-classic" % "1.1.3",
   "org.slf4j" % "slf4j-api" % "1.7.12",
-  "org.freemarker" % "freemarker" % "2.3.22",
+  "org.freemarker" % "freemarker" % "2.3.29",
   "org.seasar.util" % "s2util" % "0.0.1",
   "org.scalatest" %% "scalatest" % "3.0.1" % Test,
   "com.h2database" % "h2" % "1.4.187" % Test
