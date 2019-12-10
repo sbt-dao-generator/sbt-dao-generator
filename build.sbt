@@ -90,7 +90,7 @@ libraryDependencies ++= Seq(
   "org.freemarker" % "freemarker" % "2.3.22",
   "org.seasar.util" % "s2util" % "0.0.1",
   "org.scalatest" %% "scalatest" % "3.0.1" % Test,
-  "com.h2database" % "h2" % "1.4.187" % Test
+  "com.h2database" % "h2" % "1.4.200" % Test
 )
 
 credentials += Credentials((baseDirectory in LocalRootProject).value / ".credentials")

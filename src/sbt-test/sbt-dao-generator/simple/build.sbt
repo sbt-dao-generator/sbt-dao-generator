@@ -3,7 +3,7 @@ name := "simple"
 scalaVersion := "2.12.2"
 
 libraryDependencies ++= Seq(
-  "com.h2database" % "h2" % "1.4.187"
+  "com.h2database" % "h2" % "1.4.200"
 )
 
 logLevel := Level.Debug
