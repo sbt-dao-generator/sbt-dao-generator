@@ -84,7 +84,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.spotify" % "docker-client" % "2.7.26",
+  "com.spotify" % "docker-client" % "8.16.0",
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "org.slf4j" % "slf4j-api" % "1.7.30",
   "org.freemarker" % "freemarker" % "2.3.30",
