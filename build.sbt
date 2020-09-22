@@ -76,10 +76,10 @@ scalaVersion := (CrossVersion partialVersion sbtCrossVersion.value match {
 crossSbtVersions := Seq("1.3.13")
 
 resolvers ++= Seq(
-  "Sonatype OSS Snapshot Repository" at "https://oss.sonatype.org/content/repositories/snapshots/",
-  "Sonatype OSS Release Repository" at "https://oss.sonatype.org/content/repositories/releases/",
-  "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/",
-  "Seasar Repository" at "http://maven.seasar.org/maven2/"
+  Resolver.sonatypeRepo("snapshots"),
+  Resolver.sonatypeRepo("releases"),
+  Resolver.typesafeRepo("releases"),
+  "Seasar Repository" at "https://maven.seasar.org/maven2/"
 )
 
 libraryDependencies ++= Seq(
