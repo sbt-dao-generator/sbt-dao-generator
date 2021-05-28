@@ -8,7 +8,7 @@ sudo: required
 
 language: scala
 
-scala: "2.12.4"
+scala: "2.12.14"
 
 jdk: oraclejdk8
 
