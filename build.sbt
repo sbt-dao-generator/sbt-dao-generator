@@ -4,7 +4,7 @@ import xerial.sbt.Sonatype.autoImport._
 releaseCrossBuild := true
 
 releaseTagName := {
-  (version in ThisBuild).value
+  (ThisBuild / version).value
 }
 
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
@@ -29,7 +29,7 @@ organization := "jp.co.septeni-original"
 
 publishMavenStyle := true
 
-publishArtifact in Test := false
+(Test / publishArtifact) := false
 
 publishTo := sonatypePublishTo.value
 
@@ -66,7 +66,7 @@ name := "sbt-dao-generator"
 
 enablePlugins(SbtPlugin)
 
-val sbtCrossVersion = sbtVersion in pluginCrossBuild
+val sbtCrossVersion = (pluginCrossBuild / sbtVersion)
 
 scalaVersion := (CrossVersion partialVersion sbtCrossVersion.value match {
   case Some((1, _)) => "2.12.4"
@@ -92,7 +92,7 @@ libraryDependencies ++= Seq(
   "com.h2database"  % "h2"              % "1.4.187" % Test
 )
 
-credentials += Credentials((baseDirectory in LocalRootProject).value / ".credentials")
+credentials += Credentials((LocalRootProject / baseDirectory).value / ".credentials")
 
 scriptedBufferLog := false
 
