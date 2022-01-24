@@ -2,8 +2,9 @@ package jp.co.septeni_original.sbt.dao.generator
 
 import org.scalatest._
 import sbt.ConsoleLogger
+import org.scalatest.funspec.AnyFunSpec
 
-class SbtDaoGeneratorSpec extends FunSpec {
+class SbtDaoGeneratorSpec extends AnyFunSpec {
 
   import SbtDaoGenerator._
 
