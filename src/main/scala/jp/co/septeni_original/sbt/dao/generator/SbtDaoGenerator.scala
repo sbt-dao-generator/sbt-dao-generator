@@ -6,7 +6,6 @@ import java.sql.{Connection, Driver}
 import jp.co.septeni_original.sbt.dao.generator.SbtDaoGeneratorKeys._
 import jp.co.septeni_original.sbt.dao.generator.model.{ColumnDesc, PrimaryKeyDesc, TableDesc}
 import jp.co.septeni_original.sbt.dao.generator.util.Loan._
-import org.seasar.util.lang.StringUtil
 import sbt.Keys._
 import sbt.complete.Parser
 import sbt.{File, _}
