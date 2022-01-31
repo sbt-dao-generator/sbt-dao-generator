@@ -1,6 +1,6 @@
 name := "simple"
 
-scalaVersion := "2.12.15"
+scalaVersion := "2.13.8"
 
 libraryDependencies ++= Seq(
   "com.h2database" % "h2" % "1.4.187"
@@ -12,7 +12,7 @@ flywayUrl := "jdbc:h2:file:./target/test"
 
 flywayUser := "sa"
 
-generator / tableNameFilter := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION"}
+generator / tableNameFilter := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION" }
 
 generator / driverClassName := "org.h2.Driver"
 
