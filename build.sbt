@@ -77,7 +77,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "ch.qos.logback" % "logback-classic" % "1.2.8",
+  "ch.qos.logback" % "logback-classic" % "1.2.10",
   "org.slf4j"      % "slf4j-api"       % "1.7.35",
   "org.freemarker" % "freemarker"      % "2.3.31",
   "org.scalatest" %% "scalatest"       % "3.2.11"  % Test,
