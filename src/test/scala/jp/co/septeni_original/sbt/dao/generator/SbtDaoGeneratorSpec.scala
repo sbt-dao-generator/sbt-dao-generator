@@ -9,11 +9,13 @@ class SbtDaoGeneratorSpec extends FunSpec {
 
   describe("SbtDaoGeneratorSpec") {
     implicit val logger = ConsoleLogger()
-    val conn = getJdbcConnection(Thread.currentThread().getContextClassLoader,
-                                 "org.h2.Driver",
-                                 "jdbc:h2:file:./test",
-                                 "sa",
-                                 "").get
+    val conn = getJdbcConnection(
+      Thread.currentThread().getContextClassLoader,
+      "org.h2.Driver",
+      "jdbc:h2:file:./test",
+      "sa",
+      ""
+    ).get
 
     it("should getTables") {
       val tables = getTables(conn, None).get
