@@ -18,5 +18,5 @@ jobs:
         java-version: ${{ matrix.java }}
         distribution: temurin
     - uses: coursier/cache-action@v6
-    - run: sbt test scripted
+    - run: sbt scalafmtSbtCheck scalafmtCheckAll test scripted
     - run: rm -rf $HOME/.ivy2/local
