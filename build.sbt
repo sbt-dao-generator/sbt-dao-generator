@@ -79,7 +79,6 @@ resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots"),
   Resolver.sonatypeRepo("releases"),
   Resolver.typesafeRepo("releases"),
-  "Seasar Repository" at "https://maven.seasar.org/maven2/"
 )
 
 libraryDependencies ++= Seq(
@@ -87,7 +86,6 @@ libraryDependencies ++= Seq(
   "ch.qos.logback"  % "logback-classic" % "1.2.8",
   "org.slf4j"       % "slf4j-api"       % "1.7.30",
   "org.freemarker"  % "freemarker"      % "2.3.30",
-  "org.seasar.util" % "s2util"          % "0.0.1",
   "org.scalatest"   %% "scalatest"      % "3.0.9" % Test,
   "com.h2database"  % "h2"              % "1.4.187" % Test
 )
