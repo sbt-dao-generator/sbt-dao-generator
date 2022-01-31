@@ -123,10 +123,10 @@ You can use the following template contexts.
 |:-----------|:---|:---------|
 | `tableName` | String | Table Name (`USER_NAME`)|
 | `className`  | String | Class Name　(`UserName`). The string converted `tableName` by `classNameMapper` |
-| `decapitalizedClassNam`e | String | Decapitalized Class Name (`userName`) |
-| `primaryKeys` | java.util.List<Column> | Primary Keys |
-| `columns` | java.util.List<Column> | Columns without Primary Keys |
-| `allColumns` | java.util.List<Column> | Columns with Primary Keys |
+| `decapitalizedClassName` | String | Decapitalized Class Name (`userName`) |
+| `primaryKeys` | `java.util.List<Column>` | Primary Keys |
+| `columns` | `java.util.List<Column>` | Columns without Primary Keys |
+| `allColumns` | `java.util.List<Column>` | Columns with Primary Keys |
 
 **Column objects**
 
