@@ -12,17 +12,17 @@ flywayUrl := "jdbc:h2:file:./target/test"
 
 flywayUser := "sa"
 
-tableNameFilter in generator := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION"}
+generator / tableNameFilter := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION"}
 
-driverClassName in generator := "org.h2.Driver"
+generator / driverClassName := "org.h2.Driver"
 
-jdbcUrl in generator := "jdbc:h2:file:./target/test"
+generator / jdbcUrl := "jdbc:h2:file:./target/test"
 
-jdbcUser in generator := "sa"
+generator / jdbcUser := "sa"
 
-jdbcPassword in generator := ""
+generator / jdbcPassword := ""
 
-propertyTypeNameMapper in generator := {
+generator / propertyTypeNameMapper := {
   case "INTEGER" => "Int"
   case "VARCHAR" => "String"
   case "BOOLEAN" => "Boolean"
@@ -30,19 +30,19 @@ propertyTypeNameMapper in generator := {
   case "DECIMAL" => "BigDecimal"
 }
 
-classNameMapper in generator := {
+generator / classNameMapper := {
   case "DEPT" => Seq("Dept", "DeptSpec")
   case "EMP" => Seq("Emp", "EmpSpec")
 }
 
-templateNameMapper in generator := {
+generator / templateNameMapper := {
   case "Dept" | "DeptSpec" => "template_a.ftl"
   case "Emp" | "EmpSpec" => "template_b.ftl"
 }
 
-outputDirectoryMapper in generator := {
-  case (className: String) if className.endsWith("Spec") => (sourceManaged in Test).value
-  case (className: String) => (sourceManaged in Compile).value
+generator / outputDirectoryMapper := {
+  case (className: String) if className.endsWith("Spec") => (Test / sourceManaged).value
+  case (className: String) => (Compile / sourceManaged).value
 }
 
-sourceGenerators in Compile += generateAll in generator
+Compile / sourceGenerators += generator / generateAll
