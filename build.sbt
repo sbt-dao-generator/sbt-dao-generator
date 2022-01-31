@@ -4,7 +4,7 @@ import xerial.sbt.Sonatype.autoImport._
 releaseCrossBuild := true
 
 releaseTagName := {
-  (version in ThisBuild).value
+  (ThisBuild / version).value
 }
 
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
@@ -29,7 +29,7 @@ organization := "jp.co.septeni-original"
 
 publishMavenStyle := true
 
-publishArtifact in Test := false
+(Test / publishArtifact) := false
 
 publishTo := sonatypePublishTo.value
 
@@ -38,7 +38,7 @@ pomIncludeRepository := { _ =>
 }
 
 pomExtra := {
-  <url>https://github.com/septeni-original/sbt-dao-generator</url>
+  <url>https://github.com/flinters/sbt-dao-generator</url>
     <licenses>
       <license>
         <name>The MIT License</name>
@@ -46,9 +46,9 @@ pomExtra := {
       </license>
     </licenses>
     <scm>
-      <url>git@github.com:septeni-original/sbt-dao-generator.git</url>
-      <connection>scm:git:github.com/septeni-original/sbt-dao-generator</connection>
-      <developerConnection>scm:git:git@github.com:septeni-original/sbt-dao-generator.git</developerConnection>
+      <url>git@github.com:flinters/sbt-dao-generator.git</url>
+      <connection>scm:git:github.com/flinters/sbt-dao-generator</connection>
+      <developerConnection>scm:git:git@github.com:flinters/sbt-dao-generator.git</developerConnection>
     </scm>
     <developers>
       <developer>
@@ -66,39 +66,30 @@ name := "sbt-dao-generator"
 
 enablePlugins(SbtPlugin)
 
-val sbtCrossVersion = sbtVersion in pluginCrossBuild
-
-scalaVersion := (CrossVersion partialVersion sbtCrossVersion.value match {
-  case Some((1, _)) => "2.12.4"
-  case _            => sys error s"Unhandled sbt version ${sbtCrossVersion.value}"
-})
+val sbtCrossVersion = pluginCrossBuild / sbtVersion
 
 crossSbtVersions := Seq("1.3.13")
 
 resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots"),
   Resolver.sonatypeRepo("releases"),
-  Resolver.typesafeRepo("releases"),
-  "Seasar Repository" at "https://maven.seasar.org/maven2/"
+  Resolver.typesafeRepo("releases")
 )
 
 libraryDependencies ++= Seq(
-  "com.spotify"     % "docker-client"   % "2.7.26",
-  "ch.qos.logback"  % "logback-classic" % "1.2.3",
-  "org.slf4j"       % "slf4j-api"       % "1.7.30",
-  "org.freemarker"  % "freemarker"      % "2.3.31",
-  "org.seasar.util" % "s2util"          % "0.0.1",
-  "org.scalatest"   %% "scalatest"      % "3.0.9" % Test,
-  "com.h2database"  % "h2"              % "1.4.187" % Test
+  "com.spotify"    % "docker-client"   % "2.7.26",
+  "ch.qos.logback" % "logback-classic" % "1.2.8",
+  "org.slf4j"      % "slf4j-api"       % "1.7.30",
+  "org.freemarker" % "freemarker"      % "2.3.30",
+  "org.scalatest" %% "scalatest"       % "3.0.9"   % Test,
+  "com.h2database" % "h2"              % "1.4.187" % Test
 )
 
-credentials += Credentials((baseDirectory in LocalRootProject).value / ".credentials")
+credentials += Credentials((LocalRootProject / baseDirectory).value / ".credentials")
 
 scriptedBufferLog := false
 
 scriptedLaunchOpts := {
   scriptedLaunchOpts.value ++
-  Seq("-Xmx1024M", "-Dproject.version=" + version.value)
+    Seq("-Xmx1024M", "-Dproject.version=" + version.value)
 }
-
-scriptedBufferLog := false
