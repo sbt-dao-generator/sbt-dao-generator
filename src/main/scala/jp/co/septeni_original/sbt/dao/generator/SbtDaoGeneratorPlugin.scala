@@ -1,6 +1,5 @@
 package jp.co.septeni_original.sbt.dao.generator
 
-import org.seasar.util.lang.StringUtil
 import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
