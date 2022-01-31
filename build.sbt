@@ -68,11 +68,6 @@ enablePlugins(SbtPlugin)
 
 val sbtCrossVersion = (pluginCrossBuild / sbtVersion)
 
-scalaVersion := (CrossVersion partialVersion sbtCrossVersion.value match {
-  case Some((1, _)) => "2.12.4"
-  case _            => sys error s"Unhandled sbt version ${sbtCrossVersion.value}"
-})
-
 crossSbtVersions := Seq("1.3.13")
 
 resolvers ++= Seq(

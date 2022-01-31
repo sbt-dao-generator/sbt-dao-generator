@@ -74,7 +74,7 @@ private[generator] object StringUtil {
       var i   = 1
       while (i < s.length) {
         if (Character.isUpperCase(s.charAt(i))) {
-          if (buf.length() != 0) {
+          if (buf.length != 0) {
             buf.append('_')
           }
           buf.append(s.substring(pos, i).toUpperCase())
@@ -82,7 +82,7 @@ private[generator] object StringUtil {
         }
         i += 1
       }
-      if (buf.length() != 0) {
+      if (buf.length != 0) {
         buf.append('_')
       }
       buf.append(s.substring(pos, s.length()).toUpperCase())
