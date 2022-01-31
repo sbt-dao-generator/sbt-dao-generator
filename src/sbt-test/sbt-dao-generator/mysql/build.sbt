@@ -1,9 +1,9 @@
 name := "mysql"
 
-scalaVersion := "2.12.2"
+scalaVersion := "2.12.15"
 
 libraryDependencies ++= Seq(
-  "mysql" % "mysql-connector-java" % "5.1.42"
+  "mysql" % "mysql-connector-java" % "8.0.25"
 )
 
 logLevel := Level.Debug
