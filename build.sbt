@@ -1,5 +1,4 @@
 import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
-import xerial.sbt.Sonatype.autoImport._
 
 releaseCrossBuild := true
 
