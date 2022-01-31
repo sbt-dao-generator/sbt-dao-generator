@@ -97,7 +97,7 @@ generator / outputDirectoryMapper := { className: String =>
 
 The supported template syntax is FTL(FreeMarker Template Language).Please refer to the official FreeMarker document for details.
 
-- [FreeMarker](http://freemarker.org/)
+- [FreeMarker](https://freemarker.apache.org)
 
 **`templates/temlate.ftl`**
 
