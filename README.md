@@ -8,22 +8,11 @@
 
 ## How to use plugin
 
-Add this to your project/plugins.sbt file:
-
-- if you use release version:
+Add this to your `project/plugins.sbt` file:
 
 ```scala
-resolvers += "Sonatype OSS Release Repository" at "https://oss.sonatype.org/content/repositories/releases/"
 resolvers += "Seasar Repository" at "https://maven.seasar.org/maven2/"
 addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.8")
-```
-
-- if you use snapshot version:
-
-```scala
-resolvers += "Sonatype OSS Snapshot Repository" at "https://oss.sonatype.org/content/repositories/snapshots/"
-resolvers += "Seasar Repository" at "https://maven.seasar.org/maven2/"
-addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.9-SNAPSHOT")
 ```
 
 ## How to configuration
