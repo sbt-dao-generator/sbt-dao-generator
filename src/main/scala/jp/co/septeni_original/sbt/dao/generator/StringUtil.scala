@@ -10,7 +10,7 @@ private[generator] object StringUtil {
       Array.empty[String]
     } else {
       val buf = Array.newBuilder[String]
-      val st  = new StringTokenizer(str, delm)
+      val st = new StringTokenizer(str, delm)
       while (st.hasMoreElements()) {
         buf += st.nextElement().toString()
       }
@@ -71,10 +71,10 @@ private[generator] object StringUtil {
     } else {
       val buf = new StringBuilder(40)
       var pos = 0
-      var i   = 1
+      var i = 1
       while (i < s.length) {
         if (Character.isUpperCase(s.charAt(i))) {
-          if (buf.length() != 0) {
+          if (buf.length != 0) {
             buf.append('_')
           }
           buf.append(s.substring(pos, i).toUpperCase())
@@ -82,7 +82,7 @@ private[generator] object StringUtil {
         }
         i += 1
       }
-      if (buf.length() != 0) {
+      if (buf.length != 0) {
         buf.append('_')
       }
       buf.append(s.substring(pos, s.length()).toUpperCase())
