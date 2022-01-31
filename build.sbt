@@ -65,15 +65,7 @@ name := "sbt-dao-generator"
 
 enablePlugins(SbtPlugin)
 
-val sbtCrossVersion = pluginCrossBuild / sbtVersion
-
 crossSbtVersions := Seq("1.3.13")
-
-resolvers ++= Seq(
-  Resolver.sonatypeRepo("snapshots"),
-  Resolver.sonatypeRepo("releases"),
-  Resolver.typesafeRepo("releases")
-)
 
 libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.2.10",
