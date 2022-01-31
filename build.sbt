@@ -38,7 +38,7 @@ pomIncludeRepository := { _ =>
 }
 
 pomExtra := {
-  <url>https://github.com/septeni-original/sbt-dao-generator</url>
+  <url>https://github.com/flinters/sbt-dao-generator</url>
     <licenses>
       <license>
         <name>The MIT License</name>
@@ -46,9 +46,9 @@ pomExtra := {
       </license>
     </licenses>
     <scm>
-      <url>git@github.com:septeni-original/sbt-dao-generator.git</url>
-      <connection>scm:git:github.com/septeni-original/sbt-dao-generator</connection>
-      <developerConnection>scm:git:git@github.com:septeni-original/sbt-dao-generator.git</developerConnection>
+      <url>git@github.com:flinters/sbt-dao-generator.git</url>
+      <connection>scm:git:github.com/flinters/sbt-dao-generator</connection>
+      <developerConnection>scm:git:git@github.com:flinters/sbt-dao-generator.git</developerConnection>
     </scm>
     <developers>
       <developer>
