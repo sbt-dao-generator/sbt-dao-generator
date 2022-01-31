@@ -2,7 +2,6 @@
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/septeni-original/sbt-dao-generator?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Build Status](https://travis-ci.org/septeni-original/sbt-dao-generator.svg)](https://travis-ci.org/septeni-original/sbt-dao-generator)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/jp.co.septeni-original/sbt-dao-generator/badge.svg)](https://maven-badges.herokuapp.com/maven-central/jp.co.septeni-original/sbt-dao-generator)
 [![Scaladoc](http://javadoc-badge.appspot.com/jp.co.septeni-original/sbt-dao-generator_2.10.svg?label=scaladoc)](http://javadoc-badge.appspot.com/jp.co.septeni-original/sbt-dao-generator_2.10)
 [![Reference Status](https://www.versioneye.com/java/jp.co.septeni-original:sbt-dao-generator_2.10/reference_badge.svg?style=flat)](https://www.versioneye.com/java/jp.co.septeni-original:sbt-dao-generator_2.10/references)
@@ -17,7 +16,7 @@ Add this to your project/plugins.sbt file:
 
 ```scala
 resolvers += "Sonatype OSS Release Repository" at "https://oss.sonatype.org/content/repositories/releases/"
-
+resolvers += "Seasar Repository" at "https://maven.seasar.org/maven2/"
 addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.8")
 ```
 
@@ -25,7 +24,7 @@ addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.8")
 
 ```scala
 resolvers += "Sonatype OSS Snapshot Repository" at "https://oss.sonatype.org/content/repositories/snapshots/"
-
+resolvers += "Seasar Repository" at "https://maven.seasar.org/maven2/"
 addSbtPlugin("jp.co.septeni-original" % "sbt-dao-generator" % "1.0.9-SNAPSHOT")
 ```
 
@@ -35,19 +34,19 @@ Add this to your build.sbt file:
 
 ```scala
 // JDBC Driver Class Name (required)
-driverClassName in generator := "org.h2.Driver"
+generator / driverClassName := "org.h2.Driver"
 
 // JDBC URL (required)
-jdbcUrl in generator := "jdbc:h2:file:./target/test"
+generator / jdbcUrl := "jdbc:h2:file:./target/test"
 
 // JDBC User Name (required)
-jdbcUser in generator := "sa"
+generator / jdbcUser := "sa"
 
 // JDBC Password (required)
-jdbcPassword in generator := ""
+generator / jdbcPassword := ""
 
 // The Function that convert The Column Type Name to Property Type Name (required)
-propertyTypeNameMapper in generator := {
+generator / propertyTypeNameMapper := {
   case "INTEGER" => "Int"
   case "VARCHAR" => "String"
   case "BOOLEAN" => "Boolean"
@@ -56,52 +55,52 @@ propertyTypeNameMapper in generator := {
 }
 
 // Schema Name (Optional, Default is None)
-schemaName in generator := None,
+generator / schemaName := None,
 
 // The Function for filtering the table to be processed (Optional, default is the following)
-tableNameFilter in generator := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION"}
+generator / tableNameFilter := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION"}
 
 // The Function for converting Table Name to Class Name (Optional, default is the following)
-classNameMapper in generator := { tableName: String =>
+generator / classNameMapper := { tableName: String =>
     Seq(StringUtil.camelize(tableName))
 }
 
 // e.g.) If you want to specify multiple output files, you can configure it as follows.
 /*
-classNameMapper in generator := {
+generator / classNameMapper := {
   case "DEPT" => Seq("Dept", "DeptSpec")
   case "EMP" => Seq("Emp", "EmpSpec")
 }
 */
 
 // The Function for converting Column Name to Property Name (Optional, default is the following)
-propertyNameMapper in generator := { columnName: String =>
+generator / propertyNameMapper := { columnName: String =>
     StringUtil.decapitalize(StringUtil.camelize(columnName))
 }
 
 // The Function that decides which Template Name for Model Name (Optional, defaults below)
-templateNameMapper in generator := { className: String => "template.ftl" },
+generator / templateNameMapper := { className: String => "template.ftl" },
 
 // e.g.) If you want to specify different templates for the model and spec, you can configure it as follows.
 /*
-templateNameMapper in generator := {
+generator / templateNameMapper := {
   case className if className.endsWith("Spec") => "template_spec.ftl"
   case _ => "template.ftl"
 }
 */
 
 // The Directory where template files are placed (Optional, default is the following)
-templateDirectory in generator := baseDirectory.value / "templates"
+generator / templateDirectory := baseDirectory.value / "templates"
 
 // The Directory where source code is output (Optional, default is the following)
-outputDirectoryMapper in generator := { className: String => (sourceManaged in Compile).value }
+generator / outputDirectoryMapper := { className: String => (Compile / sourceManaged).value }
 
 // e.g.) You can change the output destination directory for each class name dynamically.
 /*
-outputDirectoryMapper in generator := { className: String =>
+generator / outputDirectoryMapper := { className: String =>
   className match {
-    case s if s.endsWith("Spec") => (sourceManaged in Test).value
-    case s => (sourceManaged in Compile).value
+    case s if s.endsWith("Spec") => (Test / sourceManaged).value
+    case s => (Compile / sourceManaged).value
   }
 }
 */
@@ -189,11 +188,7 @@ $ sbt generator::generateOne DEPT
 If you want to run `generator::generateAll` at` sbt compile`, add the following to build.sbt:
 
 ```scala
-// sbt 0.12.x
-sourceGenerators in Compile <+= generateAll in generator
-
-// sbt 0.13.x
-sourceGenerators in Compile += (generateAll in generator).value
+Compile / sourceGenerators += (generator / generateAll).value
 ```
 
 ## How to migration from v1.0.4 to v1.0.8

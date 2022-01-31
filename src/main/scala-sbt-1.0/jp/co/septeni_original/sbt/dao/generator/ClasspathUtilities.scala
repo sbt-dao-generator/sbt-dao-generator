@@ -1,7 +1,7 @@
 package jp.co.septeni_original.sbt.dao.generator
 import java.io.File
 
-import sbt.internal.inc.classpath.{ClasspathUtilities => CU}
+import sbt.internal.inc.classpath.{ ClasspathUtilities => CU }
 
 object ClasspathUtilities {
 

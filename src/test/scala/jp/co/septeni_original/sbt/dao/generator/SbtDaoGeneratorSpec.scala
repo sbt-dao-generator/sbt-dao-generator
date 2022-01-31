@@ -2,18 +2,21 @@ package jp.co.septeni_original.sbt.dao.generator
 
 import org.scalatest._
 import sbt.ConsoleLogger
+import org.scalatest.funspec.AnyFunSpec
 
-class SbtDaoGeneratorSpec extends FunSpec {
+class SbtDaoGeneratorSpec extends AnyFunSpec {
 
   import SbtDaoGenerator._
 
   describe("SbtDaoGeneratorSpec") {
     implicit val logger = ConsoleLogger()
-    val conn = getJdbcConnection(Thread.currentThread().getContextClassLoader,
-                                 "org.h2.Driver",
-                                 "jdbc:h2:file:./test",
-                                 "sa",
-                                 "").get
+    val conn = getJdbcConnection(
+      Thread.currentThread().getContextClassLoader,
+      "org.h2.Driver",
+      "jdbc:h2:file:./test",
+      "sa",
+      ""
+    ).get
 
     it("should getTables") {
       val tables = getTables(conn, None).get
