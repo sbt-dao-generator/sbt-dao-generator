@@ -15,29 +15,31 @@ releaseProcess := Seq[ReleaseStep](
   setReleaseVersion,
   commitReleaseVersion,
   tagRelease,
-  releaseStepCommandAndRemaining("^ publishSigned"),
+  releaseStepCommandAndRemaining("publishSigned"),
+  releaseStepCommandAndRemaining("sonatypeBundleRelease"),
   setNextVersion,
   commitNextVersion,
-  releaseStepCommandAndRemaining("sonatypeReleaseAll"),
   pushChanges
 )
 
-sonatypeProfileName := "jp.co.septeni-original"
+sonatypeProfileName := "io.github.sbt-dao-generator"
 
-organization := "jp.co.septeni-original"
+organization := "io.github.sbt-dao-generator"
 
 publishMavenStyle := true
 
 (Test / publishArtifact) := false
 
-publishTo := sonatypePublishTo.value
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+
+publishTo := sonatypePublishToBundle.value
 
 pomIncludeRepository := { _ =>
   false
 }
 
 pomExtra := {
-  <url>https://github.com/flinters/sbt-dao-generator</url>
+  <url>https://github.com/sbt-dao-generator/sbt-dao-generator</url>
     <licenses>
       <license>
         <name>The MIT License</name>
@@ -45,9 +47,9 @@ pomExtra := {
       </license>
     </licenses>
     <scm>
-      <url>git@github.com:flinters/sbt-dao-generator.git</url>
-      <connection>scm:git:github.com/flinters/sbt-dao-generator</connection>
-      <developerConnection>scm:git:git@github.com:flinters/sbt-dao-generator.git</developerConnection>
+      <url>git@github.com:sbt-dao-generator/sbt-dao-generator.git</url>
+      <connection>scm:git:github.com/sbt-dao-generator/sbt-dao-generator</connection>
+      <developerConnection>scm:git:git@github.com:sbt-dao-generator/sbt-dao-generator.git</developerConnection>
     </scm>
     <developers>
       <developer>
@@ -65,8 +67,6 @@ name := "sbt-dao-generator"
 
 enablePlugins(SbtPlugin)
 
-crossSbtVersions := Seq("1.3.13")
-
 libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.2.10",
   "org.slf4j"      % "slf4j-api"       % "1.7.35",
@@ -74,8 +74,6 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest"       % "3.2.11"  % Test,
   "com.h2database" % "h2"              % "1.4.187" % Test
 )
-
-credentials += Credentials((LocalRootProject / baseDirectory).value / ".credentials")
 
 scriptedBufferLog := false
 
