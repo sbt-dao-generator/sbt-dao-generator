@@ -18,33 +18,33 @@ object SbtDaoGeneratorPlugin extends AutoPlugin {
   import SbtDaoGeneratorKeys._
 
   override def projectSettings: Seq[Def.Setting[_]] = Seq(
-    enableManagedClassPath in generator := true,
-    driverClassName in generator := "",
-    jdbcUrl in generator := "",
-    jdbcUser in generator := "",
-    jdbcPassword in generator := "",
-    schemaName in generator := None,
-    templateDirectory in generator := baseDirectory.value / "templates",
-    templateNameMapper in generator := { _: String =>
+    generator / enableManagedClassPath := true,
+    generator / driverClassName := "",
+    generator / jdbcUrl := "",
+    generator / jdbcUser := "",
+    generator / jdbcPassword := "",
+    generator / schemaName := None,
+    generator / templateDirectory := baseDirectory.value / "templates",
+    generator / templateNameMapper := { _: String =>
       "template.ftl"
     },
-    propertyTypeNameMapper in generator := identity,
-    tableNameFilter in generator := { _: String =>
+    generator / propertyTypeNameMapper := identity,
+    generator / tableNameFilter := { _: String =>
       true
     },
-    propertyNameMapper in generator := { columnName: String =>
+    generator / propertyNameMapper := { columnName: String =>
       StringUtil.decapitalize(StringUtil.camelize(columnName))
     },
-    typeNameMapper in generator := (propertyNameMapper in generator).value,
-    classNameMapper in generator := { tableName: String =>
+    generator / typeNameMapper := (generator / propertyNameMapper).value,
+    generator / classNameMapper := { tableName: String =>
       Seq(StringUtil.camelize(tableName))
     },
-    outputDirectoryMapper in generator := { _: String =>
-      (sourceManaged in Compile).value
+    generator / outputDirectoryMapper := { _: String =>
+      (Compile / sourceManaged).value
     },
-    generateAll in generator := SbtDaoGenerator.generateAllTask.value,
-    generateMany in generator := SbtDaoGenerator.generateManyTask.evaluated,
-    generateOne in generator := SbtDaoGenerator.generateOneTask.evaluated
+    generator / generateAll := SbtDaoGenerator.generateAllTask.value,
+    generator / generateMany := SbtDaoGenerator.generateManyTask.evaluated,
+    generator / generateOne := SbtDaoGenerator.generateOneTask.evaluated
   )
 
 }
