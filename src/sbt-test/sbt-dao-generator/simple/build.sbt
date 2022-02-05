@@ -12,7 +12,7 @@ flywayUrl := "jdbc:h2:file:./target/test"
 
 flywayUser := "sa"
 
-generator / tableNameFilter := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION"}
+generator / tableNameFilter := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION" }
 
 generator / driverClassName := "org.h2.Driver"
 
