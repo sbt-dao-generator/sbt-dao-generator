@@ -16,7 +16,7 @@ flywayUser := "sbt_dao_gen"
 
 flywayPassword := "passwd"
 
-generator / tableNameFilter := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION"}
+generator / tableNameFilter := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION" }
 
 generator / driverClassName := flywayDriver.value
 
@@ -41,7 +41,7 @@ generator / propertyTypeNameMapper := {
   case s if s.toUpperCase() == "INT" => "Int"
   case s if s.toUpperCase() == "VARCHAR" => "String"
   case s if s.toUpperCase() == "BOOLEAN" => "Boolean"
-  case s if (s.toUpperCase() == "DATE" | s.toUpperCase() == "TIMESTAMP") => "java.util.Date"
+  case s if s.toUpperCase() == "DATE" | s.toUpperCase() == "TIMESTAMP" => "java.util.Date"
   case s if s.toUpperCase() == "DECIMAL" => "BigDecimal"
 }
 
@@ -61,4 +61,3 @@ generator / outputDirectoryMapper := {
 }
 
 Compile / sourceGenerators += generator / generateAll
-
