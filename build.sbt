@@ -68,12 +68,15 @@ name := "sbt-dao-generator"
 enablePlugins(SbtPlugin)
 
 libraryDependencies ++= Seq(
-  "ch.qos.logback" % "logback-classic" % "1.2.10",
-  "org.slf4j"      % "slf4j-api"       % "1.7.36",
-  "org.freemarker" % "freemarker"      % "2.3.31",
-  "org.scalatest" %% "scalatest"       % "3.2.11"  % Test,
-  "com.h2database" % "h2"              % "1.4.187" % Test
+  "ch.qos.logback" % "logback-classic"            % "1.2.10",
+  "org.slf4j"      % "slf4j-api"                  % "1.7.36",
+  "org.freemarker" % "freemarker"                 % "2.3.31",
+  "org.scalatest" %% "scalatest"                  % "3.2.11" % Test,
+  "mysql"          % "mysql-connector-java"       % "8.0.25" % Test,
+  "com.dimafeng"  %% "testcontainers-scala-mysql" % "0.40.1" % Test
 )
+
+Test / fork := true
 
 scriptedBufferLog := false
 
