@@ -23,7 +23,7 @@ create table DEPT (
   DEPT_ID integer not null primary key,
   DEPT_NAME varchar(20),
   VERSION_NO integer
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 """,
       """
 create table EMP (
@@ -34,7 +34,7 @@ create table EMP (
   SALARY numeric(7,2),
   VERSION_NO integer,
   FOREIGN KEY (DEPT_ID) REFERENCES DEPT(DEPT_ID)
-);""",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;""",
       "insert into DEPT values(1, '技術部', 1);",
       "insert into DEPT values(2, '総務部', 1);",
       "insert into EMP values(1, 1, '山田太郎', '1980-12-17', 800, 1);",
@@ -54,8 +54,13 @@ create table EMP (
   import SbtDaoGenerator._
 
   private val container: MySQLContainer = {
-    val c = MySQLContainer(
-      mysqlImageVersion = DockerImageName.parse("mysql:5.7.37")
+    val c = new MySQLContainer(
+      mysqlImageVersion = Some(DockerImageName.parse("mysql:5.7.37")),
+      urlParams = Map(
+        "useSSL" -> "false",
+        "useUnicode" -> "true",
+        "connectionCollation" -> "utf8mb4_bin"
+      )
     )
     c.start()
     c
