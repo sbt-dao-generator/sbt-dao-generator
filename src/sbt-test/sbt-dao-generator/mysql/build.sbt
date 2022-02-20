@@ -15,7 +15,7 @@ logLevel := Level.Debug
 def portNumber = 3310
 def databaseName = "sbt_dao_gen"
 
-flywayDriver := "com.mysql.jdbc.Driver"
+flywayDriver := "com.mysql.cj.jdbc.Driver"
 
 flywayUrl := s"jdbc:mysql://localhost:${portNumber}/${databaseName}?useSSL=false"
 
