@@ -1,3 +1,5 @@
+enablePlugins(FlywayPlugin)
+
 name := "simple"
 
 scalaVersion := "2.12.15"
@@ -12,7 +14,9 @@ flywayUrl := "jdbc:h2:file:./target/test"
 
 flywayUser := "sa"
 
-generator / tableNameFilter := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION" }
+generator / tableNameFilter := { tableName =>
+  tableName.toUpperCase != "SCHEMA_VERSION" && tableName.toUpperCase != "FLYWAY_SCHEMA_HISTORY"
+}
 
 generator / driverClassName := "org.h2.Driver"
 

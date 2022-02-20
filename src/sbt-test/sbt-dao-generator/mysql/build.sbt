@@ -1,5 +1,7 @@
 import scala.sys.process.Process
 
+enablePlugins(FlywayPlugin)
+
 name := "mysql"
 
 scalaVersion := "2.12.15"
@@ -21,7 +23,9 @@ flywayUser := "sbt_dao_gen"
 
 flywayPassword := "passwd"
 
-generator / tableNameFilter := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION" }
+generator / tableNameFilter := { tableName =>
+  tableName.toUpperCase != "SCHEMA_VERSION" && tableName.toUpperCase != "FLYWAY_SCHEMA_HISTORY"
+}
 
 generator / driverClassName := flywayDriver.value
 
@@ -68,7 +72,7 @@ TaskKey[Unit]("startMySQL") := {
     "-e", s"MYSQL_ROOT_PASSWORD=${flywayPassword.value}",
     "-e", s"MYSQL_DATABASE=${databaseName}",
     "-p", s"${portNumber}:3306",
-    "-d", "mysql:5.6.51",
+    "-d", "mysql:5.7.37",
     "--character-set-server=utf8",
     "--collation-server=utf8_unicode_ci",
   )).!
