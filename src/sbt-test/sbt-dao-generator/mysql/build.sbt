@@ -10,8 +10,6 @@ libraryDependencies ++= Seq(
   "mysql" % "mysql-connector-java" % "8.0.28"
 )
 
-logLevel := Level.Debug
-
 def portNumber = 3310
 def databaseName = "sbt_dao_gen"
 
