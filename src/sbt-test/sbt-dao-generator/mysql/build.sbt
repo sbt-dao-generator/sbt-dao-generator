@@ -1,3 +1,5 @@
+import scala.sys.process.Process
+
 name := "mysql"
 
 scalaVersion := "2.12.15"
@@ -8,9 +10,12 @@ libraryDependencies ++= Seq(
 
 logLevel := Level.Debug
 
+def portNumber = 3310
+def databaseName = "sbt_dao_gen"
+
 flywayDriver := "com.mysql.jdbc.Driver"
 
-flywayUrl := "jdbc:mysql://localhost:3310/sbt_dao_gen?useSSL=false"
+flywayUrl := s"jdbc:mysql://localhost:${portNumber}/${databaseName}?useSSL=false"
 
 flywayUser := "sbt_dao_gen"
 
@@ -25,16 +30,6 @@ generator / jdbcUrl := flywayUrl.value
 generator / jdbcUser := flywayUser.value
 
 generator / jdbcPassword := flywayPassword.value
-
-wixMySQLVersion := com.wix.mysql.distribution.Version.v5_6_latest
-
-wixMySQLSchemaName := "sbt_dao_gen"
-
-wixMySQLUserName := Some(flywayUser.value)
-
-wixMySQLPassword := Some(flywayPassword.value)
-
-wixMySQLDownloadPath := Some(System.getProperty("user.home") + "/.wixMySQL/downloads")
 
 generator / propertyTypeNameMapper := {
   case s if s.toUpperCase() == "BIGINT" => "Long"
@@ -61,3 +56,24 @@ generator / outputDirectoryMapper := {
 }
 
 Compile / sourceGenerators += generator / generateAll
+
+def dockerName = "sbt-dao-generator-test-1"
+
+TaskKey[Unit]("startMySQL") := {
+  Process(List(
+    "docker", "run",
+    "--name", dockerName,
+    "-e", s"MYSQL_USER=${flywayUser.value}",
+    "-e", s"MYSQL_PASSWORD=${flywayPassword.value}",
+    "-e", s"MYSQL_ROOT_PASSWORD=${flywayPassword.value}",
+    "-e", s"MYSQL_DATABASE=${databaseName}",
+    "-p", s"${portNumber}:3306",
+    "-d", "mysql:5.6.51",
+    "--character-set-server=utf8",
+    "--collation-server=utf8_unicode_ci",
+  )).!
+}
+
+TaskKey[Unit]("stopMySQL") := {
+  Process(s"docker rm -f ${dockerName}").!
+}

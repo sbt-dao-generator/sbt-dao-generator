@@ -1,4 +1,6 @@
-> wixMySQLStart
+> startMySQL
+
+$ sleep 10000
 
 > flywayClean
 
@@ -19,4 +21,4 @@ $ exists target/scala-2.12/src_managed/main/Dept.scala
 $ exists target/scala-2.12/src_managed/main/Emp.scala
 -$ exists target/scala-2.12/src_managed/main/SchemaVersion.scala
 
-> wixMySQLStop
+> stopMySQL
