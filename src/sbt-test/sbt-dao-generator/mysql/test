@@ -6,13 +6,13 @@ $ sleep 10000
 
 > flywayMigrate
 
-> generator::generateOne dept
+> generator/generateOne dept
 $ exists target/scala-2.12/src_managed/main/Dept.scala
 
-> generator::generateOne emp
+> generator/generateOne emp
 $ exists target/scala-2.12/src_managed/main/Emp.scala
 
-> generator::generateMany EMP DEPT
+> generator/generateMany EMP DEPT
 $ exists target/scala-2.12/src_managed/main/Dept.scala
 $ exists target/scala-2.12/src_managed/main/Emp.scala
 
