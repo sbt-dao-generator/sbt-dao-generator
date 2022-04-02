@@ -62,18 +62,28 @@ Compile / sourceGenerators += generator / generateAll
 def dockerName = "sbt-dao-generator-test-1"
 
 TaskKey[Unit]("startMySQL") := {
-  Process(List(
-    "docker", "run",
-    "--name", dockerName,
-    "-e", s"MYSQL_USER=${flywayUser.value}",
-    "-e", s"MYSQL_PASSWORD=${flywayPassword.value}",
-    "-e", s"MYSQL_ROOT_PASSWORD=${flywayPassword.value}",
-    "-e", s"MYSQL_DATABASE=${databaseName}",
-    "-p", s"${portNumber}:3306",
-    "-d", "mysql:5.7.37",
-    "--character-set-server=utf8",
-    "--collation-server=utf8_unicode_ci",
-  )).!
+  Process(
+    List(
+      "docker",
+      "run",
+      "--name",
+      dockerName,
+      "-e",
+      s"MYSQL_USER=${flywayUser.value}",
+      "-e",
+      s"MYSQL_PASSWORD=${flywayPassword.value}",
+      "-e",
+      s"MYSQL_ROOT_PASSWORD=${flywayPassword.value}",
+      "-e",
+      s"MYSQL_DATABASE=${databaseName}",
+      "-p",
+      s"${portNumber}:3306",
+      "-d",
+      "mysql:5.7.37",
+      "--character-set-server=utf8",
+      "--collation-server=utf8_unicode_ci"
+    )
+  ).!
 }
 
 TaskKey[Unit]("stopMySQL") := {
