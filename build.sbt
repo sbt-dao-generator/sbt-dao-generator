@@ -28,7 +28,7 @@ organization := "io.github.sbt-dao-generator"
 
 publishMavenStyle := true
 
-(Test / publishArtifact) := false
+Test / publishArtifact := false
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 

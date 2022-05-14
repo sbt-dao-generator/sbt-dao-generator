@@ -171,7 +171,7 @@ trait SbtDaoGenerator {
     var connection: Connection = null
     try {
       val driver = classLoader.loadClass(driverClassName).getConstructor().newInstance().asInstanceOf[Driver]
-      val info = new java.util.Properties()
+      val info = new java.util.Properties
       info.put("user", jdbcUser)
       info.put("password", jdbcPassword)
       connection = driver.connect(jdbcUrl, info)
