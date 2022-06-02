@@ -4,7 +4,7 @@ enablePlugins(FlywayPlugin)
 
 name := "mysql"
 
-scalaVersion := "2.12.15"
+scalaVersion := "2.13.8"
 
 libraryDependencies ++= Seq(
   "mysql" % "mysql-connector-java" % "8.0.29"
