@@ -73,7 +73,7 @@ libraryDependencies ++= Seq(
   "org.freemarker" % "freemarker"                 % "2.3.31",
   "org.scalatest" %% "scalatest"                  % "3.2.12" % Test,
   "mysql"          % "mysql-connector-java"       % "8.0.29" % Test,
-  "com.dimafeng"  %% "testcontainers-scala-mysql" % "0.40.8" % Test
+  "com.dimafeng"  %% "testcontainers-scala-mysql" % "0.40.9" % Test
 )
 
 Test / fork := true
