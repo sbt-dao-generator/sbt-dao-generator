@@ -29,7 +29,7 @@ create table DEPT (
 create table EMP (
   EMP_ID integer not null primary key,
   DEPT_ID integer not null,
-  EMP_NAME varchar(20),
+  EMP_NAME varchar(20) comment 'employee name',
   HIREDATE date,
   SALARY numeric(7,2),
   VERSION_NO integer,

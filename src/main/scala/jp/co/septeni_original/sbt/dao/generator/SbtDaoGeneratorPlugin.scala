@@ -1,5 +1,6 @@
 package jp.co.septeni_original.sbt.dao.generator
 
+import jp.co.septeni_original.sbt.dao.generator.model.{ ColumnDesc, TableDesc }
 import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
@@ -28,7 +29,8 @@ object SbtDaoGeneratorPlugin extends AutoPlugin {
     generator / templateNameMapper := { _: String =>
       "template.ftl"
     },
-    generator / propertyTypeNameMapper := identity,
+    generator / propertyTypeNameMapper := DefaultPropertyTypeNameMapper,
+    generator / advancedPropertyTypeNameMapper := { (s: String, _: TableDesc, _: ColumnDesc) => s },
     generator / tableNameFilter := { _: String =>
       true
     },

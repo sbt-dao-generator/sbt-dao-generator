@@ -1,5 +1,6 @@
 package jp.co.septeni_original.sbt.dao.generator
 
+import jp.co.septeni_original.sbt.dao.generator.model.{ ColumnDesc, TableDesc }
 import sbt._
 
 /**
@@ -35,6 +36,9 @@ trait SbtDaoGeneratorKeys {
   val typeNameMapper = settingKey[String => String]("type-mapper")
 
   val propertyTypeNameMapper = settingKey[String => String]("property-type-mapper")
+
+  val advancedPropertyTypeNameMapper =
+    settingKey[(String, TableDesc, ColumnDesc) => String]("advanced-property-type-mapper")
 
   val tableNameFilter = settingKey[String => Boolean]("table-name-filter")
 
