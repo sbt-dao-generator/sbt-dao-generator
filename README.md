@@ -29,13 +29,26 @@ generator / jdbcUser := "sa"
 // JDBC Password (required)
 generator / jdbcPassword := ""
 
-// The Function that convert The Column Type Name to Property Type Name (required)
+// The Function that convert The Column Type Name to Property Type Name (Optional)
 generator / propertyTypeNameMapper := {
   case "INTEGER" => "Int"
   case "VARCHAR" => "String"
   case "BOOLEAN" => "Boolean"
   case "DATE" | "TIMESTAMP" => "java.util.Date"
   case "DECIMAL" => "BigDecimal"
+}
+
+// More flexible `PropertyTypeNameMapper` (Optional)
+// NOTE: Currently this is ignored when the `propertyTypeNameMapper` is defined since it keeps compatibility.
+// NOTE: We plan to rename this setting to `propertyTypeNameMapper` in the next major version.
+generator / advancedPropertyTypeNameMapper := {
+  case (_, TableDesc(tableName, _, _), ColumnDesc("id", _, _, _, _)) => s"${tableName}Id"
+  case (_, _, ColumnDesc(_, _, _, _, Some(remarks))) => remarks
+  case ("INTEGER", _, _) => "Int"
+  case ("VARCHAR", _, _) => "String"
+  case ("BOOLEAN", _, _) => "Boolean"
+  case ("DATE" | "TIMESTAMP", _, _) => "java.util.Date"
+  case ("DECIMAL", _, _) => "BigDecimal"
 }
 
 // Schema Name (Optional, Default is None)
