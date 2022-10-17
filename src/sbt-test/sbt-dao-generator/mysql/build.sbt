@@ -1,4 +1,5 @@
 import scala.sys.process.Process
+import jp.co.septeni_original.sbt.dao.generator.model.ColumnDesc
 
 enablePlugins(FlywayPlugin)
 
@@ -33,13 +34,16 @@ generator / jdbcUser := flywayUser.value
 
 generator / jdbcPassword := flywayPassword.value
 
-generator / propertyTypeNameMapper := {
-  case s if s.toUpperCase() == "BIGINT" => "Long"
-  case s if s.toUpperCase() == "INT" => "Int"
-  case s if s.toUpperCase() == "VARCHAR" => "String"
-  case s if s.toUpperCase() == "BOOLEAN" => "Boolean"
-  case s if s.toUpperCase() == "DATE" | s.toUpperCase() == "TIMESTAMP" => "java.util.Date"
-  case s if s.toUpperCase() == "DECIMAL" => "BigDecimal"
+val TypeExtractor = ".*?/TYPE:(.*?)/.*".r
+
+generator / advancedPropertyTypeNameMapper := {
+  case (_, _, ColumnDesc(_, _, _, _, Some(TypeExtractor(t)))) => t.trim
+  case (s, _, _) if s.toUpperCase() == "BIGINT" => "Long"
+  case (s, _, _) if s.toUpperCase() == "INT" => "Int"
+  case (s, _, _) if s.toUpperCase() == "VARCHAR" => "String"
+  case (s, _, _) if s.toUpperCase() == "BOOLEAN" => "Boolean"
+  case (s, _, _) if s.toUpperCase() == "DATE" | s.toUpperCase() == "TIMESTAMP" => "java.util.Date"
+  case (s, _, _) if s.toUpperCase() == "DECIMAL" => "BigDecimal"
 }
 
 generator / classNameMapper := {

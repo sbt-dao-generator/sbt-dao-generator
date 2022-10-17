@@ -40,6 +40,9 @@ trait SbtDaoGenerator {
     logger.info("schemaName = " + (generator / schemaName).value.getOrElse(""))
     logger.info("tableName = " + tableName)
 
+    val propertyTypeNameMapperValue = (generator / propertyTypeNameMapper).value
+    val advancedPropertyTypeNameMapperValue = (generator / advancedPropertyTypeNameMapper).value
+
     val classLoader =
       if ((generator / enableManagedClassPath).value)
         ClasspathUtilities.toLoader(
@@ -62,7 +65,8 @@ trait SbtDaoGenerator {
         logger,
         conn,
         (generator / classNameMapper).value,
-        (generator / propertyTypeNameMapper).value,
+        if (propertyTypeNameMapperValue == DefaultPropertyTypeNameMapper) advancedPropertyTypeNameMapperValue
+        else (s, _, _) => propertyTypeNameMapperValue(s),
         (generator / tableNameFilter).value,
         (generator / propertyNameMapper).value,
         (generator / schemaName).value,
@@ -116,6 +120,9 @@ trait SbtDaoGenerator {
     logger.info("schemaName = " + (generator / schemaName).value.getOrElse(""))
     logger.info("tableNames = " + tableNames.mkString(", "))
 
+    val propertyTypeNameMapperValue = (generator / propertyTypeNameMapper).value
+    val advancedPropertyTypeNameMapperValue = (generator / advancedPropertyTypeNameMapper).value
+
     val classLoader =
       if ((generator / enableManagedClassPath).value)
         ClasspathUtilities.toLoader(
@@ -138,7 +145,8 @@ trait SbtDaoGenerator {
         logger,
         connection,
         (generator / classNameMapper).value,
-        (generator / propertyTypeNameMapper).value,
+        if (propertyTypeNameMapperValue == DefaultPropertyTypeNameMapper) advancedPropertyTypeNameMapperValue
+        else (s, _, _) => propertyTypeNameMapperValue(s),
         (generator / tableNameFilter).value,
         (generator / propertyNameMapper).value,
         (generator / schemaName).value,
@@ -285,7 +293,8 @@ trait SbtDaoGenerator {
             rs.getString("COLUMN_NAME"),
             rs.getString("TYPE_NAME"),
             rs.getString("IS_NULLABLE") == "YES",
-            Option(rs.getString("COLUMN_SIZE")).map(_.toInt)
+            Option(rs.getString("COLUMN_SIZE")).map(_.toInt),
+            Option(rs.getString("REMARKS"))
           )
         }
         Success(lb.result())
@@ -382,8 +391,12 @@ trait SbtDaoGenerator {
       IO.createDirectory(outputDirectory)
 
     val result = using(new FileWriter(file)) { writer =>
-      val primaryKeys = createPrimaryKeysContext(ctx.typeNameMapper, ctx.propertyNameMapper, tableDesc)
-      val columns = createColumnsContext(ctx.typeNameMapper, ctx.propertyNameMapper, tableDesc)
+      val primaryKeys = createPrimaryKeysContext(ctx.propertyTypeNameMapper, ctx.propertyNameMapper, tableDesc)
+      val columns = createColumnsContext(
+        ctx.propertyTypeNameMapper,
+        ctx.propertyNameMapper,
+        tableDesc
+      )
       val context = createContext(primaryKeys, columns, tableDesc.tableName, className)
       template.process(context, writer)
       writer.flush()
@@ -402,7 +415,7 @@ trait SbtDaoGenerator {
     * @return コンテキスト
     */
   private[generator] def createPrimaryKeysContext(
-      propertyTypeNameMapper: String => String,
+      propertyTypeNameMapper: (String, TableDesc, ColumnDesc) => String,
       propertyNameMapper: String => String,
       tableDesc: TableDesc
   )(implicit logger: Logger): Seq[Map[String, Any]] = {
@@ -410,7 +423,7 @@ trait SbtDaoGenerator {
     val primaryKeys = tableDesc.primaryDescs.map { key =>
       val column = tableDesc.columnDescs.find(_.columnName == key.columnName).get
       val propertyName = propertyNameMapper(column.columnName)
-      val propertyTypeName = propertyTypeNameMapper(column.typeName)
+      val propertyTypeName = propertyTypeNameMapper(column.typeName, tableDesc, column)
       Map[String, Any](
         "name" -> key.columnName, // deprecated
         "columnName" -> key.columnName,
@@ -442,18 +455,18 @@ trait SbtDaoGenerator {
     * @return コンテキスト
     */
   private[generator] def createColumnsContext(
-      propertyTypeNameMapper: String => String,
+      advancedPropertyTypeNameMapper: (String, TableDesc, ColumnDesc) => String,
       propertyNameMapper: String => String,
       tableDesc: TableDesc
   )(implicit logger: Logger): Seq[Map[String, Any]] = {
-    logger.debug(s"createColumnsContext($propertyTypeNameMapper, $propertyNameMapper, $tableDesc): start")
+    logger.debug(s"createColumnsContext($advancedPropertyTypeNameMapper, $propertyNameMapper, $tableDesc): start")
     val columns = tableDesc.columnDescs
       .filterNot { e =>
         tableDesc.primaryDescs.map(_.columnName).contains(e.columnName)
       }
       .map { column =>
         val propertyName = propertyNameMapper(column.columnName)
-        val propertyTypeName = propertyTypeNameMapper(column.typeName)
+        val propertyTypeName = advancedPropertyTypeNameMapper(column.typeName, tableDesc, column)
         Map[String, Any](
           "name" -> column.columnName, // deprecated
           "columnName" -> column.columnName,
@@ -561,6 +574,7 @@ trait SbtDaoGenerator {
     val jdbcPasswordValue = (generator / jdbcPassword).value
     val classNameMapperValue = (generator / classNameMapper).value
     val propertyTypeNameMapperValue = (generator / propertyTypeNameMapper).value
+    val advancedPropertyTypeNameMapperValue = (generator / advancedPropertyTypeNameMapper).value
     val tableNameFilterValue = (generator / tableNameFilter).value
     val propertyNameMapperValue = (generator / propertyNameMapper).value
     val schemaNameValue = (generator / schemaName).value
@@ -591,7 +605,8 @@ trait SbtDaoGenerator {
           logger,
           conn,
           classNameMapperValue,
-          propertyTypeNameMapperValue,
+          if (propertyTypeNameMapperValue == DefaultPropertyTypeNameMapper) advancedPropertyTypeNameMapperValue
+          else (s, _, _) => propertyTypeNameMapperValue(s),
           tableNameFilterValue,
           propertyNameMapperValue,
           schemaNameValue,
@@ -635,7 +650,7 @@ trait SbtDaoGenerator {
       logger: Logger,
       connection: Connection,
       classNameMapper: String => Seq[String],
-      typeNameMapper: String => String,
+      propertyTypeNameMapper: (String, TableDesc, ColumnDesc) => String,
       tableNameFilter: String => Boolean,
       propertyNameMapper: String => String,
       schemaName: Option[String],
@@ -647,3 +662,7 @@ trait SbtDaoGenerator {
 }
 
 object SbtDaoGenerator extends SbtDaoGenerator
+
+object DefaultPropertyTypeNameMapper extends (String => String) {
+  override def apply(v1: String): String = v1
+}

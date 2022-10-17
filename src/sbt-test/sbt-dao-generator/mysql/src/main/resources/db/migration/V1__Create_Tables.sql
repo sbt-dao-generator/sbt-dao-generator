@@ -8,7 +8,7 @@ CREATE TABLE `dept` (
 CREATE TABLE `emp` (
   EMP_ID     INTEGER NOT NULL,
   DEPT_ID    INTEGER NOT NULL,
-  EMP_NAME   VARCHAR(20),
+  EMP_NAME   VARCHAR(20) comment '/TYPE: jp.co.septeni_original.sbt.dao.generator.domain.EmployeeName/',
   HIREDATE   DATE,
   SALARY     NUMERIC(7, 2),
   VERSION_NO INTEGER,
