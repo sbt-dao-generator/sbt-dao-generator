@@ -154,7 +154,7 @@ You can use the following template contexts.
 - When processing all tables
 
 ```sh
-$ sbt generator::generateAll
+$ sbt generator/generateAll
 <snip>
 [info] tableName = DEPT, generate file = /Users/sbt-user/myproject/target/scala-2.10/src_managed/Dept.scala
 [info] tableName = EMP, generate file = /Users/sbt-user/myproject/target/scala-2.10/src_managed/Emp.scala
@@ -164,7 +164,7 @@ $ sbt generator::generateAll
 - When processing multiple tables
 
 ```sh
-$ sbt generator::generateMany DEPT EMP
+$ sbt generator/generateMany DEPT EMP
 <snip>
 [info] tableNames = EMP, DEPT
 [info] tableName = DEPT, generate file = /Users/sbt-user/myproject/target/scala-2.10/src_managed/Dept.scala
@@ -175,14 +175,14 @@ $ sbt generator::generateMany DEPT EMP
 - When processing one table
 
 ```sh
-$ sbt generator::generateOne DEPT
+$ sbt generator/generateOne DEPT
 <snip>
 [info] tableName = DEPT
 [info] tableName = DEPT, generate file = /Users/sbt-user/myproject/target/scala-2.10/src_managed/Dept.scala
 [success] Total time: 0 s, completed 2015/06/24 18:17:20
 ```
 
-If you want to run `generator::generateAll` at` sbt compile`, add the following to build.sbt:
+If you want to run `generator/generateAll` at `sbt compile`, add the following to build.sbt:
 
 ```scala
 Compile / sourceGenerators += (generator / generateAll).value
