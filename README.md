@@ -111,7 +111,7 @@ The supported template syntax is FTL(FreeMarker Template Language).Please refer 
 
 **`templates/temlate.ftl`**
 
-```
+```ftl
 case class ${className}(
 <#list allColumns as column>
 <#if column.nullable>
