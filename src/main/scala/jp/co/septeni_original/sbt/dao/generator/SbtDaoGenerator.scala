@@ -293,6 +293,7 @@ trait SbtDaoGenerator {
             rs.getString("COLUMN_NAME"),
             rs.getString("TYPE_NAME"),
             rs.getString("IS_NULLABLE") == "YES",
+            rs.getString("IS_AUTOINCREMENT") == "YES",
             Option(rs.getString("COLUMN_SIZE")).map(_.toInt),
             Option(rs.getString("REMARKS"))
           )
@@ -320,14 +321,7 @@ trait SbtDaoGenerator {
       using(dbMeta.getPrimaryKeys(null, schemaName.orNull, tableName)) { rs =>
         val lb = ListBuffer[PrimaryKeyDesc]()
         while (rs.next()) {
-          lb += PrimaryKeyDesc(
-            rs.getString("COLUMN_NAME"),
-            try {
-              rs.getBoolean("IS_AUTOINCREMENT")
-            } catch {
-              case ex: Exception => false
-            }
-          )
+          lb += PrimaryKeyDesc(rs.getString("COLUMN_NAME"), autoIncrement = false)
         }
         Success(lb.result())
       }
@@ -438,7 +432,7 @@ trait SbtDaoGenerator {
         "capitalizedPropertyName" -> StringUtil.capitalize(propertyName),
         "decamelizedPropertyName" -> StringUtil.decamelize(propertyName),
         "decapitalizedPropertyName" -> StringUtil.decapitalize(propertyName),
-        "autoIncrement" -> key.autoIncrement,
+        "autoIncrement" -> column.autoIncrement,
         "nullable" -> column.nullable
       )
     }
