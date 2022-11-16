@@ -42,8 +42,8 @@ generator / propertyTypeNameMapper := {
 // NOTE: Currently this is ignored when the `propertyTypeNameMapper` is defined since it keeps compatibility.
 // NOTE: We plan to rename this setting to `propertyTypeNameMapper` in the next major version.
 generator / advancedPropertyTypeNameMapper := {
-  case (_, TableDesc(tableName, _, _), ColumnDesc("id", _, _, _, _)) => s"${tableName}Id"
-  case (_, _, ColumnDesc(_, _, _, _, Some(remarks))) => remarks
+  case (_, TableDesc(tableName, _, _), ColumnDesc("id", _, _, _, _, _)) => s"${tableName}Id"
+  case (_, _, ColumnDesc(_, _, _, _, _, Some(remarks))) => remarks
   case ("INTEGER", _, _) => "Int"
   case ("VARCHAR", _, _) => "String"
   case ("BOOLEAN", _, _) => "Boolean"
