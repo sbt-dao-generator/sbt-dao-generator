@@ -293,7 +293,7 @@ trait SbtDaoGenerator {
             rs.getString("COLUMN_NAME"),
             rs.getString("TYPE_NAME"),
             rs.getString("IS_NULLABLE") == "YES",
-            rs.getString("IS_AUTOINCREMENT") == "YES",
+            Try(rs.getString("IS_AUTOINCREMENT") == "YES").getOrElse(false), // Oracle9iでは例外がthrowされうる
             Option(rs.getString("COLUMN_SIZE")).map(_.toInt),
             Option(rs.getString("REMARKS"))
           )
