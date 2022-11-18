@@ -35,7 +35,7 @@ generator / jdbcPassword := flywayPassword.value
 val TypeExtractor = ".*?/TYPE:(.*?)/.*".r
 
 generator / advancedPropertyTypeNameMapper := {
-  case (_, _, ColumnDesc(_, _, _, _, Some(TypeExtractor(t)))) => t.trim
+  case (_, _, ColumnDesc(_, _, _, _, _, Some(TypeExtractor(t)))) => t.trim
   case (s, _, _) if s.toUpperCase() == "BIGINT" => "Long"
   case (s, _, _) if s.toUpperCase() == "INT4" => "Int"
   case (s, _, _) if s.toUpperCase() == "NUMERIC" => "Int"
