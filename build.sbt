@@ -71,7 +71,7 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic"            % "1.2.11",
   "org.slf4j"      % "slf4j-api"                  % "2.0.6",
   "org.freemarker" % "freemarker"                 % "2.3.31",
-  "org.scalatest" %% "scalatest-funspec"          % "3.2.14"  % Test,
+  "org.scalatest" %% "scalatest-funspec"          % "3.2.15"  % Test,
   "mysql"          % "mysql-connector-java"       % "8.0.30"  % Test,
   "com.dimafeng"  %% "testcontainers-scala-mysql" % "0.40.12" % Test
 )
