@@ -68,7 +68,7 @@ name := "sbt-dao-generator"
 enablePlugins(SbtPlugin)
 
 libraryDependencies ++= Seq(
-  "ch.qos.logback" % "logback-classic"            % "1.2.11",
+  "ch.qos.logback" % "logback-classic"            % "1.2.12",
   "org.slf4j"      % "slf4j-api"                  % "2.0.7",
   "org.freemarker" % "freemarker"                 % "2.3.32",
   "org.scalatest" %% "scalatest-funspec"          % "3.2.15"  % Test,
