@@ -72,7 +72,7 @@ libraryDependencies ++= Seq(
   "org.slf4j"      % "slf4j-api"                  % "2.0.9",
   "org.freemarker" % "freemarker"                 % "2.3.32",
   "org.scalatest" %% "scalatest-funspec"          % "3.2.17" % Test,
-  "com.mysql"      % "mysql-connector-j"          % "8.1.0"  % Test,
+  "com.mysql"      % "mysql-connector-j"          % "8.2.0"  % Test,
   "com.dimafeng"  %% "testcontainers-scala-mysql" % "0.41.0" % Test
 )
 
