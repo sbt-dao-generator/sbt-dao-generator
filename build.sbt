@@ -69,7 +69,7 @@ enablePlugins(SbtPlugin)
 
 libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic"            % "1.2.13",
-  "org.slf4j"      % "slf4j-api"                  % "2.0.11",
+  "org.slf4j"      % "slf4j-api"                  % "2.0.12",
   "org.freemarker" % "freemarker"                 % "2.3.32",
   "org.scalatest" %% "scalatest-funspec"          % "3.2.17" % Test,
   "com.mysql"      % "mysql-connector-j"          % "8.3.0"  % Test,
