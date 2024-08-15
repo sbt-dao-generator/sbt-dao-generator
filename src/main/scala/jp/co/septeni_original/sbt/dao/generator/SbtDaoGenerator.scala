@@ -295,7 +295,8 @@ trait SbtDaoGenerator {
             rs.getString("IS_NULLABLE") == "YES",
             Try(rs.getString("IS_AUTOINCREMENT") == "YES").getOrElse(false), // Oracle9iでは例外がthrowされうる
             Option(rs.getString("COLUMN_SIZE")).map(_.toInt),
-            Option(rs.getString("REMARKS"))
+            Option(rs.getString("REMARKS")),
+            Try(rs.getString("IS_GENERATEDCOLUMN") == "YES").getOrElse(false)
           )
         }
         Success(lb.result())
@@ -475,7 +476,8 @@ trait SbtDaoGenerator {
           "decamelizedPropertyName" -> StringUtil.decamelize(propertyName),
           "decapitalizedPropertyName" -> StringUtil.decapitalize(propertyName),
           "capitalizedPropertyName" -> StringUtil.capitalize(propertyName), // deprecated
-          "nullable" -> column.nullable
+          "nullable" -> column.nullable,
+          "generatedColumn" -> column.generatedColumn
         )
       }
     logger.debug(s"createColumnsContext: finished = $columns")
