@@ -18,6 +18,11 @@ class SbtDaoGeneratorSpec extends AnyFunSpec with BeforeAndAfterAll {
 
   override def beforeAll(): Unit = {
     List(
+      """|CREATE TABLE GENERATED_COLUMN_TEST(
+         |  aaa DOUBLE,
+         |  bbb DOUBLE,
+         |  ccc DOUBLE AS (aaa + bbb)
+         |);""".stripMargin,
       """
 create table DEPT (
   DEPT_ID integer not null primary key,
@@ -82,7 +87,7 @@ create table EMP (
     it("should getTables") {
       val tables = getTables(conn, None).get
       println(tables)
-      assert(tables.size == 2)
+      assert(tables.size == 3)
     }
 
     it("should getColumnDescs") {
@@ -104,10 +109,26 @@ create table EMP (
         e.primaryDescs.foreach(println)
         e.columnDescs.foreach(println)
       }
-      assert(tables.size == 2)
+      assert(tables.size == 3)
       assert(tables.find(_.tableName == "DEPT").map(_.columnDescs.size).get == 3)
       assert(tables.find(_.tableName == "EMP").map(_.columnDescs.size).get == 6)
     }
 
+    it("generated column") {
+      // https://dev.mysql.com/doc/refman/8.4/en/create-table-generated-columns.html
+      val tables = getTableDescs(conn, None).get
+      val columns = tables.find(_.tableName == "GENERATED_COLUMN_TEST").map(_.columnDescs).getOrElse(Nil)
+      assert(columns.size == 3)
+
+      val actual = columns.map { c =>
+        c.columnName -> c.generatedColumn
+      }.toMap
+      val expect = Map(
+        "aaa" -> false,
+        "bbb" -> false,
+        "ccc" -> true
+      )
+      assert(actual == expect)
+    }
   }
 }

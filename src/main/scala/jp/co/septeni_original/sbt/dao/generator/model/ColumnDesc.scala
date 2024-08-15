@@ -6,5 +6,6 @@ case class ColumnDesc(
     nullable: Boolean,
     autoIncrement: Boolean,
     columnSize: Option[Int],
-    remarks: Option[String]
+    remarks: Option[String],
+    generatedColumn: Boolean
 )
