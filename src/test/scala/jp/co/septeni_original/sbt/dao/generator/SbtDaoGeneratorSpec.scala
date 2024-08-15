@@ -60,7 +60,7 @@ create table EMP (
 
   private val container: MySQLContainer = {
     val c = new MySQLContainer(
-      mysqlImageVersion = Some(DockerImageName.parse("mysql:5.7.37")),
+      mysqlImageVersion = Some(DockerImageName.parse("mysql:8.0.39")),
       urlParams = Map(
         "useSSL" -> "false",
         "useUnicode" -> "true",

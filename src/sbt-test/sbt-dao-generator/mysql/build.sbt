@@ -16,7 +16,7 @@ def databaseName = "sbt_dao_gen"
 
 flywayDriver := "com.mysql.cj.jdbc.Driver"
 
-flywayUrl := s"jdbc:mysql://localhost:${portNumber}/${databaseName}?useSSL=false"
+flywayUrl := s"jdbc:mysql://localhost:${portNumber}/${databaseName}?useSSL=false&allowPublicKeyRetrieval=true"
 
 flywayUser := "sbt_dao_gen"
 
@@ -83,7 +83,7 @@ TaskKey[Unit]("startMySQL") := {
       "-p",
       s"${portNumber}:3306",
       "-d",
-      "mysql:5.7.37",
+      "mysql:8.0.39",
       "--character-set-server=utf8",
       "--collation-server=utf8_unicode_ci"
     )
