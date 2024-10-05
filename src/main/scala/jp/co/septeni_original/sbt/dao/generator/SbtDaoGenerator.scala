@@ -23,7 +23,7 @@ trait SbtDaoGenerator {
 
   private val oneStringParser: Parser[String] = token(Space ~> StringBasic, "table name")
 
-  private val manyStringParser: Parser[Seq[String]] = token(Space ~> StringBasic, "table name") +
+  private val manyStringParser: Parser[Seq[String]] = token(Space ~> StringBasic, "table name").+
 
   /**
     * [[generateOne]]のためのタスク。
@@ -61,7 +61,7 @@ trait SbtDaoGenerator {
         (generator / jdbcPassword).value
       )
     ) { conn =>
-      implicit val ctx = GeneratorContext(
+      implicit val ctx: GeneratorContext = GeneratorContext(
         logger,
         conn,
         (generator / classNameMapper).value,
@@ -141,7 +141,7 @@ trait SbtDaoGenerator {
         (generator / jdbcPassword).value
       )
     ) { connection =>
-      implicit val ctx = GeneratorContext(
+      implicit val ctx: GeneratorContext = GeneratorContext(
         logger,
         connection,
         (generator / classNameMapper).value,
