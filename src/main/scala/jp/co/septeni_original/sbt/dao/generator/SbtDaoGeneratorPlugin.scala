@@ -26,22 +26,22 @@ object SbtDaoGeneratorPlugin extends AutoPlugin {
     generator / jdbcPassword := "",
     generator / schemaName := None,
     generator / templateDirectory := baseDirectory.value / "templates",
-    generator / templateNameMapper := { _: String =>
+    generator / templateNameMapper := { (_: String) =>
       "template.ftl"
     },
     generator / propertyTypeNameMapper := DefaultPropertyTypeNameMapper,
     generator / advancedPropertyTypeNameMapper := { (s: String, _: TableDesc, _: ColumnDesc) => s },
-    generator / tableNameFilter := { _: String =>
+    generator / tableNameFilter := { (_: String) =>
       true
     },
-    generator / propertyNameMapper := { columnName: String =>
+    generator / propertyNameMapper := { (columnName: String) =>
       StringUtil.decapitalize(StringUtil.camelize(columnName))
     },
     generator / typeNameMapper := (generator / propertyNameMapper).value,
-    generator / classNameMapper := { tableName: String =>
+    generator / classNameMapper := { (tableName: String) =>
       Seq(StringUtil.camelize(tableName))
     },
-    generator / outputDirectoryMapper := { _: String =>
+    generator / outputDirectoryMapper := { (_: String) =>
       (Compile / sourceManaged).value
     },
     generator / generateAll := SbtDaoGenerator.generateAllTask.value,

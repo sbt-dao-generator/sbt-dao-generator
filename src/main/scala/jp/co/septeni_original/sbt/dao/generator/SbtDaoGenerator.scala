@@ -32,7 +32,7 @@ trait SbtDaoGenerator {
     */
   def generateOneTask: Def.Initialize[InputTask[Seq[File]]] = Def.inputTask {
     val tableName = oneStringParser.parsed
-    implicit val logger = streams.value.log
+    implicit val logger: Logger = streams.value.log
     logger.info("sbt-dao-generator: generateOne task")
     logger.info("driverClassName = " + (generator / driverClassName).value.toString)
     logger.info("jdbcUrl = " + (generator / jdbcUrl).value.toString)
@@ -86,7 +86,7 @@ trait SbtDaoGenerator {
     * @return 生成されたSeq[File]
     */
   private[generator] def generateOne(tableName: String)(implicit ctx: GeneratorContext): Try[Seq[File]] = {
-    implicit val logger = ctx.logger
+    implicit val logger: Logger = ctx.logger
     logger.debug(s"generateOne: start")
     val result = for {
       cfg <- createTemplateConfiguration(ctx.templateDirectory)
@@ -112,7 +112,7 @@ trait SbtDaoGenerator {
     */
   def generateManyTask: Def.Initialize[InputTask[Seq[File]]] = Def.inputTask {
     val tableNames = manyStringParser.parsed
-    implicit val logger = streams.value.log
+    implicit val logger: Logger = streams.value.log
     logger.info("sbt-dao-generator: generateMany task")
     logger.info("driverClassName = " + (generator / driverClassName).value.toString)
     logger.info("jdbcUrl = " + (generator / jdbcUrl).value.toString)
@@ -197,7 +197,7 @@ trait SbtDaoGenerator {
     * @return 生成されたSeq[File]
     */
   private[generator] def generateMany(tableNames: Seq[String])(implicit ctx: GeneratorContext): Try[Seq[File]] = {
-    implicit val logger = ctx.logger
+    implicit val logger: Logger = ctx.logger
     logger.debug(s"generateMany($tableNames): start")
     val result = for {
       cfg <- createTemplateConfiguration(ctx.templateDirectory)
@@ -342,7 +342,7 @@ trait SbtDaoGenerator {
   private[generator] def generateFiles(cfg: freemarker.template.Configuration, tableDesc: TableDesc)(implicit
       ctx: GeneratorContext
   ): Try[Seq[File]] = {
-    implicit val logger = ctx.logger
+    implicit val logger: Logger = ctx.logger
     logger.debug(s"generateFiles($cfg, $tableDesc): start")
     val result = ctx
       .classNameMapper(tableDesc.tableName)
@@ -375,7 +375,7 @@ trait SbtDaoGenerator {
       className: String,
       outputDirectory: File
   )(implicit ctx: GeneratorContext): Try[File] = {
-    implicit val logger = ctx.logger
+    implicit val logger: Logger = ctx.logger
     logger.debug(s"generateFile($cfg, $tableDesc, $outputDirectory): start")
     val templateName = ctx.templateNameMapper(className)
     val template = cfg.getTemplate(templateName)
@@ -556,7 +556,7 @@ trait SbtDaoGenerator {
     * @return タスク定義
     */
   def generateAllTask: Def.Initialize[Task[Seq[File]]] = Def.taskDyn {
-    implicit val logger = streams.value.log
+    implicit val logger: Logger = streams.value.log
     logger.info("sbt-dao-generator: generateAll task")
     logger.info("driverClassName = " + (generator / driverClassName).value.toString)
     logger.info("jdbcUrl = " + (generator / jdbcUrl).value.toString)
@@ -622,7 +622,7 @@ trait SbtDaoGenerator {
     * @return 生成されたSeq[File]
     */
   private[generator] def generateAll(implicit ctx: GeneratorContext): Try[Seq[File]] = {
-    implicit val logger = ctx.logger
+    implicit val logger: Logger = ctx.logger
     logger.debug(s"generateAll: start")
     val result = for {
       cfg <- createTemplateConfiguration(ctx.templateDirectory)
