@@ -2,7 +2,7 @@ package jp.co.septeni_original.sbt.dao.generator
 
 import jp.co.septeni_original.sbt.dao.generator.model.{ ColumnDesc, TableDesc }
 import sbt.Keys._
-import sbt._
+import sbt.{ *, given }
 import sbt.plugins.JvmPlugin
 
 /**
