@@ -8,7 +8,7 @@ import jp.co.septeni_original.sbt.dao.generator.model.{ ColumnDesc, PrimaryKeyDe
 import jp.co.septeni_original.sbt.dao.generator.util.Loan._
 import sbt.Keys._
 import sbt.complete.Parser
-import sbt._
+import sbt.{ *, given }
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
@@ -17,7 +17,7 @@ import scala.util.{ Success, Try }
 /**
   * sbt-dao-generatorのロジックを提供するトレイト。
   */
-trait SbtDaoGenerator {
+trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
 
   import complete.DefaultParsers._
 
@@ -46,7 +46,7 @@ trait SbtDaoGenerator {
     val classLoader =
       if ((generator / enableManagedClassPath).value)
         ClasspathUtilities.toLoader(
-          (Compile / managedClasspath).value.map(_.data),
+          compileManagedClasspathValue.value,
           ClasspathUtilities.xsbtiLoader
         )
       else
@@ -126,7 +126,7 @@ trait SbtDaoGenerator {
     val classLoader =
       if ((generator / enableManagedClassPath).value)
         ClasspathUtilities.toLoader(
-          (Compile / managedClasspath).value.map(_.data),
+          compileManagedClasspathValue.value,
           ClasspathUtilities.xsbtiLoader
         )
       else
@@ -563,7 +563,7 @@ trait SbtDaoGenerator {
     logger.info("jdbcUser = " + (generator / jdbcUser).value.toString)
     logger.info("schemaName = " + (generator / schemaName).value.getOrElse(""))
     val enableManagedClassPathValue = (generator / enableManagedClassPath).value
-    val managedClasspathData = (Compile / managedClasspath).value.map(_.data)
+    val managedClasspathData = compileManagedClasspathValue.value
     val driverClassNameValue = (generator / driverClassName).value
     val jdbcUrlValue = (generator / jdbcUrl).value
     val jdbcUserValue = (generator / jdbcUser).value
