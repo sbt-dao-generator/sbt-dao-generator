@@ -1,6 +1,6 @@
 package jp.co.septeni_original.sbt.dao.generator
 
-import java.io._
+import java.io.FileWriter
 import java.sql.{ Connection, Driver }
 
 import jp.co.septeni_original.sbt.dao.generator.SbtDaoGeneratorKeys._
@@ -8,7 +8,7 @@ import jp.co.septeni_original.sbt.dao.generator.model.{ ColumnDesc, PrimaryKeyDe
 import jp.co.septeni_original.sbt.dao.generator.util.Loan._
 import sbt.Keys._
 import sbt.complete.Parser
-import sbt.{ File, _ }
+import sbt._
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
