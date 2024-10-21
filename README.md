@@ -9,7 +9,7 @@
 Add this to your `project/plugins.sbt` file:
 
 ```scala
-addSbtPlugin("io.github.sbt-dao-generator" % "sbt-dao-generator" % "1.3.0")
+addSbtPlugin("io.github.sbt-dao-generator" % "sbt-dao-generator" % "1.4.0")
 ```
 
 ## How to configuration
