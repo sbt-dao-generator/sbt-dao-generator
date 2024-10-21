@@ -55,10 +55,10 @@ generator / advancedPropertyTypeNameMapper := {
 generator / schemaName := None,
 
 // The Function for filtering the table to be processed (Optional, default is the following)
-generator / tableNameFilter := { tableName: String => tableName.toUpperCase != "SCHEMA_VERSION"}
+generator / tableNameFilter := { (tableName: String) => tableName.toUpperCase != "SCHEMA_VERSION"}
 
 // The Function for converting Table Name to Class Name (Optional, default is the following)
-generator / classNameMapper := { tableName: String =>
+generator / classNameMapper := { (tableName: String) =>
     Seq(StringUtil.camelize(tableName))
 }
 
@@ -71,12 +71,12 @@ generator / classNameMapper := {
 */
 
 // The Function for converting Column Name to Property Name (Optional, default is the following)
-generator / propertyNameMapper := { columnName: String =>
+generator / propertyNameMapper := { (columnName: String) =>
     StringUtil.decapitalize(StringUtil.camelize(columnName))
 }
 
 // The Function that decides which Template Name for Model Name (Optional, defaults below)
-generator / templateNameMapper := { className: String => "template.ftl" },
+generator / templateNameMapper := { (className: String) => "template.ftl" },
 
 // e.g.) If you want to specify different templates for the model and spec, you can configure it as follows.
 /*
@@ -90,11 +90,11 @@ generator / templateNameMapper := {
 generator / templateDirectory := baseDirectory.value / "templates"
 
 // The Directory where source code is output (Optional, default is the following)
-generator / outputDirectoryMapper := { className: String => (Compile / sourceManaged).value }
+generator / outputDirectoryMapper := { (className: String) => (Compile / sourceManaged).value }
 
 // e.g.) You can change the output destination directory for each class name dynamically.
 /*
-generator / outputDirectoryMapper := { className: String =>
+generator / outputDirectoryMapper := { (className: String) =>
   className match {
     case s if s.endsWith("Spec") => (Test / sourceManaged).value
     case s => (Compile / sourceManaged).value
