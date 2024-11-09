@@ -7,18 +7,25 @@ $ sleep 10000
 > flywayMigrate
 
 > generator/generateOne dept
-$ exists target/scala-2.13/src_managed/main/Dept.scala
+> checkGeneratedSources Dept.scala
+
+> clean
+> checkGeneratedSources
 
 > generator/generateOne emp
-$ exists target/scala-2.13/src_managed/main/Emp.scala
+> checkGeneratedSources Emp.scala
 
-> generator/generateMany EMP DEPT
-$ exists target/scala-2.13/src_managed/main/Dept.scala
-$ exists target/scala-2.13/src_managed/main/Emp.scala
+> clean
+> checkGeneratedSources
 
+> generator/generateMany emp dept
+> checkGeneratedSources Dept.scala Emp.scala
+
+> clean
+> checkGeneratedSources
+
+> set Compile / sourceGenerators += generator / generateAll
 > compile
-$ exists target/scala-2.13/src_managed/main/Dept.scala
-$ exists target/scala-2.13/src_managed/main/Emp.scala
--$ exists target/scala-2.13/src_managed/main/SchemaVersion.scala
+> checkGeneratedSources Dept.scala Emp.scala
 
 > stopMySQL

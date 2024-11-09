@@ -1,17 +1,28 @@
 > flywayMigrate
-$ exists target/test.mv.db
+
+> checkGeneratedSources
 
 > generator/generateOne DEPT
-$ exists target/scala-2.13/src_managed/main/Dept.scala
+> checkGeneratedSources Dept.scala
+
+> clean
+> checkGeneratedSources
+> flywayMigrate
 
 > generator/generateOne EMP
-$ exists target/scala-2.13/src_managed/main/Emp.scala
+> checkGeneratedSources Emp.scala
+
+> clean
+> checkGeneratedSources
+> flywayMigrate
 
 > generator/generateMany EMP DEPT
-$ exists target/scala-2.13/src_managed/main/Dept.scala
-$ exists target/scala-2.13/src_managed/main/Emp.scala
+> checkGeneratedSources Dept.scala Emp.scala
 
+> clean
+> checkGeneratedSources
+> flywayMigrate
+
+> set Compile / sourceGenerators += generator / generateAll
 > compile
-$ exists target/scala-2.13/src_managed/main/Dept.scala
-$ exists target/scala-2.13/src_managed/main/Emp.scala
--$ exists target/scala-2.13/src_managed/main/SchemaVersion.scala
+> checkGeneratedSources Dept.scala Emp.scala

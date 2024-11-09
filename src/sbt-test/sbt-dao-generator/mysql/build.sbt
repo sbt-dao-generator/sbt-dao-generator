@@ -63,8 +63,6 @@ generator / outputDirectoryMapper := {
   case (className: String) => (Compile / sourceManaged).value
 }
 
-Compile / sourceGenerators += generator / generateAll
-
 def dockerName = "sbt-dao-generator-test-1"
 
 TaskKey[Unit]("startMySQL") := {
@@ -94,4 +92,10 @@ TaskKey[Unit]("startMySQL") := {
 
 TaskKey[Unit]("stopMySQL") := {
   Process(s"docker rm -f ${dockerName}").!
+}
+
+InputKey[Unit]("checkGeneratedSources") := {
+  val actual = ((Compile / sourceManaged).value ** "*.scala").get().map(_.getName).toSet
+  val expect = Def.spaceDelimited("expect files").parsed.toSet
+  assert(actual == expect, s"${actual} != ${expect}")
 }

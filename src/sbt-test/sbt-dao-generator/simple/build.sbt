@@ -47,4 +47,8 @@ generator / outputDirectoryMapper := {
   case (className: String) => (Compile / sourceManaged).value
 }
 
-Compile / sourceGenerators += generator / generateAll
+InputKey[Unit]("checkGeneratedSources") := {
+  val actual = ((Compile / sourceManaged).value ** "*.scala").get().map(_.getName).toSet
+  val expect = Def.spaceDelimited("expect files").parsed.toSet
+  assert(actual == expect, s"${actual} != ${expect}")
+}
