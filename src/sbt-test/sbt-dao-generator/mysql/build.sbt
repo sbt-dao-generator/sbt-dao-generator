@@ -22,6 +22,8 @@ flywayUser := "sbt_dao_gen"
 
 flywayPassword := "passwd"
 
+flywayCleanDisabled := false
+
 generator / tableNameFilter := { tableName =>
   tableName.toUpperCase != "SCHEMA_VERSION" && tableName.toUpperCase != "FLYWAY_SCHEMA_HISTORY"
 }
