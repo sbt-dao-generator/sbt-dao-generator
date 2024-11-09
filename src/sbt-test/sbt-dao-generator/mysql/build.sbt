@@ -8,7 +8,7 @@ name := "mysql"
 scalaVersion := "2.13.15"
 
 libraryDependencies ++= Seq(
-  "com.mysql" % "mysql-connector-j" % "9.1.0"
+  "com.mysql" % "mysql-connector-j" % "9.1.0" exclude ("com.google.protobuf", "protobuf-java")
 )
 
 def portNumber = 3310
