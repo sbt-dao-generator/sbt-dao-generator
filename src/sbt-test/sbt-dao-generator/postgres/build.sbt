@@ -6,7 +6,7 @@ enablePlugins(FlywayPlugin)
 scalaVersion := "2.13.15"
 
 libraryDependencies ++= Seq(
-  "org.postgresql" % "postgresql" % "42.5.0"
+  "org.postgresql" % "postgresql" % "42.7.4"
 )
 
 def portNumber = 3311
