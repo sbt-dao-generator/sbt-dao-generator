@@ -32,7 +32,7 @@ jobs:
             sbt "+ Test/compile" test
             ;;
           *)
-            sbt "+ Test/compile" test "+ scripted"
+            sbt test scripted '++ 3.x' Test/compile
         esac
     - if: matrix.os != 'windows-latest'
       run: sbt scalafmtSbtCheck '+ scalafmtCheckAll'
