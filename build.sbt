@@ -2,12 +2,12 @@ import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 
 releaseCrossBuild := true
 
-crossScalaVersions += "3.3.4"
+crossScalaVersions += "3.6.2"
 
 pluginCrossBuild / sbtVersion := {
   scalaBinaryVersion.value match {
     case "2.12" => sbtVersion.value
-    case _ => "2.0.0-M2"
+    case _ => "2.0.0-M3"
   }
 }
 
