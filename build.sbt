@@ -25,13 +25,11 @@ releaseProcess := Seq[ReleaseStep](
   commitReleaseVersion,
   tagRelease,
   releaseStepCommandAndRemaining("+ publishSigned"),
-  releaseStepCommandAndRemaining("sonatypeBundleRelease"),
+  releaseStepCommandAndRemaining("sonaRelease"),
   setNextVersion,
   commitNextVersion,
   pushChanges
 )
-
-sonatypeProfileName := "io.github.sbt-dao-generator"
 
 organization := "io.github.sbt-dao-generator"
 
@@ -39,9 +37,7 @@ publishMavenStyle := true
 
 (Test / publishArtifact) := false
 
-ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
-
-publishTo := sonatypePublishToBundle.value
+publishTo := (if (isSnapshot.value) None else localStaging.value)
 
 pomIncludeRepository := { _ =>
   false
