@@ -2,7 +2,7 @@ enablePlugins(FlywayPlugin)
 
 name := "simple"
 
-scalaVersion := "2.13.15"
+scalaVersion := "2.13.16"
 
 libraryDependencies ++= Seq(
   "com.h2database" % "h2" % "1.4.187"
