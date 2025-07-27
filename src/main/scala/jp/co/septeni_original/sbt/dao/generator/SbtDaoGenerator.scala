@@ -6,6 +6,7 @@ import java.sql.{ Connection, Driver }
 import jp.co.septeni_original.sbt.dao.generator.SbtDaoGeneratorKeys._
 import jp.co.septeni_original.sbt.dao.generator.model.{ ColumnDesc, PrimaryKeyDesc, TableDesc }
 import jp.co.septeni_original.sbt.dao.generator.util.Loan._
+import org.scalafmt.interfaces.ScalafmtSession
 import sbt.Keys._
 import sbt.complete.Parser
 import sbt.{ *, given }
@@ -13,6 +14,7 @@ import sbt.{ *, given }
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 import scala.util.{ Success, Try }
+import org.scalafmt.interfaces.Scalafmt
 
 /**
   * sbt-dao-generatorのロジックを提供するトレイト。
@@ -24,6 +26,16 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   private val oneStringParser: Parser[String] = token(Space ~> StringBasic, "table name")
 
   private val manyStringParser: Parser[Seq[String]] = token(Space ~> StringBasic, "table name").+
+
+  private val createScalafmtInstance: Def.Initialize[Task[Option[ScalafmtSession]]] =
+    Def.task {
+      // https://github.com/scalameta/sbt-scalafmt/blob/15e5629b47387b898f/plugin/src/main/scala/org/scalafmt/sbt/ScalafmtPlugin.scala#L42-L45
+      TaskKey[File]("scalafmtConfig").?.value.filter(_.isFile).map { conf =>
+        Scalafmt
+          .create(this.getClass.getClassLoader)
+          .createSession(conf.toPath)
+      }
+    }
 
   /**
     * [[generateOne]]のためのタスク。
@@ -72,7 +84,12 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
         (generator / schemaName).value,
         (generator / templateDirectory).value,
         (generator / templateNameMapper).value,
-        (generator / outputDirectoryMapper).value
+        (generator / outputDirectoryMapper).value,
+        if ((generator / daoGeneratorScalafmt).value) {
+          createScalafmtInstance.value
+        } else {
+          None
+        }
       )
       generateOne(tableName)
     }.get
@@ -152,7 +169,12 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
         (generator / schemaName).value,
         (generator / templateDirectory).value,
         (generator / templateNameMapper).value,
-        (generator / outputDirectoryMapper).value
+        (generator / outputDirectoryMapper).value,
+        if ((generator / daoGeneratorScalafmt).value) {
+          createScalafmtInstance.value
+        } else {
+          None
+        }
       )
       generateMany(tableNames)
     }.get
@@ -395,6 +417,7 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
       val context = createContext(primaryKeys, columns, tableDesc.tableName, className)
       template.process(context, writer)
       writer.flush()
+      ctx.format(file)
       Success(file)
     }
     logger.debug(s"generateFile: finished = $result")
@@ -577,6 +600,11 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
     val templateDirectoryValue = (generator / templateDirectory).value
     val templateNameMapperValue = (generator / templateNameMapper).value
     val outputDirectoryMapperValue = (generator / outputDirectoryMapper).value
+    val scalafmt = if ((generator / daoGeneratorScalafmt).value) {
+      createScalafmtInstance.value
+    } else {
+      None
+    }
 
     Def.task {
       val classLoader =
@@ -608,7 +636,8 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
           schemaNameValue,
           templateDirectoryValue,
           templateNameMapperValue,
-          outputDirectoryMapperValue
+          outputDirectoryMapperValue,
+          scalafmt
         )
         generateAll
       }.get
@@ -652,8 +681,18 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
       schemaName: Option[String],
       templateDirectory: File,
       templateNameMapper: String => String,
-      outputDirectoryMapper: String => File
-  )
+      outputDirectoryMapper: String => File,
+      scalafmt: Option[ScalafmtSession]
+  ) {
+    def format(file: File): Unit = {
+      scalafmt.foreach { fmt =>
+        IO.write(
+          file,
+          fmt.format(file.toPath, IO.read(file))
+        )
+      }
+    }
+  }
 
 }
 

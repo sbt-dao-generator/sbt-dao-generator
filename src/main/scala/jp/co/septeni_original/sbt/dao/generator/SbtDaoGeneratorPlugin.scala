@@ -19,6 +19,7 @@ object SbtDaoGeneratorPlugin extends AutoPlugin {
   import SbtDaoGeneratorKeys._
 
   override def projectSettings: Seq[Def.Setting[?]] = Seq(
+    generator / daoGeneratorScalafmt := true,
     generator / enableManagedClassPath := true,
     generator / driverClassName := "",
     generator / jdbcUrl := "",

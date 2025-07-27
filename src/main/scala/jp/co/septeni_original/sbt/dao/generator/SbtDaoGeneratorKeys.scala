@@ -48,6 +48,7 @@ trait SbtDaoGeneratorKeys {
 
   val enableManagedClassPath = settingKey[Boolean]("enable-managed-class-path")
 
+  val daoGeneratorScalafmt = settingKey[Boolean]("")
 }
 
 object SbtDaoGeneratorKeys extends SbtDaoGeneratorKeys
