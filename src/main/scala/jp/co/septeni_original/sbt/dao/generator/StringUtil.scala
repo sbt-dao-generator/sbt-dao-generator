@@ -6,7 +6,7 @@ private[generator] object StringUtil {
 
   // https://github.com/seasarorg/s2util/blob/3c69319d4260425518487b8781b11d69bcb1908c/s2util/src/main/java/org/seasar/util/lang/StringUtil.java#L107-L117
   private[this] def split(str: String, delm: String): Array[String] = {
-    if (str == null || str.length == 0) {
+    if (str == null || str.isEmpty) {
       Array.empty[String]
     } else {
       val buf = Array.newBuilder[String]
@@ -20,7 +20,7 @@ private[generator] object StringUtil {
 
   // https://github.com/seasarorg/s2util/blob/3c69319d4260425518487b8781b11d69bcb1908c/s2util/src/main/java/org/seasar/util/lang/StringUtil.java#L278-L285
   def capitalize(name: String): String = {
-    if (name == null || name.length == 0) {
+    if (name == null || name.isEmpty) {
       name
     } else {
       val chars = name.toCharArray()
@@ -49,7 +49,7 @@ private[generator] object StringUtil {
 
   // https://github.com/seasarorg/s2util/blob/3c69319d4260425518487b8781b11d69bcb1908c/s2util/src/main/java/org/seasar/util/lang/StringUtil.java#L250-L261
   def decapitalize(name: String): String = {
-    if (name == null || name.length == 0) {
+    if (name == null || name.isEmpty) {
       name
     } else {
       val chars = name.toCharArray()
