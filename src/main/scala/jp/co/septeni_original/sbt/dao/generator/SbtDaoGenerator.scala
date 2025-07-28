@@ -34,9 +34,9 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
     val tableName = oneStringParser.parsed
     implicit val logger: Logger = streams.value.log
     logger.info("sbt-dao-generator: generateOne task")
-    logger.info("driverClassName = " + (generator / driverClassName).value.toString)
-    logger.info("jdbcUrl = " + (generator / jdbcUrl).value.toString)
-    logger.info("jdbcUser = " + (generator / jdbcUser).value.toString)
+    logger.info("driverClassName = " + (generator / driverClassName).value)
+    logger.info("jdbcUrl = " + (generator / jdbcUrl).value)
+    logger.info("jdbcUser = " + (generator / jdbcUser).value)
     logger.info("schemaName = " + (generator / schemaName).value.getOrElse(""))
     logger.info("tableName = " + tableName)
 
@@ -114,9 +114,9 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
     val tableNames = manyStringParser.parsed
     implicit val logger: Logger = streams.value.log
     logger.info("sbt-dao-generator: generateMany task")
-    logger.info("driverClassName = " + (generator / driverClassName).value.toString)
-    logger.info("jdbcUrl = " + (generator / jdbcUrl).value.toString)
-    logger.info("jdbcUser = " + (generator / jdbcUser).value.toString)
+    logger.info("driverClassName = " + (generator / driverClassName).value)
+    logger.info("jdbcUrl = " + (generator / jdbcUrl).value)
+    logger.info("jdbcUser = " + (generator / jdbcUser).value)
     logger.info("schemaName = " + (generator / schemaName).value.getOrElse(""))
     logger.info("tableNames = " + tableNames.mkString(", "))
 
@@ -558,9 +558,9 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   def generateAllTask: Def.Initialize[Task[Seq[File]]] = Def.taskDyn {
     implicit val logger: Logger = streams.value.log
     logger.info("sbt-dao-generator: generateAll task")
-    logger.info("driverClassName = " + (generator / driverClassName).value.toString)
-    logger.info("jdbcUrl = " + (generator / jdbcUrl).value.toString)
-    logger.info("jdbcUser = " + (generator / jdbcUser).value.toString)
+    logger.info("driverClassName = " + (generator / driverClassName).value)
+    logger.info("jdbcUrl = " + (generator / jdbcUrl).value)
+    logger.info("jdbcUser = " + (generator / jdbcUser).value)
     logger.info("schemaName = " + (generator / schemaName).value.getOrElse(""))
     val enableManagedClassPathValue = (generator / enableManagedClassPath).value
     val managedClasspathData = compileManagedClasspathValue.value
