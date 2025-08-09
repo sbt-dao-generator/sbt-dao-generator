@@ -8,7 +8,7 @@ import sbt.plugins.JvmPlugin
 /**
   * sbt-dao-generatorのプラグイン定義。
   */
-object SbtDaoGeneratorPlugin extends AutoPlugin {
+object SbtDaoGeneratorPlugin extends AutoPlugin with SbtDaoGeneratorCompat {
 
   override def trigger = allRequirements
 
@@ -45,7 +45,7 @@ object SbtDaoGeneratorPlugin extends AutoPlugin {
     generator / outputDirectoryMapper := { (_: String) =>
       (Compile / sourceManaged).value
     },
-    generator / generateAll := SbtDaoGenerator.generateAllTask.value,
+    generator / generateAll := Def.uncached(SbtDaoGenerator.generateAllTask.value),
     generator / generateMany := SbtDaoGenerator.generateManyTask.evaluated,
     generator / generateOne := SbtDaoGenerator.generateOneTask.evaluated
   )
