@@ -14,7 +14,6 @@ import sbt.{ *, given }
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 import scala.util.{ Success, Try }
-import org.scalafmt.interfaces.Scalafmt
 
 /**
   * sbt-dao-generatorのロジックを提供するトレイト。
@@ -29,11 +28,10 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
 
   private val createScalafmtInstance: Def.Initialize[Task[Option[ScalafmtSession]]] =
     Def.task {
-      // https://github.com/scalameta/sbt-scalafmt/blob/15e5629b47387b898f/plugin/src/main/scala/org/scalafmt/sbt/ScalafmtPlugin.scala#L42-L45
-      TaskKey[File]("scalafmtConfig").?.value.filter(_.isFile).map { conf =>
-        Scalafmt
-          .create(this.getClass.getClassLoader)
-          .createSession(conf.toPath)
+      if ((generator / daoGeneratorScalafmt).value) {
+        SbtDaoGeneratorPlugin.daoGeneratorScalafmtInstance.value
+      } else {
+        None
       }
     }
 
@@ -85,11 +83,7 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
         (generator / templateDirectory).value,
         (generator / templateNameMapper).value,
         (generator / outputDirectoryMapper).value,
-        if ((generator / daoGeneratorScalafmt).value) {
-          createScalafmtInstance.value
-        } else {
-          None
-        }
+        createScalafmtInstance.value
       )
       generateOne(tableName)
     }.get
@@ -170,11 +164,7 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
         (generator / templateDirectory).value,
         (generator / templateNameMapper).value,
         (generator / outputDirectoryMapper).value,
-        if ((generator / daoGeneratorScalafmt).value) {
-          createScalafmtInstance.value
-        } else {
-          None
-        }
+        createScalafmtInstance.value
       )
       generateMany(tableNames)
     }.get
@@ -600,11 +590,7 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
     val templateDirectoryValue = (generator / templateDirectory).value
     val templateNameMapperValue = (generator / templateNameMapper).value
     val outputDirectoryMapperValue = (generator / outputDirectoryMapper).value
-    val scalafmt = if ((generator / daoGeneratorScalafmt).value) {
-      createScalafmtInstance.value
-    } else {
-      None
-    }
+    val scalafmt = createScalafmtInstance.value
 
     Def.task {
       val classLoader =
