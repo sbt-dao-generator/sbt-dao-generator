@@ -1,0 +1,5 @@
+// --- template_a
+case class DEPT(
+    deptName: Option[String],
+    versionNo: Option[Int]
+) {}
