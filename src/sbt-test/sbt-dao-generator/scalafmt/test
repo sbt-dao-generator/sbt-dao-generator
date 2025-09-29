@@ -1,0 +1,6 @@
+> flywayMigrate
+> compile
+> checkFormat
+> set generator / daoGeneratorScalafmt := false
+> compile
+> checkNoFormat
