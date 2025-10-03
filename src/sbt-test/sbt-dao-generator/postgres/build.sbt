@@ -3,7 +3,7 @@ import jp.co.septeni_original.sbt.dao.generator.model.ColumnDesc
 
 enablePlugins(FlywayPlugin)
 
-scalaVersion := "2.13.16"
+scalaVersion := "2.13.17"
 
 libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "42.7.4"
