@@ -31,12 +31,12 @@ generator / propertyTypeNameMapper := {
   case "VARCHAR" => "String"
 }
 
-generator / classNameMapper := {
-  case a => Seq(a)
+generator / classNameMapper := { case a =>
+  Seq(a)
 }
 
-generator / templateNameMapper := {
-  case _ => "template_a.ftl"
+generator / templateNameMapper := { case _ =>
+  "template_a.ftl"
 }
 
 InputKey[Unit]("checkFormat") := {
