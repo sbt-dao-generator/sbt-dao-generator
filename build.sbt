@@ -73,13 +73,13 @@ name := "sbt-dao-generator"
 enablePlugins(SbtPlugin)
 
 libraryDependencies ++= Seq(
-  "org.scalameta"  % "scalafmt-interfaces"        % "3.10.1",
-  "ch.qos.logback" % "logback-classic"            % "1.2.13",
-  "org.slf4j"      % "slf4j-api"                  % "2.0.17",
-  "org.freemarker" % "freemarker"                 % "2.3.34",
-  "org.scalatest" %% "scalatest-funspec"          % "3.2.19" % Test,
-  "com.mysql"      % "mysql-connector-j"          % "9.4.0"  % Test exclude ("com.google.protobuf", "protobuf-java"),
-  "com.dimafeng"  %% "testcontainers-scala-mysql" % "0.43.0" % Test
+  "org.scalameta"      % "scalafmt-interfaces"  % "3.10.1",
+  "ch.qos.logback"     % "logback-classic"      % "1.2.13",
+  "org.slf4j"          % "slf4j-api"            % "2.0.17",
+  "org.freemarker"     % "freemarker"           % "2.3.34",
+  "org.scalatest"     %% "scalatest-funspec"    % "3.2.19" % Test,
+  "com.mysql"          % "mysql-connector-j"    % "9.4.0"  % Test exclude ("com.google.protobuf", "protobuf-java"),
+  "org.testcontainers" % "testcontainers-mysql" % "2.0.1"  % Test
 )
 
 Test / fork := true
