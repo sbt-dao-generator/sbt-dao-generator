@@ -2,10 +2,11 @@ package jp.co.septeni_original.sbt.dao.generator
 
 import sbt.ConsoleLogger
 import org.scalatest.funspec.AnyFunSpec
-import com.dimafeng.testcontainers.MySQLContainer
 import jp.co.septeni_original.sbt.dao.generator.util.Loan
 import org.scalatest.BeforeAndAfterAll
+import org.testcontainers.mysql.MySQLContainer
 import org.testcontainers.utility.DockerImageName
+import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
 class SbtDaoGeneratorSpec extends AnyFunSpec with BeforeAndAfterAll {
@@ -60,12 +61,14 @@ create table EMP (
 
   private val container: MySQLContainer = {
     val c = new MySQLContainer(
-      mysqlImageVersion = Some(DockerImageName.parse("mysql:8.0.39")),
-      urlParams = Map(
+      DockerImageName.parse("mysql:8.0.39")
+    )
+    c.setParameters(
+      Map(
         "useSSL" -> "false",
         "useUnicode" -> "true",
         "connectionCollation" -> "utf8mb4_bin"
-      )
+      ).asJava
     )
     c.start()
     c
@@ -75,9 +78,9 @@ create table EMP (
     getJdbcConnection(
       classLoader = Thread.currentThread().getContextClassLoader,
       driverClassName = "com.mysql.cj.jdbc.Driver",
-      jdbcUrl = container.jdbcUrl,
-      jdbcUser = container.username,
-      jdbcPassword = container.password
+      jdbcUrl = container.getJdbcUrl,
+      jdbcUser = container.getUsername,
+      jdbcPassword = container.getPassword
     ).get
   }
 
