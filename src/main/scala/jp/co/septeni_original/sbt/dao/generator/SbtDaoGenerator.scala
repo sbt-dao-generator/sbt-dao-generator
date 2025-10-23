@@ -1,19 +1,23 @@
 package jp.co.septeni_original.sbt.dao.generator
 
 import java.io.FileWriter
-import java.sql.{ Connection, Driver }
-
+import java.sql.Connection
+import java.sql.Driver
 import jp.co.septeni_original.sbt.dao.generator.SbtDaoGeneratorKeys._
-import jp.co.septeni_original.sbt.dao.generator.model.{ ColumnDesc, PrimaryKeyDesc, TableDesc }
+import jp.co.septeni_original.sbt.dao.generator.model.ColumnDesc
+import jp.co.septeni_original.sbt.dao.generator.model.PrimaryKeyDesc
+import jp.co.septeni_original.sbt.dao.generator.model.TableDesc
 import jp.co.septeni_original.sbt.dao.generator.util.Loan._
 import org.scalafmt.interfaces.ScalafmtSession
+// format: off
+import sbt.{*, given}
+// format: on
 import sbt.Keys._
 import sbt.complete.Parser
-import sbt.{ *, given }
-
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
-import scala.util.{ Success, Try }
+import scala.util.Success
+import scala.util.Try
 
 /**
   * sbt-dao-generatorのロジックを提供するトレイト。

@@ -1,9 +1,13 @@
 package jp.co.septeni_original.sbt.dao.generator
 
-import jp.co.septeni_original.sbt.dao.generator.model.{ ColumnDesc, TableDesc }
-import org.scalafmt.interfaces.{ Scalafmt, ScalafmtSession }
+import jp.co.septeni_original.sbt.dao.generator.model.ColumnDesc
+import jp.co.septeni_original.sbt.dao.generator.model.TableDesc
+import org.scalafmt.interfaces.Scalafmt
+import org.scalafmt.interfaces.ScalafmtSession
+// format: off
+import sbt.{*, given}
+// format: on
 import sbt.Keys._
-import sbt.{ *, given }
 import sbt.plugins.JvmPlugin
 
 /**

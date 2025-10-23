@@ -1,11 +1,11 @@
 package jp.co.septeni_original.sbt.dao.generator
 
-import sbt.ConsoleLogger
-import org.scalatest.funspec.AnyFunSpec
 import jp.co.septeni_original.sbt.dao.generator.util.Loan
 import org.scalatest.BeforeAndAfterAll
+import org.scalatest.funspec.AnyFunSpec
 import org.testcontainers.mysql.MySQLContainer
 import org.testcontainers.utility.DockerImageName
+import sbt.ConsoleLogger
 import scala.jdk.CollectionConverters.*
 import scala.util.Try
 

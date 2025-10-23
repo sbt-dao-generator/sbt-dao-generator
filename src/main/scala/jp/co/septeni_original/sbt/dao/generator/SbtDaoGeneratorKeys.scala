@@ -1,6 +1,7 @@
 package jp.co.septeni_original.sbt.dao.generator
 
-import jp.co.septeni_original.sbt.dao.generator.model.{ ColumnDesc, TableDesc }
+import jp.co.septeni_original.sbt.dao.generator.model.ColumnDesc
+import jp.co.septeni_original.sbt.dao.generator.model.TableDesc
 import sbt._
 
 /**
