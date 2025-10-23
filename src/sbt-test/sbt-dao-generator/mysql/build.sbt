@@ -1,4 +1,4 @@
-import jp.co.septeni_original.sbt.dao.generator.model.ColumnDesc
+import sbt_dao_generator.model.ColumnDesc
 import scala.sys.process.Process
 
 enablePlugins(FlywayPlugin)
