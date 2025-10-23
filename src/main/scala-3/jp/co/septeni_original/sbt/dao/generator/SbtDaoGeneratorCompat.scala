@@ -1,7 +1,8 @@
 package jp.co.septeni_original.sbt.dao.generator
 
-import sbt.{ *, given }
+import sbt.*
 import sbt.Keys._
+import sbt.given
 
 private[generator] trait SbtDaoGeneratorCompat {
   val compileManagedClasspathValue: Def.Initialize[Task[Seq[File]]] = Def.task {
