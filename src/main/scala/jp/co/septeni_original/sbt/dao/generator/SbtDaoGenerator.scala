@@ -338,7 +338,7 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
       using(dbMeta.getPrimaryKeys(null, schemaName.orNull, tableName)) { rs =>
         val lb = ListBuffer[PrimaryKeyDesc]()
         while (rs.next()) {
-          lb += PrimaryKeyDesc(rs.getString("COLUMN_NAME"), autoIncrement = false)
+          lb += PrimaryKeyDesc(rs.getString("COLUMN_NAME"))
         }
         Success(lb.result())
       }
@@ -437,14 +437,10 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
       val propertyName = propertyNameMapper(column.columnName)
       val propertyTypeName = propertyTypeNameMapper(column.typeName, tableDesc, column)
       Map[String, Any](
-        "name" -> key.columnName, // deprecated
         "columnName" -> key.columnName,
-        "columnType" -> column.typeName, // deprecated
         "columnTypeName" -> column.typeName,
         "propertyName" -> propertyName,
-        "propertyType" -> propertyTypeName, // deprecated
         "propertyTypeName" -> propertyTypeName,
-        "camelizeName" -> StringUtil.camelize(key.columnName), // deprecated
         "camelizedColumnName" -> StringUtil.camelize(key.columnName),
         "capitalizedColumnName" -> StringUtil.capitalize(key.columnName),
         "capitalizedPropertyName" -> StringUtil.capitalize(propertyName),
@@ -480,19 +476,15 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
         val propertyName = propertyNameMapper(column.columnName)
         val propertyTypeName = advancedPropertyTypeNameMapper(column.typeName, tableDesc, column)
         Map[String, Any](
-          "name" -> column.columnName, // deprecated
           "columnName" -> column.columnName,
-          "columnType" -> column.typeName, // deprecated
           "columnTypeName" -> column.typeName,
           "propertyName" -> propertyName,
-          "propertyType" -> propertyTypeName, // deprecated
           "propertyTypeName" -> propertyTypeName,
           "camelizedColumnName" -> StringUtil.camelize(column.columnName),
           "capitalizedColumnName" -> StringUtil.capitalize(column.columnName),
           "capitalizedPropertyName" -> StringUtil.capitalize(propertyName),
           "decamelizedPropertyName" -> StringUtil.decamelize(propertyName),
           "decapitalizedPropertyName" -> StringUtil.decapitalize(propertyName),
-          "capitalizedPropertyName" -> StringUtil.capitalize(propertyName), // deprecated
           "nullable" -> column.nullable,
           "generatedColumn" -> column.generatedColumn
         )
@@ -518,14 +510,11 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   )(implicit logger: Logger): java.util.Map[String, Any] = {
     logger.debug(s"createContext($primaryKeys, $columns, $className): start")
     val context = Map[String, Any](
-      "name" -> className, // deprecated
-      "lowerCamelName" -> (className.substring(0, 1).toLowerCase + className.substring(1)), // deprecated
       "className" -> className,
       "tableName" -> tableName,
       "decapitalizedClassName" -> StringUtil.decapitalize(className),
       "primaryKeys" -> primaryKeys.map(_.asJava).asJava,
       "columns" -> columns.map(_.asJava).asJava,
-      "primaryKeysWithColumns" -> (primaryKeys ++ columns).map(_.asJava).asJava, // deprecated
       "allColumns" -> (primaryKeys ++ columns).map(_.asJava).asJava
     ).asJava
     logger.debug(s"createContext: finished = $context")

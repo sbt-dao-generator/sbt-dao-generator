@@ -33,9 +33,6 @@ trait SbtDaoGeneratorKeys {
 
   val templateNameMapper = settingKey[String => String]("template-name-mapper")
 
-  @deprecated
-  val typeNameMapper = settingKey[String => String]("type-mapper")
-
   val propertyTypeNameMapper = settingKey[String => String]("property-type-mapper")
 
   val advancedPropertyTypeNameMapper =
