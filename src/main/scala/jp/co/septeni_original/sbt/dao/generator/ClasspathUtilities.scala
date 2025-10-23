@@ -1,13 +1,13 @@
 package jp.co.septeni_original.sbt.dao.generator
 
 import java.io.File
-import sbt.internal.inc.classpath.{ ClasspathUtilities => CU }
+import java.net.URLClassLoader
 
 object ClasspathUtilities {
 
   def toLoader(paths: Seq[File], parent: ClassLoader): ClassLoader =
-    CU.toLoader(paths, parent)
+    new URLClassLoader(paths.map(_.toPath.toUri.toURL).toArray, parent)
 
-  lazy val xsbtiLoader: ClassLoader = CU.xsbtiLoader
+  lazy val xsbtiLoader: ClassLoader = classOf[xsbti.Launcher].getClassLoader
 
 }
