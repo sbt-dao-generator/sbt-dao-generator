@@ -32,7 +32,7 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
 
   private val createScalafmtInstance: Def.Initialize[Task[Option[ScalafmtSession]]] =
     Def.task {
-      if ((generator / daoGeneratorScalafmt).value) {
+      if (daoGeneratorScalafmt.value) {
         SbtDaoGeneratorPlugin.daoGeneratorScalafmtInstance.value
       } else {
         None
@@ -48,17 +48,17 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
     val tableName = oneStringParser.parsed
     implicit val logger: Logger = streams.value.log
     logger.info("sbt-dao-generator: generateOne task")
-    logger.info("driverClassName = " + (generator / driverClassName).value)
-    logger.info("jdbcUrl = " + (generator / jdbcUrl).value)
-    logger.info("jdbcUser = " + (generator / jdbcUser).value)
-    logger.info("schemaName = " + (generator / schemaName).value.getOrElse(""))
+    logger.info("driverClassName = " + daoGeneratorDriverClassName.value)
+    logger.info("jdbcUrl = " + daoGeneratorJdbcUrl.value)
+    logger.info("jdbcUser = " + daoGeneratorJdbcUser.value)
+    logger.info("schemaName = " + daoGeneratorSchemaName.value.getOrElse(""))
     logger.info("tableName = " + tableName)
 
-    val propertyTypeNameMapperValue = (generator / propertyTypeNameMapper).value
-    val advancedPropertyTypeNameMapperValue = (generator / advancedPropertyTypeNameMapper).value
+    val propertyTypeNameMapperValue = daoGeneratorPropertyTypeNameMapper.value
+    val advancedPropertyTypeNameMapperValue = daoGeneratorAdvancedPropertyTypeNameMapper.value
 
     val classLoader =
-      if ((generator / enableManagedClassPath).value)
+      if (daoGeneratorEnableManagedClassPath.value)
         ClasspathUtilities.toLoader(
           compileManagedClasspathValue.value,
           ClasspathUtilities.xsbtiLoader
@@ -69,24 +69,24 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
     using(
       getJdbcConnection(
         classLoader,
-        (generator / driverClassName).value,
-        (generator / jdbcUrl).value,
-        (generator / jdbcUser).value,
-        (generator / jdbcPassword).value
+        daoGeneratorDriverClassName.value,
+        daoGeneratorJdbcUrl.value,
+        daoGeneratorJdbcUser.value,
+        daoGeneratorJdbcPassword.value
       )
     ) { conn =>
       implicit val ctx: GeneratorContext = GeneratorContext(
         logger,
         conn,
-        (generator / classNameMapper).value,
+        daoGeneratorClassNameMapper.value,
         if (propertyTypeNameMapperValue == DefaultPropertyTypeNameMapper) advancedPropertyTypeNameMapperValue
         else (s, _, _) => propertyTypeNameMapperValue(s),
-        (generator / tableNameFilter).value,
-        (generator / propertyNameMapper).value,
-        (generator / schemaName).value,
-        (generator / templateDirectory).value,
-        (generator / templateNameMapper).value,
-        (generator / outputDirectoryMapper).value,
+        daoGeneratorTableNameFilter.value,
+        daoGeneratorPropertyNameMapper.value,
+        daoGeneratorSchemaName.value,
+        daoGeneratorTemplateDirectory.value,
+        daoGeneratorTemplateNameMapper.value,
+        daoGeneratorOutputDirectoryMapper.value,
         createScalafmtInstance.value
       )
       generateOne(tableName)
@@ -129,17 +129,17 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
     val tableNames = manyStringParser.parsed
     implicit val logger: Logger = streams.value.log
     logger.info("sbt-dao-generator: generateMany task")
-    logger.info("driverClassName = " + (generator / driverClassName).value)
-    logger.info("jdbcUrl = " + (generator / jdbcUrl).value)
-    logger.info("jdbcUser = " + (generator / jdbcUser).value)
-    logger.info("schemaName = " + (generator / schemaName).value.getOrElse(""))
+    logger.info("driverClassName = " + daoGeneratorDriverClassName.value)
+    logger.info("jdbcUrl = " + daoGeneratorJdbcUrl.value)
+    logger.info("jdbcUser = " + daoGeneratorJdbcUser.value)
+    logger.info("schemaName = " + daoGeneratorSchemaName.value.getOrElse(""))
     logger.info("tableNames = " + tableNames.mkString(", "))
 
-    val propertyTypeNameMapperValue = (generator / propertyTypeNameMapper).value
-    val advancedPropertyTypeNameMapperValue = (generator / advancedPropertyTypeNameMapper).value
+    val propertyTypeNameMapperValue = daoGeneratorPropertyTypeNameMapper.value
+    val advancedPropertyTypeNameMapperValue = daoGeneratorAdvancedPropertyTypeNameMapper.value
 
     val classLoader =
-      if ((generator / enableManagedClassPath).value)
+      if (daoGeneratorEnableManagedClassPath.value)
         ClasspathUtilities.toLoader(
           compileManagedClasspathValue.value,
           ClasspathUtilities.xsbtiLoader
@@ -150,24 +150,24 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
     using(
       getJdbcConnection(
         classLoader,
-        (generator / driverClassName).value,
-        (generator / jdbcUrl).value,
-        (generator / jdbcUser).value,
-        (generator / jdbcPassword).value
+        daoGeneratorDriverClassName.value,
+        daoGeneratorJdbcUrl.value,
+        daoGeneratorJdbcUser.value,
+        daoGeneratorJdbcPassword.value
       )
     ) { connection =>
       implicit val ctx: GeneratorContext = GeneratorContext(
         logger,
         connection,
-        (generator / classNameMapper).value,
+        daoGeneratorClassNameMapper.value,
         if (propertyTypeNameMapperValue == DefaultPropertyTypeNameMapper) advancedPropertyTypeNameMapperValue
         else (s, _, _) => propertyTypeNameMapperValue(s),
-        (generator / tableNameFilter).value,
-        (generator / propertyNameMapper).value,
-        (generator / schemaName).value,
-        (generator / templateDirectory).value,
-        (generator / templateNameMapper).value,
-        (generator / outputDirectoryMapper).value,
+        daoGeneratorTableNameFilter.value,
+        daoGeneratorPropertyNameMapper.value,
+        daoGeneratorSchemaName.value,
+        daoGeneratorTemplateDirectory.value,
+        daoGeneratorTemplateNameMapper.value,
+        daoGeneratorOutputDirectoryMapper.value,
         createScalafmtInstance.value
       )
       generateMany(tableNames)
@@ -564,25 +564,25 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   def generateAllTask: Def.Initialize[Task[Seq[File]]] = Def.taskDyn {
     implicit val logger: Logger = streams.value.log
     logger.info("sbt-dao-generator: generateAll task")
-    logger.info("driverClassName = " + (generator / driverClassName).value)
-    logger.info("jdbcUrl = " + (generator / jdbcUrl).value)
-    logger.info("jdbcUser = " + (generator / jdbcUser).value)
-    logger.info("schemaName = " + (generator / schemaName).value.getOrElse(""))
-    val enableManagedClassPathValue = (generator / enableManagedClassPath).value
+    logger.info("driverClassName = " + daoGeneratorDriverClassName.value)
+    logger.info("jdbcUrl = " + daoGeneratorJdbcUrl.value)
+    logger.info("jdbcUser = " + daoGeneratorJdbcUser.value)
+    logger.info("schemaName = " + daoGeneratorSchemaName.value.getOrElse(""))
+    val enableManagedClassPathValue = daoGeneratorEnableManagedClassPath.value
     val managedClasspathData = compileManagedClasspathValue.value
-    val driverClassNameValue = (generator / driverClassName).value
-    val jdbcUrlValue = (generator / jdbcUrl).value
-    val jdbcUserValue = (generator / jdbcUser).value
-    val jdbcPasswordValue = (generator / jdbcPassword).value
-    val classNameMapperValue = (generator / classNameMapper).value
-    val propertyTypeNameMapperValue = (generator / propertyTypeNameMapper).value
-    val advancedPropertyTypeNameMapperValue = (generator / advancedPropertyTypeNameMapper).value
-    val tableNameFilterValue = (generator / tableNameFilter).value
-    val propertyNameMapperValue = (generator / propertyNameMapper).value
-    val schemaNameValue = (generator / schemaName).value
-    val templateDirectoryValue = (generator / templateDirectory).value
-    val templateNameMapperValue = (generator / templateNameMapper).value
-    val outputDirectoryMapperValue = (generator / outputDirectoryMapper).value
+    val driverClassNameValue = daoGeneratorDriverClassName.value
+    val jdbcUrlValue = daoGeneratorJdbcUrl.value
+    val jdbcUserValue = daoGeneratorJdbcUser.value
+    val jdbcPasswordValue = daoGeneratorJdbcPassword.value
+    val classNameMapperValue = daoGeneratorClassNameMapper.value
+    val propertyTypeNameMapperValue = daoGeneratorPropertyTypeNameMapper.value
+    val advancedPropertyTypeNameMapperValue = daoGeneratorAdvancedPropertyTypeNameMapper.value
+    val tableNameFilterValue = daoGeneratorTableNameFilter.value
+    val propertyNameMapperValue = daoGeneratorPropertyNameMapper.value
+    val schemaNameValue = daoGeneratorSchemaName.value
+    val templateDirectoryValue = daoGeneratorTemplateDirectory.value
+    val templateNameMapperValue = daoGeneratorTemplateNameMapper.value
+    val outputDirectoryMapperValue = daoGeneratorOutputDirectoryMapper.value
     val scalafmt = createScalafmtInstance.value
 
     Def.task {

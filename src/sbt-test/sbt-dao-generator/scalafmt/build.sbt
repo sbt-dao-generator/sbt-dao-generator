@@ -2,7 +2,7 @@ enablePlugins(FlywayPlugin)
 
 name := "dao-generator-test-scalafmt"
 
-Compile / sourceGenerators += generator / generateAll
+Compile / sourceGenerators += daoGeneratorGenerateAll
 
 scalaVersion := "3.7.3"
 
@@ -14,28 +14,28 @@ flywayUrl := "jdbc:h2:file:./target/test"
 
 flywayUser := "sa"
 
-generator / tableNameFilter := { tableName =>
+daoGeneratorTableNameFilter := { tableName =>
   tableName.toUpperCase != "SCHEMA_VERSION" && tableName.toUpperCase != "FLYWAY_SCHEMA_HISTORY"
 }
 
-generator / driverClassName := "org.h2.Driver"
+daoGeneratorDriverClassName := "org.h2.Driver"
 
-generator / jdbcUrl := "jdbc:h2:file:./target/test"
+daoGeneratorJdbcUrl := "jdbc:h2:file:./target/test"
 
-generator / jdbcUser := "sa"
+daoGeneratorJdbcUser := "sa"
 
-generator / jdbcPassword := ""
+daoGeneratorJdbcPassword := ""
 
-generator / propertyTypeNameMapper := {
+daoGeneratorPropertyTypeNameMapper := {
   case "INTEGER" => "Int"
   case "VARCHAR" => "String"
 }
 
-generator / classNameMapper := { case a =>
+daoGeneratorClassNameMapper := { case a =>
   Seq(a)
 }
 
-generator / templateNameMapper := { case _ =>
+daoGeneratorTemplateNameMapper := { case _ =>
   "template_a.ftl"
 }
 

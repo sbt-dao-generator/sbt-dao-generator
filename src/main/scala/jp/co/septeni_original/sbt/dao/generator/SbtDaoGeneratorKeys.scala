@@ -9,42 +9,40 @@ import sbt._
   */
 trait SbtDaoGeneratorKeys {
 
-  val generator = taskKey[Unit]("generator")
+  val daoGeneratorDriverClassName = settingKey[String]("driver-class-name")
 
-  val driverClassName = settingKey[String]("driver-class-name")
+  val daoGeneratorJdbcUrl = settingKey[String]("jdbc-url")
 
-  val jdbcUrl = settingKey[String]("jdbc-url")
+  val daoGeneratorJdbcUser = settingKey[String]("jdbc-user")
 
-  val jdbcUser = settingKey[String]("jdbc-user")
+  val daoGeneratorJdbcPassword = settingKey[String]("jdbc-password")
 
-  val jdbcPassword = settingKey[String]("jdbc-password")
+  val daoGeneratorSchemaName = settingKey[Option[String]]("schema-name")
 
-  val schemaName = settingKey[Option[String]]("schema-name")
+  val daoGeneratorGenerateAll = taskKey[Seq[File]]("generate-all")
 
-  val generateAll = taskKey[Seq[File]]("generate-all")
+  val daoGeneratorGenerateOne = inputKey[Seq[File]]("generate-one")
 
-  val generateOne = inputKey[Seq[File]]("generate-one")
+  val daoGeneratorGenerateMany = inputKey[Seq[File]]("generate-many")
 
-  val generateMany = inputKey[Seq[File]]("generate-many")
+  val daoGeneratorTemplateDirectory = settingKey[File]("template-dir")
 
-  val templateDirectory = settingKey[File]("template-dir")
+  val daoGeneratorClassNameMapper = settingKey[String => Seq[String]]("class-name-mapper")
 
-  val classNameMapper = settingKey[String => Seq[String]]("class-name-mapper")
+  val daoGeneratorTemplateNameMapper = settingKey[String => String]("template-name-mapper")
 
-  val templateNameMapper = settingKey[String => String]("template-name-mapper")
+  val daoGeneratorPropertyTypeNameMapper = settingKey[String => String]("property-type-mapper")
 
-  val propertyTypeNameMapper = settingKey[String => String]("property-type-mapper")
-
-  val advancedPropertyTypeNameMapper =
+  val daoGeneratorAdvancedPropertyTypeNameMapper =
     settingKey[(String, TableDesc, ColumnDesc) => String]("advanced-property-type-mapper")
 
-  val tableNameFilter = settingKey[String => Boolean]("table-name-filter")
+  val daoGeneratorTableNameFilter = settingKey[String => Boolean]("table-name-filter")
 
-  val propertyNameMapper = settingKey[String => String]("property-name-mapper")
+  val daoGeneratorPropertyNameMapper = settingKey[String => String]("property-name-mapper")
 
-  val outputDirectoryMapper = settingKey[String => File]("output-directory-mapper")
+  val daoGeneratorOutputDirectoryMapper = settingKey[String => File]("output-directory-mapper")
 
-  val enableManagedClassPath = settingKey[Boolean]("enable-managed-class-path")
+  val daoGeneratorEnableManagedClassPath = settingKey[Boolean]("enable-managed-class-path")
 
   val daoGeneratorScalafmt = settingKey[Boolean]("")
 }

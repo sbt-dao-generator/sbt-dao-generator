@@ -2,27 +2,27 @@
 
 > checkGeneratedSources
 
-> generator/generateOne DEPT
+> daoGeneratorGenerateOne DEPT
 > checkGeneratedSources Dept.scala
 
 > clean
 > checkGeneratedSources
 > flywayMigrate
 
-> generator/generateOne EMP
+> daoGeneratorGenerateOne EMP
 > checkGeneratedSources Emp.scala
 
 > clean
 > checkGeneratedSources
 > flywayMigrate
 
-> generator/generateMany EMP DEPT
+> daoGeneratorGenerateMany EMP DEPT
 > checkGeneratedSources Dept.scala Emp.scala
 
 > clean
 > checkGeneratedSources
 > flywayMigrate
 
-> set Compile / sourceGenerators += generator / generateAll
+> set Compile / sourceGenerators += daoGeneratorGenerateAll
 > compile
 > checkGeneratedSources Dept.scala Emp.scala

@@ -59,34 +59,34 @@ object SbtDaoGeneratorPlugin extends AutoPlugin with SbtDaoGeneratorCompat {
   )
 
   override def projectSettings: Seq[Def.Setting[?]] = Seq(
-    generator / daoGeneratorScalafmt := true,
-    generator / enableManagedClassPath := true,
-    generator / driverClassName := "",
-    generator / jdbcUrl := "",
-    generator / jdbcUser := "",
-    generator / jdbcPassword := "",
-    generator / schemaName := None,
-    generator / templateDirectory := baseDirectory.value / "templates",
-    generator / templateNameMapper := { (_: String) =>
+    daoGeneratorScalafmt := true,
+    daoGeneratorEnableManagedClassPath := true,
+    daoGeneratorDriverClassName := "",
+    daoGeneratorJdbcUrl := "",
+    daoGeneratorJdbcUser := "",
+    daoGeneratorJdbcPassword := "",
+    daoGeneratorSchemaName := None,
+    daoGeneratorTemplateDirectory := baseDirectory.value / "templates",
+    daoGeneratorTemplateNameMapper := { (_: String) =>
       "template.ftl"
     },
-    generator / propertyTypeNameMapper := DefaultPropertyTypeNameMapper,
-    generator / advancedPropertyTypeNameMapper := { (s: String, _: TableDesc, _: ColumnDesc) => s },
-    generator / tableNameFilter := { (_: String) =>
+    daoGeneratorPropertyTypeNameMapper := DefaultPropertyTypeNameMapper,
+    daoGeneratorAdvancedPropertyTypeNameMapper := { (s: String, _: TableDesc, _: ColumnDesc) => s },
+    daoGeneratorTableNameFilter := { (_: String) =>
       true
     },
-    generator / propertyNameMapper := { (columnName: String) =>
+    daoGeneratorPropertyNameMapper := { (columnName: String) =>
       StringUtil.decapitalize(StringUtil.camelize(columnName))
     },
-    generator / classNameMapper := { (tableName: String) =>
+    daoGeneratorClassNameMapper := { (tableName: String) =>
       Seq(StringUtil.camelize(tableName))
     },
-    generator / outputDirectoryMapper := { (_: String) =>
+    daoGeneratorOutputDirectoryMapper := { (_: String) =>
       (Compile / sourceManaged).value
     },
-    generator / generateAll := Def.uncached(SbtDaoGenerator.generateAllTask.value),
-    generator / generateMany := SbtDaoGenerator.generateManyTask.evaluated,
-    generator / generateOne := SbtDaoGenerator.generateOneTask.evaluated
+    daoGeneratorGenerateAll := Def.uncached(SbtDaoGenerator.generateAllTask.value),
+    daoGeneratorGenerateMany := SbtDaoGenerator.generateManyTask.evaluated,
+    daoGeneratorGenerateOne := SbtDaoGenerator.generateOneTask.evaluated
   )
 
 }

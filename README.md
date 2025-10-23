@@ -20,19 +20,19 @@ Add this to your build.sbt file:
 
 ```scala
 // JDBC Driver Class Name (required)
-generator / driverClassName := "org.h2.Driver"
+daoGeneratorDriverClassName := "org.h2.Driver"
 
 // JDBC URL (required)
-generator / jdbcUrl := "jdbc:h2:file:./target/test"
+daoGeneratorJdbcUrl := "jdbc:h2:file:./target/test"
 
 // JDBC User Name (required)
-generator / jdbcUser := "sa"
+daoGeneratorJdbcUser := "sa"
 
 // JDBC Password (required)
-generator / jdbcPassword := ""
+daoGeneratorJdbcPassword := ""
 
 // The Function that convert The Column Type Name to Property Type Name (Optional)
-generator / propertyTypeNameMapper := {
+daoGeneratorPropertyTypeNameMapper := {
   case "INTEGER" => "Int"
   case "VARCHAR" => "String"
   case "BOOLEAN" => "Boolean"
@@ -43,7 +43,7 @@ generator / propertyTypeNameMapper := {
 // More flexible `PropertyTypeNameMapper` (Optional)
 // NOTE: Currently this is ignored when the `propertyTypeNameMapper` is defined since it keeps compatibility.
 // NOTE: We plan to rename this setting to `propertyTypeNameMapper` in the next major version.
-generator / advancedPropertyTypeNameMapper := {
+daoGeneratorAdvancedPropertyTypeNameMapper := {
   case (_, TableDesc(tableName, _, _), ColumnDesc("id", _, _, _, _, _)) => s"${tableName}Id"
   case (_, _, ColumnDesc(_, _, _, _, _, Some(remarks))) => remarks
   case ("INTEGER", _, _) => "Int"
@@ -54,49 +54,49 @@ generator / advancedPropertyTypeNameMapper := {
 }
 
 // Schema Name (Optional, Default is None)
-generator / schemaName := None,
+daoGeneratorSchemaName := None,
 
 // The Function for filtering the table to be processed (Optional, default is the following)
-generator / tableNameFilter := { (tableName: String) => tableName.toUpperCase != "SCHEMA_VERSION"}
+daoGeneratorTableNameFilter := { (tableName: String) => tableName.toUpperCase != "SCHEMA_VERSION"}
 
 // The Function for converting Table Name to Class Name (Optional, default is the following)
-generator / classNameMapper := { (tableName: String) =>
+daoGeneratorClassNameMapper := { (tableName: String) =>
     Seq(StringUtil.camelize(tableName))
 }
 
 // e.g.) If you want to specify multiple output files, you can configure it as follows.
 /*
-generator / classNameMapper := {
+daoGeneratorClassNameMapper := {
   case "DEPT" => Seq("Dept", "DeptSpec")
   case "EMP" => Seq("Emp", "EmpSpec")
 }
 */
 
 // The Function for converting Column Name to Property Name (Optional, default is the following)
-generator / propertyNameMapper := { (columnName: String) =>
+daoGeneratorPropertyNameMapper := { (columnName: String) =>
     StringUtil.decapitalize(StringUtil.camelize(columnName))
 }
 
 // The Function that decides which Template Name for Model Name (Optional, defaults below)
-generator / templateNameMapper := { (className: String) => "template.ftl" },
+daoGeneratorTemplateNameMapper := { (className: String) => "template.ftl" },
 
 // e.g.) If you want to specify different templates for the model and spec, you can configure it as follows.
 /*
-generator / templateNameMapper := {
+daoGeneratorTemplateNameMapper := {
   case className if className.endsWith("Spec") => "template_spec.ftl"
   case _ => "template.ftl"
 }
 */
 
 // The Directory where template files are placed (Optional, default is the following)
-generator / templateDirectory := baseDirectory.value / "templates"
+daoGeneratorTemplateDirectory := baseDirectory.value / "templates"
 
 // The Directory where source code is output (Optional, default is the following)
-generator / outputDirectoryMapper := { (className: String) => (Compile / sourceManaged).value }
+daoGeneratorOutputDirectoryMapper := { (className: String) => (Compile / sourceManaged).value }
 
 // e.g.) You can change the output destination directory for each class name dynamically.
 /*
-generator / outputDirectoryMapper := { (className: String) =>
+daoGeneratorOutputDirectoryMapper := { (className: String) =>
   className match {
     case s if s.endsWith("Spec") => (Test / sourceManaged).value
     case s => (Compile / sourceManaged).value
@@ -156,7 +156,7 @@ You can use the following template contexts.
 - When processing all tables
 
 ```sh
-$ sbt generator/generateAll
+$ sbt daoGeneratorGenerateAll
 <snip>
 [info] tableName = DEPT, generate file = /Users/sbt-user/myproject/target/scala-2.13/src_managed/Dept.scala
 [info] tableName = EMP, generate file = /Users/sbt-user/myproject/target/scala-2.13/src_managed/Emp.scala
@@ -166,7 +166,7 @@ $ sbt generator/generateAll
 - When processing multiple tables
 
 ```sh
-$ sbt generator/generateMany DEPT EMP
+$ sbt daoGeneratorGenerateMany DEPT EMP
 <snip>
 [info] tableNames = EMP, DEPT
 [info] tableName = DEPT, generate file = /Users/sbt-user/myproject/target/scala-2.13/src_managed/Dept.scala
@@ -177,17 +177,17 @@ $ sbt generator/generateMany DEPT EMP
 - When processing one table
 
 ```sh
-$ sbt generator/generateOne DEPT
+$ sbt daoGeneratorGenerateOne DEPT
 <snip>
 [info] tableName = DEPT
 [info] tableName = DEPT, generate file = /Users/sbt-user/myproject/target/scala-2.13/src_managed/Dept.scala
 [success] Total time: 0 s, completed 2015/06/24 18:17:20
 ```
 
-If you want to run `generator/generateAll` at `sbt compile`, add the following to build.sbt:
+If you want to run `daoGeneratorGenerateAll` at `sbt compile`, add the following to build.sbt:
 
 ```scala
-Compile / sourceGenerators += (generator / generateAll).value
+Compile / sourceGenerators += (daoGeneratorGenerateAll).value
 ```
 
 ## How to migration from v1.0.4 to v1.0.8

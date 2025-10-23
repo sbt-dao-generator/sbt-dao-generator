@@ -12,19 +12,19 @@ flywayUrl := "jdbc:h2:file:./target/test"
 
 flywayUser := "sa"
 
-generator / tableNameFilter := { tableName =>
+daoGeneratorTableNameFilter := { tableName =>
   tableName.toUpperCase != "SCHEMA_VERSION" && tableName.toUpperCase != "FLYWAY_SCHEMA_HISTORY"
 }
 
-generator / driverClassName := "org.h2.Driver"
+daoGeneratorDriverClassName := "org.h2.Driver"
 
-generator / jdbcUrl := "jdbc:h2:file:./target/test"
+daoGeneratorJdbcUrl := "jdbc:h2:file:./target/test"
 
-generator / jdbcUser := "sa"
+daoGeneratorJdbcUser := "sa"
 
-generator / jdbcPassword := ""
+daoGeneratorJdbcPassword := ""
 
-generator / propertyTypeNameMapper := {
+daoGeneratorPropertyTypeNameMapper := {
   case "INTEGER" => "Int"
   case "VARCHAR" => "String"
   case "BOOLEAN" => "Boolean"
@@ -32,17 +32,17 @@ generator / propertyTypeNameMapper := {
   case "DECIMAL" => "BigDecimal"
 }
 
-generator / classNameMapper := {
+daoGeneratorClassNameMapper := {
   case "DEPT" => Seq("Dept", "DeptSpec")
   case "EMP" => Seq("Emp", "EmpSpec")
 }
 
-generator / templateNameMapper := {
+daoGeneratorTemplateNameMapper := {
   case "Dept" | "DeptSpec" => "template_a.ftl"
   case "Emp" | "EmpSpec" => "template_b.ftl"
 }
 
-generator / outputDirectoryMapper := {
+daoGeneratorOutputDirectoryMapper := {
   case (className: String) if className.endsWith("Spec") => (Test / sourceManaged).value
   case (className: String) => (Compile / sourceManaged).value
 }

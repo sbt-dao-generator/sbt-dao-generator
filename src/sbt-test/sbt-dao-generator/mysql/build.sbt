@@ -1,5 +1,5 @@
-import scala.sys.process.Process
 import jp.co.septeni_original.sbt.dao.generator.model.ColumnDesc
+import scala.sys.process.Process
 
 enablePlugins(FlywayPlugin)
 
@@ -24,21 +24,21 @@ flywayPassword := "passwd"
 
 flywayCleanDisabled := false
 
-generator / tableNameFilter := { tableName =>
+daoGeneratorTableNameFilter := { tableName =>
   tableName.toUpperCase != "SCHEMA_VERSION" && tableName.toUpperCase != "FLYWAY_SCHEMA_HISTORY"
 }
 
-generator / driverClassName := flywayDriver.value
+daoGeneratorDriverClassName := flywayDriver.value
 
-generator / jdbcUrl := flywayUrl.value
+daoGeneratorJdbcUrl := flywayUrl.value
 
-generator / jdbcUser := flywayUser.value
+daoGeneratorJdbcUser := flywayUser.value
 
-generator / jdbcPassword := flywayPassword.value
+daoGeneratorJdbcPassword := flywayPassword.value
 
 val TypeExtractor = ".*?/TYPE:(.*?)/.*".r
 
-generator / advancedPropertyTypeNameMapper := {
+daoGeneratorAdvancedPropertyTypeNameMapper := {
   case (_, _, ColumnDesc(_, _, _, _, _, Some(TypeExtractor(t)), _)) => t.trim
   case (s, _, _) if s.toUpperCase() == "BIGINT" => "Long"
   case (s, _, _) if s.toUpperCase() == "INT" => "Int"
@@ -48,17 +48,17 @@ generator / advancedPropertyTypeNameMapper := {
   case (s, _, _) if s.toUpperCase() == "DECIMAL" => "BigDecimal"
 }
 
-generator / classNameMapper := {
+daoGeneratorClassNameMapper := {
   case s if s.toUpperCase() == "DEPT" => Seq("Dept", "DeptSpec")
   case s if s.toUpperCase() == "EMP" => Seq("Emp", "EmpSpec")
 }
 
-generator / templateNameMapper := {
+daoGeneratorTemplateNameMapper := {
   case "Dept" | "DeptSpec" => "template_a.ftl"
   case "Emp" | "EmpSpec" => "template_b.ftl"
 }
 
-generator / outputDirectoryMapper := {
+daoGeneratorOutputDirectoryMapper := {
   case (className: String) if className.endsWith("Spec") => (Test / sourceManaged).value
   case (className: String) => (Compile / sourceManaged).value
 }

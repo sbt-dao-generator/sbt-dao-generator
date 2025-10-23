@@ -6,25 +6,25 @@ $ sleep 10000
 
 > flywayMigrate
 
-> generator/generateOne dept
+> daoGeneratorGenerateOne dept
 > checkGeneratedSources Dept.scala
 
 > clean
 > checkGeneratedSources
 
-> generator/generateOne emp
+> daoGeneratorGenerateOne emp
 > checkGeneratedSources Emp.scala
 
 > clean
 > checkGeneratedSources
 
-> generator/generateMany emp dept
+> daoGeneratorGenerateMany emp dept
 > checkGeneratedSources Dept.scala Emp.scala
 
 > clean
 > checkGeneratedSources
 
-> set Compile / sourceGenerators += generator / generateAll
+> set Compile / sourceGenerators += daoGeneratorGenerateAll
 > compile
 > checkGeneratedSources Dept.scala Emp.scala
 
