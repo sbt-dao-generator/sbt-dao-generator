@@ -11,7 +11,7 @@
 Add this to your `project/plugins.sbt` file:
 
 ```scala
-addSbtPlugin("io.github.sbt-dao-generator" % "sbt-dao-generator" % "1.4.2")
+addSbtPlugin("io.github.sbt-dao-generator" % "sbt-dao-generator" % "2.0.0-RC1")
 ```
 
 ## How to configuration
