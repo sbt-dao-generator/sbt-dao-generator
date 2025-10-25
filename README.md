@@ -187,7 +187,7 @@ $ sbt daoGeneratorGenerateOne DEPT
 If you want to run `daoGeneratorGenerateAll` at `sbt compile`, add the following to build.sbt:
 
 ```scala
-Compile / sourceGenerators += (daoGeneratorGenerateAll).value
+Compile / sourceGenerators += daoGeneratorGenerateAll.value
 ```
 
 ## How to migration from v1.0.4 to v1.0.8
