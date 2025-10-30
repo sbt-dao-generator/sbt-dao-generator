@@ -42,12 +42,7 @@ daoGeneratorTemplateNameMapper := { case _ =>
 InputKey[Unit]("checkFormat") := {
   val Seq(f) = ((Compile / sourceManaged).value ** "*.scala").get()
   assert(f.getName == "DEPT.scala")
-  sbtBinaryVersion.value match {
-    case "2" =>
-      streams.value.log.warn("pending sbt 2 test")
-    case _ =>
-      assert(IO.read(f) == IO.read(file("expect_format")))
-  }
+  assert(IO.read(f) == IO.read(file("expect_format")))
 }
 
 InputKey[Unit]("checkNoFormat") := {
