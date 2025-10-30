@@ -6,7 +6,7 @@ libraryDependencies ++= {
   if (sbtBinaryVersion.value == "1.0") {
     Seq(
       Defaults.sbtPluginExtra(
-        "org.scalameta" % "sbt-scalafmt" % "2.5.5",
+        "org.scalameta" % "sbt-scalafmt" % "2.5.6",
         sbtBinaryVersion.value,
         scalaBinaryVersion.value
       )
