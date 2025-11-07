@@ -4,7 +4,7 @@ name := "dao-generator-test-scalafmt"
 
 Compile / sourceGenerators += daoGeneratorGenerateAll
 
-scalaVersion := "3.7.3"
+scalaVersion := "3.7.4"
 
 libraryDependencies ++= Seq(
   "com.h2database" % "h2" % "1.4.200"

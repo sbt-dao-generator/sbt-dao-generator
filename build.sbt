@@ -2,7 +2,7 @@ import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 
 releaseCrossBuild := true
 
-crossScalaVersions += "3.7.3"
+crossScalaVersions += "3.7.4"
 
 pluginCrossBuild / sbtVersion := {
   scalaBinaryVersion.value match {
