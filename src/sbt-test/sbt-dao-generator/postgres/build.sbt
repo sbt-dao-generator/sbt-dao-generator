@@ -1,5 +1,5 @@
-import scala.sys.process.Process
 import sbt_dao_generator.model.ColumnDesc
+import scala.sys.process.Process
 
 enablePlugins(FlywayPlugin)
 
