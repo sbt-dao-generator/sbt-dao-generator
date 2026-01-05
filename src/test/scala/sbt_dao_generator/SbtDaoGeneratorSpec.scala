@@ -81,7 +81,7 @@ create table EMP (
       jdbcUrl = container.getJdbcUrl,
       jdbcUser = container.getUsername,
       jdbcPassword = container.getPassword
-    ).get
+    )
   }
 
   describe("SbtDaoGeneratorSpec") {

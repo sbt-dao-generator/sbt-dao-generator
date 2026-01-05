@@ -190,7 +190,7 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
       jdbcUrl: String,
       jdbcUser: String,
       jdbcPassword: String
-  )(implicit logger: Logger): Try[Connection] = Try {
+  )(implicit logger: Logger): Connection = {
     logger.debug(s"getJdbcConnection($classLoader, $driverClassName, $jdbcUrl, $jdbcUser, $jdbcPassword): start")
     var connection: Connection = null
     try {
