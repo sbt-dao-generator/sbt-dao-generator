@@ -606,7 +606,7 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
           jdbcPasswordValue
         )
       ) { conn =>
-        implicit val ctx = GeneratorContext(
+        implicit val ctx: GeneratorContext = GeneratorContext(
           logger,
           conn,
           classNameMapperValue,
