@@ -15,6 +15,7 @@ object Loan {
         r
       }
 
+  @deprecated("will be removed", "2.0.1")
   def using[A <: AutoCloseable, B](resource: Try[A])(func: A => Try[B]): Try[B] =
     resource.flatMap { r =>
       func(r)
