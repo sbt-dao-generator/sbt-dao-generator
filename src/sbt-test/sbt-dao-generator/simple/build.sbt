@@ -43,8 +43,8 @@ daoGeneratorTemplateNameMapper := {
 }
 
 daoGeneratorOutputDirectoryMapper := {
-  case (className: String) if className.endsWith("Spec") => (Test / sourceManaged).value
-  case (className: String) => (Compile / sourceManaged).value
+  case className: String if className.endsWith("Spec") => (Test / sourceManaged).value
+  case className: String => (Compile / sourceManaged).value
 }
 
 InputKey[Unit]("checkGeneratedSources") := {

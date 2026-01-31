@@ -59,8 +59,8 @@ daoGeneratorTemplateNameMapper := {
 }
 
 daoGeneratorOutputDirectoryMapper := {
-  case (className: String) if className.endsWith("Spec") => (Test / sourceManaged).value
-  case (className: String) => (Compile / sourceManaged).value
+  case className: String if className.endsWith("Spec") => (Test / sourceManaged).value
+  case className: String => (Compile / sourceManaged).value
 }
 
 def dockerName = "sbt-dao-generator-test-1"
