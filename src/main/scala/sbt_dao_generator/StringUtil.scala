@@ -69,7 +69,7 @@ private[sbt_dao_generator] object StringUtil {
     } else if (s.length == 1) {
       s.toUpperCase()
     } else {
-      val buf = new StringBuilder(40)
+      val buf = new java.lang.StringBuilder(40)
       var pos = 0
       var i = 1
       while (i < s.length) {
