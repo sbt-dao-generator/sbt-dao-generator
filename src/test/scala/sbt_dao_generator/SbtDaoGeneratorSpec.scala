@@ -5,9 +5,7 @@ import org.scalatest.funspec.AnyFunSpec
 import org.testcontainers.mysql.MySQLContainer
 import org.testcontainers.utility.DockerImageName
 import sbt.ConsoleLogger
-import sbt_dao_generator.util.Loan
 import scala.jdk.CollectionConverters.*
-import scala.util.Try
 
 class SbtDaoGeneratorSpec extends AnyFunSpec with BeforeAndAfterAll {
   private[this] implicit val logger: ConsoleLogger = ConsoleLogger()
@@ -46,13 +44,11 @@ create table EMP (
       "insert into EMP values(1, 1, '山田太郎', '1980-12-17', 800, 1);",
       "insert into EMP values(2, 2, '山田花子', '1981-02-20', 1600, 1);"
     ).foreach { sql =>
-      Loan
-        .using(getConnection()) { c =>
-          Loan.using(c.createStatement()) { s =>
-            Try(s.execute(sql))
-          }
+      scala.util.Using.resource(getConnection()) { c =>
+        scala.util.Using.resource(c.createStatement()) { s =>
+          s.execute(sql)
         }
-        .get
+      }
     }
     super.beforeAll()
   }
@@ -88,25 +84,25 @@ create table EMP (
     lazy val conn = getConnection()
 
     it("should getTables") {
-      val tables = getTables(conn, None).get
+      val tables = getTables(conn, None)
       println(tables)
       assert(tables.size == 3)
     }
 
     it("should getColumnDescs") {
-      val columns = getColumnDescs(conn, None, "EMP").get
+      val columns = getColumnDescs(conn, None, "EMP")
       println(columns)
       assert(columns.size == 6)
     }
 
     it("should getPrimaryKeyDescs") {
-      val pkeys = getPrimaryKeyDescs(conn, None, "EMP").get
+      val pkeys = getPrimaryKeyDescs(conn, None, "EMP")
       println(pkeys)
       assert(pkeys.size == 1)
     }
 
     it("should getTableDescs") {
-      val tables = getTableDescs(conn, None).get
+      val tables = getTableDescs(conn, None)
       tables.foreach { e =>
         println(e.tableName)
         e.primaryDescs.foreach(println)
@@ -119,7 +115,7 @@ create table EMP (
 
     it("generated column") {
       // https://dev.mysql.com/doc/refman/8.4/en/create-table-generated-columns.html
-      val tables = getTableDescs(conn, None).get
+      val tables = getTableDescs(conn, None)
       val columns = tables.find(_.tableName == "GENERATED_COLUMN_TEST").map(_.columnDescs).getOrElse(Nil)
       assert(columns.size == 3)
 
