@@ -15,8 +15,8 @@ import sbt.Keys._
 import sbt.complete.Parser
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
-import scala.util.Try
 import scala.util.Using
+import scala.util.control.NonFatal
 
 /**
   * sbt-dao-generatorのロジックを提供するトレイト。
@@ -286,15 +286,31 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
     val dbMeta = conn.getMetaData
     Using.resource(dbMeta.getColumns(null, schemaName.orNull, tableName, "%")) { rs =>
       val lb = ListBuffer[ColumnDesc]()
+
+      def getOrFalse(f: => Boolean): Boolean = {
+        try {
+          f
+        } catch {
+          case NonFatal(err) =>
+            logger.debug(err.toString)
+            false
+        }
+      }
+
       while (rs.next()) {
         lb += ColumnDesc(
           rs.getString("COLUMN_NAME"),
           rs.getString("TYPE_NAME"),
           rs.getString("IS_NULLABLE") == "YES",
-          Try(rs.getString("IS_AUTOINCREMENT") == "YES").getOrElse(false), // Oracle9iでは例外がthrowされうる
+          getOrFalse(
+            // Oracle9iでは例外がthrowされうる
+            rs.getString("IS_AUTOINCREMENT") == "YES"
+          ),
           Option(rs.getString("COLUMN_SIZE")).map(_.toInt),
           Option(rs.getString("REMARKS")),
-          Try(rs.getString("IS_GENERATEDCOLUMN") == "YES").getOrElse(false)
+          getOrFalse(
+            rs.getString("IS_GENERATEDCOLUMN") == "YES"
+          )
         )
       }
       lb.result()
