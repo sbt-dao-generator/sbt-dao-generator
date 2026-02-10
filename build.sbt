@@ -73,7 +73,7 @@ name := "sbt-dao-generator"
 enablePlugins(SbtPlugin)
 
 libraryDependencies ++= Seq(
-  "org.scalameta"      % "scalafmt-interfaces"  % "3.10.6",
+  "org.scalameta"      % "scalafmt-interfaces"  % "3.10.7",
   "ch.qos.logback"     % "logback-classic"      % "1.2.13",
   "org.slf4j"          % "slf4j-api"            % "2.0.17",
   "org.freemarker"     % "freemarker"           % "2.3.34",
