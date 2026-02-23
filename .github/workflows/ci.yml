@@ -27,7 +27,7 @@ jobs:
         distribution: zulu
     - uses: coursier/cache-action@v8
     - uses: sbt/setup-sbt@v1
-    - run: sbt "+ test" "+ scripted"
+    - run: sbt --server "+ test" "+ scripted"
     - if: matrix.os != 'windows-latest'
-      run: sbt scalafmtSbtCheck '+ scalafmtCheckAll'
+      run: sbt --server scalafmtSbtCheck '+ scalafmtCheckAll'
     - run: rm -rf "${HOME}/.ivy2/local"
