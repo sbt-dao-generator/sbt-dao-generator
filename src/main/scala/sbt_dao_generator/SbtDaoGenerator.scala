@@ -32,7 +32,7 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   private val createScalafmtInstance: Def.Initialize[Task[Option[ScalafmtSession]]] =
     Def.task {
       if (daoGeneratorScalafmt.value) {
-        SbtDaoGeneratorPlugin.daoGeneratorScalafmtInstance.value
+        SbtDaoGeneratorPlugin.daoGeneratorScalafmtInstance.value.map(_.get())
       } else {
         None
       }

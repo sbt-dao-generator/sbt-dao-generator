@@ -1,5 +1,6 @@
 package sbt_dao_generator
 
+import org.scalafmt.interfaces.RepositoryPackageDownloaderFactory
 import org.scalafmt.interfaces.Scalafmt
 import org.scalafmt.interfaces.ScalafmtSession
 import sbt_dao_generator.model.ColumnDesc
@@ -25,7 +26,7 @@ object SbtDaoGeneratorPlugin extends AutoPlugin with SbtDaoGeneratorCompat {
 
   @transient
   private[sbt_dao_generator] val daoGeneratorScalafmtInstance =
-    taskKey[Option[ScalafmtSession]]("").withRank(KeyRanks.Invisible)
+    taskKey[Option[xsbti.api.Lazy[ScalafmtSession]]]("").withRank(KeyRanks.Invisible)
 
   // https://github.com/scalameta/scalafmt/blob/b78a999c191d5afc955/scalafmt-dynamic/jvm/src/main/scala/org/scalafmt/dynamic/ConsoleScalafmtReporter.scala
   private class MyScalafmtReporter(log: Logger) extends org.scalafmt.interfaces.ScalafmtReporter {
@@ -47,13 +48,41 @@ object SbtDaoGeneratorPlugin extends AutoPlugin with SbtDaoGeneratorCompat {
 
   override lazy val buildSettings: Seq[Setting[?]] = Def.settings(
     daoGeneratorScalafmtInstance := {
-      val log = streams.value.log
-      // https://github.com/scalameta/sbt-scalafmt/blob/e59fc02237374e6/plugin/src/main/scala/org/scalafmt/sbt/ScalafmtPlugin.scala#L42-L45
+      val s = streams.value
+      val log = s.log
+      // https://github.com/scalameta/sbt-scalafmt/blob/4c8a4f79dbe5d9c/plugin/src/main/scala/org/scalafmt/sbt/ScalafmtPlugin.scala#L38-L42
       TaskKey[File]("scalafmtConfig").?.value.filter(_.isFile).map { conf =>
-        Scalafmt
-          .create(this.getClass.getClassLoader)
-          .withReporter(new MyScalafmtReporter(log))
-          .createSession(conf.toPath)
+        xsbti.api.SafeLazy.apply { () =>
+          try {
+            val factory = {
+              val Array(constructor) = Class
+                .forName("org.scalafmt.sbt.ScalafmtSbtDependencyDownloader")
+                .getConstructors()
+
+              constructor
+                .newInstance(
+                  s,
+                  (LocalRootProject / dependencyResolution).value: @sbtUnchecked,
+                  (LocalRootProject / updateConfiguration).value: @sbtUnchecked
+                )
+                .asInstanceOf[RepositoryPackageDownloaderFactory]
+            }
+
+            Scalafmt
+              .create(this.getClass.getClassLoader)
+              .withRespectProjectFilters(true)
+              .withRepositoryPackageDownloader(factory)
+              .withReporter(new MyScalafmtReporter(log))
+              .createSession(conf.toPath)
+          } catch {
+            case e: Throwable =>
+              s.log.trace(e)
+              Scalafmt
+                .create(this.getClass.getClassLoader)
+                .withReporter(new MyScalafmtReporter(log))
+                .createSession(conf.toPath)
+          }
+        }
       }
     }
   )
