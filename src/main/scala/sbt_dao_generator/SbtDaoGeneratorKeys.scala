@@ -5,7 +5,7 @@ import sbt_dao_generator.model.ColumnDesc
 import sbt_dao_generator.model.TableDesc
 
 /**
-  * sbt-dao-generatorのキー定義。
+  * Key definitions for sbt-dao-generator.
   */
 trait SbtDaoGeneratorKeys {
 

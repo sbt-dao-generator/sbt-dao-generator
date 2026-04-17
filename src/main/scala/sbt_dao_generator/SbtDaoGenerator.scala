@@ -19,7 +19,7 @@ import scala.util.Using
 import scala.util.control.NonFatal
 
 /**
-  * sbt-dao-generatorのロジックを提供するトレイト。
+  * Trait that provides the core logic of sbt-dao-generator.
   */
 trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
 
@@ -39,9 +39,9 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
     }
 
   /**
-    * [[generateOne]]のためのタスク。
+    * Task for [[generateOne]].
     *
-    * @return タスク定義
+    * @return Task definition
     */
   def generateOneTask: Def.Initialize[InputTask[Seq[File]]] = Def.inputTask {
     val tableName = oneStringParser.parsed
@@ -93,11 +93,11 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * テーブル名を指定してファイルを生成する。
+    * Generates files for the specified table name.
     *
-    * @param tableName テーブル名
+    * @param tableName Table name
     * @param ctx       [[GeneratorContext]]
-    * @return 生成されたSeq[File]
+    * @return Generated Seq[File]
     */
   private[sbt_dao_generator] def generateOne(tableName: String)(implicit ctx: GeneratorContext): Seq[File] = {
     implicit val logger: Logger = ctx.logger
@@ -117,9 +117,9 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * [[generateMany]]のためのタスク。
+    * Task for [[generateMany]].
     *
-    * @return タスク定義
+    * @return Task definition
     */
   def generateManyTask: Def.Initialize[InputTask[Seq[File]]] = Def.inputTask {
     val tableNames = manyStringParser.parsed
@@ -173,14 +173,14 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * JDBCコネクションを取得する。
+    * Obtains a JDBC connection.
     *
-    * @param classLoader     クラスローダ
-    * @param driverClassName ドライバークラス名
+    * @param classLoader     Class loader
+    * @param driverClassName Driver class name
     * @param jdbcUrl         JDBC URL
-    * @param jdbcUser        JDBCユーザ
-    * @param jdbcPassword    JDBCユーザのパスワード
-    * @return JDBCコネクション
+    * @param jdbcUser        JDBC user
+    * @param jdbcPassword    JDBC user password
+    * @return JDBC connection
     */
   private[sbt_dao_generator] def getJdbcConnection(
       classLoader: ClassLoader,
@@ -204,11 +204,11 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * 複数のテーブル名を指定してファイルを生成する。
+    * Generates files for the specified table names.
     *
-    * @param tableNames 複数のテーブル名
+    * @param tableNames Table names
     * @param ctx        [[GeneratorContext]]
-    * @return 生成されたSeq[File]
+    * @return Generated Seq[File]
     */
   private[sbt_dao_generator] def generateMany(
       tableNames: Seq[String]
@@ -228,11 +228,11 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * 複数のテーブルディスクリプションを取得する。
+    * Retrieves table descriptions.
     *
-    * @param conn       JDBCコネクション
-    * @param schemaName スキーマ名
-    * @return テーブルディスクリプション
+    * @param conn       JDBC connection
+    * @param schemaName Schema name
+    * @return Table descriptions
     */
   private[sbt_dao_generator] def getTableDescs(conn: Connection, schemaName: Option[String])(implicit
       logger: Logger
@@ -246,11 +246,11 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * 複数のテーブル名を取得する。
+    * Retrieves table names.
     *
-    * @param conn       JDBCコネクション
-    * @param schemaName スキーマ名
-    * @return テーブル名
+    * @param conn       JDBC connection
+    * @param schemaName Schema name
+    * @return Table names
     */
   private[sbt_dao_generator] def getTables(conn: Connection, schemaName: Option[String])(implicit
       logger: Logger
@@ -272,12 +272,12 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * 複数のカラムディスクリプションを取得する。
+    * Retrieves column descriptions.
     *
-    * @param conn       JDBCコネクション
-    * @param schemaName スキーマ名
-    * @param tableName  テーブル名
-    * @return カラムディスクリプション
+    * @param conn       JDBC connection
+    * @param schemaName Schema name
+    * @param tableName  Table name
+    * @return Column descriptions
     */
   private[sbt_dao_generator] def getColumnDescs(conn: Connection, schemaName: Option[String], tableName: String)(
       implicit logger: Logger
@@ -303,7 +303,7 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
           rs.getString("TYPE_NAME"),
           rs.getString("IS_NULLABLE") == "YES",
           getOrFalse(
-            // Oracle9iでは例外がthrowされうる
+            // Oracle9i may throw an exception here.
             rs.getString("IS_AUTOINCREMENT") == "YES"
           ),
           Option(rs.getString("COLUMN_SIZE")).map(_.toInt),
@@ -318,12 +318,12 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * 複数のプライマリーキーディスクリプションを取得する。
+    * Retrieves primary key descriptions.
     *
-    * @param conn       JDBCコネクション
-    * @param schemaName スキーマ名
-    * @param tableName  テーブル名
-    * @return プライマリーキーディスクリプション
+    * @param conn       JDBC connection
+    * @param schemaName Schema name
+    * @param tableName  Table name
+    * @return Primary key descriptions
     */
   private[sbt_dao_generator] def getPrimaryKeyDescs(conn: Connection, schemaName: Option[String], tableName: String)(
       implicit logger: Logger
@@ -340,9 +340,9 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * テンプレートから複数のファイルを生成する。
+    * Generates multiple files from a template.
     *
-    * @param cfg       テンプレートコンフィグレーション
+    * @param cfg       Template configuration
     * @param tableDesc [[TableDesc]]
     * @param ctx       [[GeneratorContext]]
     */
@@ -362,12 +362,12 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * テンプレートからファイルを生成する。
+    * Generates a file from a template.
     *
-    * @param cfg             テンプレートコンフィグレーション
+    * @param cfg             Template configuration
     * @param tableDesc       [[TableDesc]]
-    * @param className       クラス名
-    * @param outputDirectory 出力先ディレクトリ
+    * @param className       Class name
+    * @param outputDirectory Output directory
     * @param ctx             [[GeneratorContext]]
     */
   private[sbt_dao_generator] def generateFile(
@@ -402,12 +402,12 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * プライマリーキーのためのコンテキストを生成する。
+    * Creates context for primary keys.
     *
-    * @param propertyTypeNameMapper タイプマッパー
-    * @param propertyNameMapper     プロパティマッパー
-    * @param tableDesc              テーブルディスクリプション
-    * @return コンテキスト
+    * @param propertyTypeNameMapper Type mapper
+    * @param propertyNameMapper     Property mapper
+    * @param tableDesc              Table description
+    * @return Context
     */
   private[sbt_dao_generator] def createPrimaryKeysContext(
       propertyTypeNameMapper: (String, TableDesc, ColumnDesc) => String,
@@ -438,12 +438,12 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * カラムのためのコンテキストを生成する。
+    * Creates context for columns.
     *
-    * @param propertyTypeNameMapper タイプマッパー
-    * @param propertyNameMapper     プロパティマッパー
-    * @param tableDesc              テーブルディスクリプション
-    * @return コンテキスト
+    * @param propertyTypeNameMapper Type mapper
+    * @param propertyNameMapper     Property mapper
+    * @param tableDesc              Table description
+    * @return Context
     */
   private[sbt_dao_generator] def createColumnsContext(
       advancedPropertyTypeNameMapper: (String, TableDesc, ColumnDesc) => String,
@@ -477,13 +477,13 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * コンテキストを生成する。
+    * Creates context.
     *
-    * @param logger      ロガー
-    * @param primaryKeys プライマリーキー
-    * @param columns     カラム
-    * @param className   クラス名
-    * @return コンテキスト
+    * @param logger      Logger
+    * @param primaryKeys Primary keys
+    * @param columns     Columns
+    * @param className   Class name
+    * @return Context
     */
   private[sbt_dao_generator] def createContext(
       primaryKeys: Seq[Map[String, Any]],
@@ -505,10 +505,10 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * 出力先のファイルを生成する。
+    * Creates the output file.
     *
-    * @param outputDirectory 出力先ディレクトリ
-    * @param className       クラス名
+    * @param outputDirectory Output directory
+    * @param className       Class name
     * @return [[File]]
     */
   private[sbt_dao_generator] def createFile(outputDirectory: File, className: String)(implicit logger: Logger): File = {
@@ -519,11 +519,11 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * テンプレートコンフィグレーションを生成する。
+    * Creates template configuration.
     *
-    * @param templateDirectory テンプレートディレクトリ
-    * @param logger            ロガー
-    * @return テンプレートコンフィグレーション
+    * @param templateDirectory Template directory
+    * @param logger            Logger
+    * @return Template configuration
     */
   private[sbt_dao_generator] def createTemplateConfiguration(
       templateDirectory: File
@@ -540,9 +540,9 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * [[generateAll]]のためのタスク。
+    * Task for [[generateAll]].
     *
-    * @return タスク定義
+    * @return Task definition
     */
   def generateAllTask: Def.Initialize[Task[Seq[File]]] = Def.taskDyn {
     implicit val logger: Logger = streams.value.log
@@ -609,10 +609,10 @@ trait SbtDaoGenerator extends SbtDaoGeneratorCompat {
   }
 
   /**
-    * すべてのテーブルを指定してファイルを生成する。
+    * Generates files for all tables.
     *
     * @param ctx [[GeneratorContext]]
-    * @return 生成されたSeq[File]
+    * @return Generated Seq[File]
     */
   private[sbt_dao_generator] def generateAll(implicit ctx: GeneratorContext): Seq[File] = {
     implicit val logger: Logger = ctx.logger

@@ -12,7 +12,7 @@ import sbt.Keys._
 import sbt.plugins.JvmPlugin
 
 /**
-  * sbt-dao-generatorのプラグイン定義。
+  * Plugin definition for sbt-dao-generator.
   */
 object SbtDaoGeneratorPlugin extends AutoPlugin with SbtDaoGeneratorCompat {
 
