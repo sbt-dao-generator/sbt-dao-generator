@@ -5,7 +5,7 @@ enablePlugins(FlywayPlugin)
 
 name := "mysql"
 
-scalaVersion := "2.13.17"
+scalaVersion := "2.13.18"
 
 libraryDependencies ++= Seq(
   ("com.mysql" % "mysql-connector-j" % "9.6.0").exclude("com.google.protobuf", "protobuf-java")

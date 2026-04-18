@@ -3,7 +3,7 @@ import scala.sys.process.Process
 
 enablePlugins(FlywayPlugin)
 
-scalaVersion := "2.13.17"
+scalaVersion := "2.13.18"
 
 libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "42.7.4"
