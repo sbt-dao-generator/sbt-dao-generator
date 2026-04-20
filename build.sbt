@@ -81,7 +81,7 @@ libraryDependencies ++= Seq(
   "org.freemarker"     % "freemarker"           % "2.3.34",
   "org.scalatest"     %% "scalatest-funspec"    % "3.2.20" % Test,
   ("com.mysql"         % "mysql-connector-j"    % "9.6.0"  % Test).exclude("com.google.protobuf", "protobuf-java"),
-  "org.testcontainers" % "testcontainers-mysql" % "2.0.4"  % Test
+  "org.testcontainers" % "testcontainers-mysql" % "2.0.5"  % Test
 )
 
 Test / fork := true
