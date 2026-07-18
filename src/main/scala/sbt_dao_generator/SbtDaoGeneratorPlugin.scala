@@ -62,7 +62,7 @@ object SbtDaoGeneratorPlugin extends AutoPlugin with SbtDaoGeneratorCompat {
               constructor
                 .newInstance(
                   s,
-                  (LocalRootProject / dependencyResolution).value: @sbtUnchecked,
+                  (LocalRootProject / csrConfiguration).value: @sbtUnchecked,
                   (LocalRootProject / updateConfiguration).value: @sbtUnchecked
                 )
                 .asInstanceOf[RepositoryPackageDownloaderFactory]
