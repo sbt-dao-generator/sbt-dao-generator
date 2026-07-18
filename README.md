@@ -61,7 +61,7 @@ daoGeneratorTableNameFilter := { (tableName: String) => tableName.toUpperCase !=
 
 // The Function for converting Table Name to Class Name (Optional, default is the following)
 daoGeneratorClassNameMapper := { (tableName: String) =>
-    Seq(StringUtil.camelize(tableName))
+  Seq(StringUtil.camelize(tableName))
 }
 
 // e.g.) If you want to specify multiple output files, you can configure it as follows.
@@ -74,7 +74,7 @@ daoGeneratorClassNameMapper := {
 
 // The Function for converting Column Name to Property Name (Optional, default is the following)
 daoGeneratorPropertyNameMapper := { (columnName: String) =>
-    StringUtil.decapitalize(StringUtil.camelize(columnName))
+  StringUtil.decapitalize(StringUtil.camelize(columnName))
 }
 
 // The Function that decides which Template Name for Model Name (Optional, defaults below)
