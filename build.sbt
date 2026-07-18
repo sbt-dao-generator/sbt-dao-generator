@@ -86,6 +86,17 @@ libraryDependencies ++= Seq(
   "org.testcontainers" % "testcontainers-mysql" % "2.0.5"  % Test
 )
 
+libraryDependencies ++= {
+  scalaBinaryVersion.value match {
+    case "3" =>
+      // https://github.com/sbt/sbt/issues/9441
+      // https://github.com/scala/scala3/issues/18487
+      Seq("net.hamnaberg" %% "dataclass-annotation" % "0.3.0")
+    case _ =>
+      Nil
+  }
+}
+
 Test / fork := true
 
 scriptedBufferLog := false
