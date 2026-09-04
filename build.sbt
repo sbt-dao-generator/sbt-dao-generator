@@ -79,7 +79,7 @@ enablePlugins(SbtPlugin)
 libraryDependencies ++= Seq(
   "org.scalameta"      % "scalafmt-interfaces"  % "3.11.5",
   "ch.qos.logback"     % "logback-classic"      % "1.2.13",
-  "org.slf4j"          % "slf4j-api"            % "2.0.18",
+  "org.slf4j"          % "slf4j-api"            % "2.0.19",
   "org.freemarker"     % "freemarker"           % "2.3.35",
   "org.scalatest"     %% "scalatest-funspec"    % "3.2.20" % Test,
   ("com.mysql"         % "mysql-connector-j"    % "26.7.0" % Test).exclude("com.google.protobuf", "protobuf-java"),
