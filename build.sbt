@@ -81,9 +81,9 @@ libraryDependencies ++= Seq(
   "ch.qos.logback"     % "logback-classic"      % "1.2.13",
   "org.slf4j"          % "slf4j-api"            % "2.0.20",
   "org.freemarker"     % "freemarker"           % "2.3.35",
-  "org.scalatest"     %% "scalatest-funspec"    % "3.2.20" % Test,
-  ("com.mysql"         % "mysql-connector-j"    % "26.7.0" % Test).exclude("com.google.protobuf", "protobuf-java"),
-  "org.testcontainers" % "testcontainers-mysql" % "2.0.5"  % Test
+  "org.scalatest"     %% "scalatest-funspec"    % "3.2.20"  % Test,
+  ("com.mysql"         % "mysql-connector-j"    % "26.10.0" % Test).exclude("com.google.protobuf", "protobuf-java"),
+  "org.testcontainers" % "testcontainers-mysql" % "2.0.5"   % Test
 )
 
 libraryDependencies ++= {
