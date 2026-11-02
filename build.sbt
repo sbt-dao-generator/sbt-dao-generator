@@ -2,7 +2,7 @@ import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 
 releaseCrossBuild := true
 
-def sbt1 = "1.13.0"
+def sbt1 = "1.13.1"
 
 crossScalaVersions += scala_version_from_sbt_version.ScalaVersionFromSbtVersion(sbt1)
 
