@@ -5,7 +5,7 @@ import java.util.StringTokenizer
 private[sbt_dao_generator] object StringUtil {
 
   // https://github.com/seasarorg/s2util/blob/3c69319d4260425518487b8781b11d69bcb1908c/s2util/src/main/java/org/seasar/util/lang/StringUtil.java#L107-L117
-  private[this] def split(str: String, delm: String): Array[String] = {
+  private def split(str: String, delm: String): Array[String] = {
     if (str == null || str.isEmpty) {
       Array.empty[String]
     } else {
